@@ -8,9 +8,9 @@ assignees: Kevin-Lee
 ---
 
 # Task
-## Summary 
+## Summary
 
 ## Project Details
-Version:
+Version: 
 
 ## Description
