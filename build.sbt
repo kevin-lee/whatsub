@@ -1,7 +1,6 @@
 ThisBuild / scalaVersion := props.ScalaVersion
 ThisBuild / version := props.ProjectVersion
 ThisBuild / organization := props.Org
-ThisBuild / organizationName := props.OrgName
 ThisBuild / developers := List(
   Developer(
     props.GitHubUsername,
@@ -27,26 +26,25 @@ lazy val justPoi = (project in file("."))
 lazy val core = subProject("core", file("core"))
   .settings(
     libraryDependencies ++=
-      libs.refined ++ libs.catsAndCatsEffect2,
+      libs.catsAndCatsEffect3 ++ List(libs.catsParse),
   )
 
 lazy val props =
   new {
     final val ScalaVersion = "3.0.0"
     final val Org          = "io.kevinlee"
-    final val OrgName      = ""
 
     final val GitHubUsername = "Kevin-Lee"
     final val RepoName       = "whatsub"
-    final val ProjectName    = "whatsub"
+    final val ProjectName    = RepoName
     final val ProjectVersion = "0.1.0-SNAPSHOT"
 
-    final val refinedVersion = "0.9.26"
+    final val HedgehogVersion = "0.7.0"
 
-    final val hedgehogVersion = "0.7.0"
+    final val CatsVersion        = "2.6.1"
+    final val CatsEffect3Version = "3.1.1"
 
-    final val catsVersion        = "2.6.1"
-    final val catsEffect2Version = "2.5.1"
+    final val CatsParseVersion = "0.3.4"
 
     final val IncludeTest: String = "compile->compile;test->test"
   }
@@ -54,20 +52,17 @@ lazy val props =
 lazy val libs =
   new {
     lazy val hedgehogLibs = List(
-      "qa.hedgehog" %% "hedgehog-core"   % props.hedgehogVersion % Test,
-      "qa.hedgehog" %% "hedgehog-runner" % props.hedgehogVersion % Test,
-      "qa.hedgehog" %% "hedgehog-sbt"    % props.hedgehogVersion % Test,
+      "qa.hedgehog" %% "hedgehog-core"   % props.HedgehogVersion % Test,
+      "qa.hedgehog" %% "hedgehog-runner" % props.HedgehogVersion % Test,
+      "qa.hedgehog" %% "hedgehog-sbt"    % props.HedgehogVersion % Test,
     )
 
-    lazy val refined = List(
-      "eu.timepit" %% "refined" % props.refinedVersion
-//      "eu.timepit" %% "refined-cats" % props.refinedVersion,
+    lazy val catsAndCatsEffect3 = List(
+      "org.typelevel" %% "cats-core"   % props.CatsVersion,
+      "org.typelevel" %% "cats-effect" % props.CatsEffect3Version,
     )
 
-    lazy val catsAndCatsEffect2 = List(
-      "org.typelevel" %% "cats-core"   % props.catsVersion,
-      "org.typelevel" %% "cats-effect" % props.catsEffect2Version,
-    )
+    lazy val catsParse = "org.typelevel" %% "cats-parse" % props.CatsParseVersion
 
   }
 
