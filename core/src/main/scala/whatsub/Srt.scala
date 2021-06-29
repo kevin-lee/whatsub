@@ -1,7 +1,11 @@
 package whatsub
 
+import Time.*
+import cats.syntax.all.*
+
 final case class Srt(lines: List[Srt.SrtLine]) derives CanEqual
 object Srt {
+
   final case class SrtLine(
     index: Srt.Index,
     start: Srt.Start,
@@ -39,6 +43,33 @@ object Srt {
     extension (line0: Line) {
       def line: String = line0
     }
+  }
+
+  private def formatTwoDigitBasedNumber(n: Int): String = f"$n%02d"
+
+  def MillisecondsToSrtTime(milliseconds: Long): String = {
+    val ms        = milliseconds % 1000
+    val inSeconds = (milliseconds / 1000).toInt
+    val hours     = (inSeconds / HourSeconds).toInt
+
+    val minutesLeftInSeconds = inSeconds - hours * HourSeconds
+
+    val minutes = (minutesLeftInSeconds / MinuteSeconds).toInt
+    val seconds = minutesLeftInSeconds - minutes * MinuteSeconds
+    s"${formatTwoDigitBasedNumber(hours)}:${formatTwoDigitBasedNumber(minutes)}:${formatTwoDigitBasedNumber(seconds)},${ms.toString}"
+  }
+
+  extension (srt: Srt) {
+    def render: String = srt
+      .lines
+      .map {
+        case Srt.SrtLine(index, start, end, line) =>
+          s"""${index.index + 1}
+             |${MillisecondsToSrtTime(start)} --> ${MillisecondsToSrtTime(end)}
+             |$line
+             |""".stripMargin
+      }
+      .mkString("\n")
   }
 
 }
