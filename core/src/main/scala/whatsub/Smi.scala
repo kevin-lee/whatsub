@@ -1,5 +1,7 @@
 package whatsub
 
+import cats.syntax.all.*
+
 final case class Smi(
   title: Smi.Title,
   lines: List[Smi.SmiLine]
