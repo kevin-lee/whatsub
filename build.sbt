@@ -16,7 +16,7 @@ ThisBuild / scmInfo :=
     s"https://github.com/${props.GitHubUsername}/${props.RepoName}.git",
   ).some
 
-lazy val justPoi = (project in file("."))
+lazy val whatsub = (project in file("."))
   .settings(
     name := props.ProjectName
   )
