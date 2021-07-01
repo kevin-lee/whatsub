@@ -21,7 +21,7 @@ object SmiParser {
     (
       (
         (P.ignoreCase("<HEAD>") ~ lwsp.? ~ newlineP.? ~ P.ignoreCase("<TITLE>")) *>
-          (alpha | digit | spaceP | P.charIn(".-_")).rep.string <*
+          P.charWhere(_ != '<').rep.string <*
           (P.ignoreCase("</TITLE>") ~ lwsp.? ~ newlineP.? ~ P.ignoreCase(
             """<STYLE TYPE="text/css">"""
           ) ~ lwsp.? ~ newlineP.?)
@@ -120,7 +120,6 @@ object SmiParser {
       case Left(_) =>
         acc
     }
-
 
   private def fromSmiComponents(smiComponents: List[SmiComponent]): Smi =
     smiComponents.foldRight((none[Smi.Title], List.empty[Smi.SmiLine])) {
