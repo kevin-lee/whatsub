@@ -5,6 +5,8 @@ import cats.parse.Rfc5234.*
 import cats.parse.{Parser as P, Parser0 as P0, *}
 import cats.syntax.all.*
 
+import SubParsers.*
+
 object SmiParser {
 
   val NoNewlineChars = (0.toChar to Char.MaxValue).filter(c => c != '\n' && c != '\r')
@@ -13,8 +15,6 @@ object SmiParser {
 
   final case class SmiLine(line: String)
 
-  val spaceP      = wsp
-  val newlineP    = (crlf | cr | lf)
   val samiSatartP = (P.ignoreCase("<SAMI>") <* (lwsp.string.? ~ newlineP.?)).map(s => SmiComponent.SamiStart)
   val styleP      = (spaceP | P.string("<!--") | P.string("-->") | (alpha | digit | P.charIn(".{}-:;")).rep.string)
   val headP       =
@@ -150,6 +150,6 @@ object SmiParser {
     }
 
   def parse(lines: String): Smi =
-    fromSmiComponents(parseSmiStart(lines, List.empty).reverse)
+    fromSmiComponents(parseSmiStart(lines.removeEmptyChars, List.empty).reverse)
 
 }
