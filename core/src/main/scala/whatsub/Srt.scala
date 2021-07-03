@@ -65,7 +65,7 @@ object Srt {
       .lines
       .map {
         case Srt.SrtLine(index, start, end, line) =>
-          s"""${index.index + 1}
+          s"""${index.index}
              |${millisecondsToSrtTime(start)} --> ${millisecondsToSrtTime(end)}
              |$line
              |""".stripMargin

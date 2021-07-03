@@ -30,7 +30,7 @@ object Convert {
             end               = smiLine.end.end
             line              = smiLine.line.line
           } yield Srt.SrtLine(
-            Srt.Index(index),
+            Srt.Index(index + 1),
             Srt.Start(start),
             Srt.End(end),
             Srt.Line(line)
