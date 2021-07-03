@@ -46,9 +46,10 @@ object Srt {
   }
 
   private def formatTwoDigitBasedNumber(n: Int): String = f"$n%02d"
+  private def formatThreeDigitBasedNumber(n: Int): String = f"$n%03d"
 
-  def MillisecondsToSrtTime(milliseconds: Long): String = {
-    val ms        = milliseconds % 1000
+  def millisecondsToSrtTime(milliseconds: Long): String = {
+    val ms        = (milliseconds % 1000).toInt
     val inSeconds = (milliseconds / 1000).toInt
     val hours     = (inSeconds / HourSeconds).toInt
 
@@ -56,7 +57,7 @@ object Srt {
 
     val minutes = (minutesLeftInSeconds / MinuteSeconds).toInt
     val seconds = minutesLeftInSeconds - minutes * MinuteSeconds
-    s"${formatTwoDigitBasedNumber(hours)}:${formatTwoDigitBasedNumber(minutes)}:${formatTwoDigitBasedNumber(seconds)},${ms.toString}"
+    s"${formatTwoDigitBasedNumber(hours)}:${formatTwoDigitBasedNumber(minutes)}:${formatTwoDigitBasedNumber(seconds)},${formatThreeDigitBasedNumber(ms)}"
   }
 
   extension (srt: Srt) {
@@ -65,7 +66,7 @@ object Srt {
       .map {
         case Srt.SrtLine(index, start, end, line) =>
           s"""${index.index + 1}
-             |${MillisecondsToSrtTime(start)} --> ${MillisecondsToSrtTime(end)}
+             |${millisecondsToSrtTime(start)} --> ${millisecondsToSrtTime(end)}
              |$line
              |""".stripMargin
       }
