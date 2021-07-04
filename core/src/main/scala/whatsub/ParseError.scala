@@ -4,6 +4,7 @@ import cats.Show
 import cats.parse.{Parser as P}
 
 enum ParseError {
+  case SmiParseError(error: P.Error)
   case SrtParseError(lineIndex: Int, lineStr: String, error: P.Error)
 }
 object ParseError {
@@ -12,6 +13,11 @@ object ParseError {
 
   extension (parseError: ParseError) {
     def render: String = parseError match {
+      case SmiParseError(error) =>
+        s"""SmiParseError:
+           |- error: ${error.toString}
+           |""".stripMargin
+
       case SrtParseError(lineIndex, lineStr, error) =>
         s"""SrtParseError:
            |- lineIndex: $lineIndex
