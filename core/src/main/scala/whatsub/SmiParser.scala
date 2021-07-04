@@ -23,7 +23,7 @@ object SmiParser {
         (P.ignoreCase("<HEAD>") ~ lwsp.? ~ newlineP.? ~ P.ignoreCase("<TITLE>")) *>
           P.charWhere(_ != '<').rep.string <*
           (P.ignoreCase("</TITLE>") ~ lwsp.? ~ newlineP.? ~ P.ignoreCase(
-            """<STYLE TYPE="text/css">"""
+            """<STYLE TYPE="text/css">""",
           ) ~ lwsp.? ~ newlineP.?)
       ) ~ ((styleP.rep.string.backtrack ~ newlineP.?).rep.string <*
         (P.ignoreCase("</STYLE>") ~ lwsp.? ~ newlineP.? ~ P.ignoreCase("</HEAD>") ~ lwsp.? ~ newlineP.?))
@@ -38,7 +38,7 @@ object SmiParser {
   val bodyLine = (
     (
       P.ignoreCase("<SYNC Start=") *> digit.rep.string <* (P.ignoreCase("><P Class=") ~ alpha.rep.string ~ P.ignoreCase(
-        ">"
+        ">",
       ))
     ) ~ ((lwsp.string.?) *> P.charIn(SmiParser.NoNewlineChars).rep.string <* (lwsp.string.? ~ newlineP))
   )
@@ -47,36 +47,36 @@ object SmiParser {
   val bodyEndP = (P.ignoreCase("</BODY>") <* (lwsp.string.? ~ newlineP.?)).map(_ => SmiComponent.BodyEnd)
   val samiEndP = (P.ignoreCase("</SAMI>") <* (lwsp.string.? ~ newlineP.?)).map(_ => SmiComponent.SamiEnd)
 
-  def parseSmiStart(lines: String, acc: List[SmiComponent]): List[SmiComponent] =
+  def parseSmiStart(lines: String, acc: List[SmiComponent]): Either[ParseError, List[SmiComponent]] =
     samiSatartP.parse(lines) match {
       case Right((remaining, start)) =>
         parseSmiHead(remaining, start :: acc)
 
-      case Left(_) =>
-        acc
+      case Left(err) =>
+        ParseError.SmiParseError(err).asLeft
     }
 
-  def parseSmiHead(lines: String, acc: List[SmiComponent]): List[SmiComponent] =
+  def parseSmiHead(lines: String, acc: List[SmiComponent]): Either[ParseError, List[SmiComponent]] =
     headP.parse(lines) match {
       case Right((remaining, head)) =>
         parseBodyStart(remaining, head :: acc)
 
-      case Left(_) =>
-        acc
+      case Left(err) =>
+        ParseError.SmiParseError(err).asLeft
     }
 
-  def parseBodyStart(lines: String, acc: List[SmiComponent]): List[SmiComponent] =
+  def parseBodyStart(lines: String, acc: List[SmiComponent]): Either[ParseError, List[SmiComponent]] =
     bodyStartP.parse(lines) match {
       case Right((remaining, bodyStart)) =>
         parseBody(remaining, bodyStart :: acc)
 
-      case Left(_) =>
-        acc
+      case Left(err) =>
+        ParseError.SmiParseError(err).asLeft
     }
 
-  def parseBody(lines: String, acc: List[SmiComponent]): List[SmiComponent] = {
+  def parseBody(lines: String, acc: List[SmiComponent]): Either[ParseError, List[SmiComponent]] = {
 
-    def parseNextLine(lines: String, previous: Option[StartAndLine], acc: List[SmiComponent]): List[SmiComponent] =
+    def parseNextLine(lines: String, previous: Option[StartAndLine], acc: List[SmiComponent]): Either[ParseError, List[SmiComponent]] =
       bodyEndP.parse(lines) match {
         case Right((remaining, bodyEnd)) =>
           parseSamiEnd(remaining, bodyEnd :: acc)
@@ -92,33 +92,33 @@ object SmiParser {
                     SmiComponent.BodyLine(
                       SmiComponent.Milliseconds(startTime.toLong),
                       SmiComponent.Milliseconds(time.toLong),
-                      SmiComponent.Line(theLine)
-                    ) :: acc
+                      SmiComponent.Line(theLine),
+                    ) :: acc,
                   )
 
                 case None =>
                   parseNextLine(
                     remaining,
                     StartAndLine(time.toLong, line).some,
-                    acc
+                    acc,
                   )
               }
 
             case Left(err) =>
-              acc
+              ParseError.SmiParseError(err).asLeft
           }
       }
 
     parseNextLine(lines, none, acc)
   }
 
-  def parseSamiEnd(lines: String, acc: List[SmiComponent]): List[SmiComponent] =
+  def parseSamiEnd(lines: String, acc: List[SmiComponent]): Either[ParseError, List[SmiComponent]] =
     samiEndP.parse(lines) match {
       case Right((remining, samiEnd)) =>
-        SmiComponent.SamiEnd :: acc
+        (SmiComponent.SamiEnd :: acc).asRight
 
-      case Left(_) =>
-        acc
+      case Left(err) =>
+        ParseError.SmiParseError(err).asLeft
     }
 
   private def fromSmiComponents(smiComponents: List[SmiComponent]): Smi =
@@ -131,8 +131,8 @@ object SmiParser {
               Smi.SmiLine(
                 Smi.Start(start.milliseconds),
                 Smi.End(end.milliseconds),
-                Smi.Line(line.line)
-              ) :: acc
+                Smi.Line(line.line),
+              ) :: acc,
             )
 
           case SmiComponent.Head(title) =>
@@ -149,7 +149,8 @@ object SmiParser {
         Smi(Smi.Title(""), lines)
     }
 
-  def parse(lines: String): Smi =
-    fromSmiComponents(parseSmiStart(lines.removeEmptyChars, List.empty).reverse)
+  def parse(lines: String): Either[ParseError, Smi] =
+    parseSmiStart(lines.removeEmptyChars, List.empty)
+      .map(smiComponents => fromSmiComponents(smiComponents.reverse))
 
 }

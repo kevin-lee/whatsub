@@ -12,8 +12,15 @@ enum SupportedSub {
 object SupportedSub {
 
   given supportedSubShow: Show[SupportedSub] = {
-    case Smi => "SAMI (smi)"
-    case Srt => "SubRip (srt)"
+    case Smi => "Smi"
+    case Srt => "Srt"
+  }
+
+  extension (supportedSub: SupportedSub) {
+    def render: String = supportedSub match {
+      case SupportedSub.Smi => "SAMI (smi)"
+      case SupportedSub.Srt => "SubRip (srt)"
+    }
   }
 
 }
