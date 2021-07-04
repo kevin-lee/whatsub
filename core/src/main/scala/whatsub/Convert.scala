@@ -19,9 +19,12 @@ object Convert {
   given smiToSrtConvert: Convert[Smi, Srt] =
     smi =>
       if (smi.lines.isEmpty)
-        ConversionError.NoContent(
-          s"""The smi titled "${smi.title}""""
-        ).asLeft[Srt]
+        ConversionError
+          .NoContent(
+            SupportedSub.Smi,
+            s"""The smi titled "${smi.title}"""",
+          )
+          .asLeft[Srt]
       else
         Srt(
           for {
@@ -33,8 +36,28 @@ object Convert {
             Srt.Index(index + 1),
             Srt.Start(start),
             Srt.End(end),
-            Srt.Line(line)
+            Srt.Line(line),
+          ),
+        ).asRight[ConversionError]
+
+  given srtToSmiConvert: Convert[Srt, Smi] =
+    srt =>
+      if (srt.lines.isEmpty)
+        ConversionError
+          .NoContent(
+            SupportedSub.Srt,
+            s"""The srt"""",
           )
+          .asLeft[Smi]
+      else
+        Smi(
+          Smi.Title(""),
+          for {
+            srtLine <- srt.lines
+            start    = srtLine.start.start
+            end      = srtLine.end.end
+            line     = srtLine.line.line
+          } yield Smi.SmiLine(Smi.Start(start), Smi.End(end), Smi.Line(line)),
         ).asRight[ConversionError]
 
 }

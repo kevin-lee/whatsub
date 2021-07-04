@@ -1,16 +1,18 @@
 package whatsub
 
+import cats.syntax.show._
+
 /** @author Kevin Lee
   * @since 2021-06-18
   */
 enum ConversionError {
-  case NoContent(subtitleInfo: String)
+  case NoContent(supportedSub: SupportedSub, subtitleInfo: String)
 }
 object ConversionError {
   extension (conversionError: ConversionError) {
     def render: String = conversionError match {
-      case ConversionError.NoContent(subtitleInfo) =>
-        s"$subtitleInfo has no content."
+      case ConversionError.NoContent(supportedSub, subtitleInfo) =>
+        s"$subtitleInfo of type ${supportedSub.show} has no content."
     }
   }
 }
