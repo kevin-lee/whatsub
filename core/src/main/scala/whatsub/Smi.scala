@@ -4,15 +4,37 @@ import cats.syntax.all.*
 
 final case class Smi(
   title: Smi.Title,
-  lines: List[Smi.SmiLine]
+  lines: List[Smi.SmiLine],
 ) derives CanEqual
 
 object Smi {
 
+  extension (smi: Smi) {
+    def render: String =
+      s"""<SAMI>
+         |<HEAD>
+         |  <TITLE>${smi.title.title}</TITLE>
+         |</HEAD>
+         |<BODY>
+         |""".stripMargin + (
+        smi
+          .lines
+          .map { strLine =>
+            s"""  <SYNC Start=${strLine.start.start}><P>${strLine.line.line}
+               |  <SYNC Start=${strLine.end.end}><P>&nbsp;
+               |""".stripMargin
+          }
+          .mkString
+      ) +
+        s"""</BODY>
+           |</SAMI>
+           |""".stripMargin
+  }
+
   final case class SmiLine(
     start: Smi.Start,
     end: Smi.End,
-    line: Smi.Line
+    line: Smi.Line,
   ) derives CanEqual
 
   opaque type Title = String
