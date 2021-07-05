@@ -21,7 +21,7 @@ object SmiParser {
     (
       (
         (P.ignoreCase("<HEAD>") ~ lwsp.? ~ newlineP.? ~ P.ignoreCase("<TITLE>")) *>
-          P.charWhere(_ != '<').rep.string <*
+          P.charWhere(_ != '<').rep.string.? <*
           (P.ignoreCase("</TITLE>") ~ lwsp.? ~ newlineP.? ~ P.ignoreCase(
             """<STYLE TYPE="text/css">""",
           ) ~ lwsp.? ~ newlineP.?)
@@ -30,14 +30,14 @@ object SmiParser {
     )
       .map {
         case (title, style) =>
-          SmiComponent.Head(SmiComponent.Title(title))
+          SmiComponent.Head(SmiComponent.Title(title.getOrElse("")))
       }
 
   val bodyStartP = (P.ignoreCase("<BODY>") <* (lwsp.string.? ~ newlineP.?)).map(_ => SmiComponent.BodyStart)
 
   val bodyLine = (
     (
-      P.ignoreCase("<SYNC Start=") *> digit.rep.string <* (P.ignoreCase("><P Class=") ~ alpha.rep.string ~ P.ignoreCase(
+      P.ignoreCase("<SYNC Start=") *> digit.rep.string <* (P.ignoreCase("><P") ~ (wsp ~ P.ignoreCase("Class=") ~ alpha.rep.string).? ~ P.ignoreCase(
         ">",
       ))
     ) ~ ((lwsp.string.?) *> P.charIn(SmiParser.NoNewlineChars).rep.string <* (lwsp.string.? ~ newlineP))
