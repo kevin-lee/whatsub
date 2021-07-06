@@ -8,5 +8,5 @@ trait CanRender[A] {
 }
 
 object CanRender {
-  given apply[A: CanRender]: CanRender[A] = summon[CanRender[A]]
+  def apply[A: CanRender]: CanRender[A] = summon[CanRender[A]]
 }

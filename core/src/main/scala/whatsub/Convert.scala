@@ -11,7 +11,7 @@ trait Convert[A, B] {
 
 object Convert {
 
-  given apply[A, B](using Convert[A, B]): Convert[A, B] = summon[Convert[A, B]]
+  def apply[A, B](using Convert[A, B]): Convert[A, B] = summon[Convert[A, B]]
 
   def convert[A, B](from: A)(using Convert[A, B]): Either[ConversionError, B] =
     Convert[A, B].convert(from)
