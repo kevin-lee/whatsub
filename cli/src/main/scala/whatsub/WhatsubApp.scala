@@ -16,6 +16,6 @@ object WhatsubApp extends MainIo[WhatsubArgs] {
 
   override def command: Command[WhatsubArgs] = cmd
 
-  override def run(args: WhatsubArgs): IO[Either[WhatsubError, Unit]] =
+  override def runApp(args: WhatsubArgs): IO[Either[WhatsubError, Unit]] =
     Whatsub[IO](args)
 }

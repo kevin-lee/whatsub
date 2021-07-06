@@ -133,7 +133,6 @@ jobs:
             -v \
             clean \
             test \
-            universal:packageBin \
             devOopsGitHubReleaseUploadArtifacts
 
 

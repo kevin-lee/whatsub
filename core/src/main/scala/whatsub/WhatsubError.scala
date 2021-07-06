@@ -15,6 +15,8 @@ enum WhatsubError {
   case NoConversion(supportedSub: SupportedSub)
 
   case FileWriteFailure(file: File, error: Throwable)
+
+  case FailedWithExitCode(exitCode: Int)
 }
 
 object WhatsubError {
@@ -38,6 +40,9 @@ object WhatsubError {
 
       case FileWriteFailure(file: File, error: Throwable) =>
         s"""Writing file at ${file.getCanonicalPath} has failed with ${error.getMessage}"""
+
+      case FailedWithExitCode(exitCode) =>
+        s"Failed with exit code ${exitCode.toString}"
     }
   }
 }
