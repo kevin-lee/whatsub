@@ -1,6 +1,6 @@
 package whatsub
 
-import cats.syntax.show._
+import cats.syntax.show.*
 
 /** @author Kevin Lee
   * @since 2021-06-18

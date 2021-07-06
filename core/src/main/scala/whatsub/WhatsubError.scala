@@ -3,6 +3,8 @@ package whatsub
 import cats.Show
 import cats.syntax.all.*
 
+import java.io.File
+
 /** @author Kevin Lee
   * @since 2021-06-30
   */
@@ -11,6 +13,8 @@ enum WhatsubError {
   case ParseFailure(parseError: ParseError)
 
   case NoConversion(supportedSub: SupportedSub)
+
+  case FileWriteFailure(file: File, error: Throwable)
 }
 
 object WhatsubError {
@@ -31,6 +35,9 @@ object WhatsubError {
 
       case NoConversion(supportedSub) =>
         s"""No conversion: The subtitle to convert from and to are the same (i.e. ${supportedSub.show})"""
+
+      case FileWriteFailure(file: File, error: Throwable) =>
+        s"""Writing file at ${file.getCanonicalPath} has failed with ${error.getMessage}"""
     }
   }
 }

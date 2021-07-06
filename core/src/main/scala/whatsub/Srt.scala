@@ -6,6 +6,8 @@ import cats.syntax.all.*
 final case class Srt(lines: List[Srt.SrtLine]) derives CanEqual
 object Srt {
 
+  given canRenderSrt: CanRender[Srt] = _.render
+
   final case class SrtLine(
     index: Srt.Index,
     start: Srt.Start,
