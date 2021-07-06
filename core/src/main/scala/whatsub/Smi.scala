@@ -9,6 +9,8 @@ final case class Smi(
 
 object Smi {
 
+  given canRenderSmi: CanRender[Smi] = _.render
+
   extension (smi: Smi) {
     def render: String =
       s"""<SAMI>
