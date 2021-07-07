@@ -5,44 +5,41 @@ import cats.syntax.all.*
 
 import pirate.{ExitCode => PirateExitCode, *}
 
-trait MainIo[A] {
+trait MainIo[A] extends IOApp {
 
   def command: Command[A]
 
-  def run(a: A): IO[Either[WhatsubError, Unit]]
+  def runApp(a: A): IO[Either[WhatsubError, Unit]]
 
   def prefs: Prefs = DefaultPrefs()
 
   def exitWith[X](exitCode: ExitCode): IO[X] =
     IO(sys.exit(exitCode.code))
 
-  def exitWithPirate[X](exitCode: PirateExitCode): IO[X] =
-    IO(exitCode.fold(sys.exit(0), sys.exit(_)))
+  def exitWithPirate[X](exitCode: PirateExitCode): IO[Either[WhatsubError, Unit]] =
+    exitCode.fold(
+      IO.pure(().asRight[WhatsubError]),
+      code => IO(WhatsubError.FailedWithExitCode(code).asLeft[Unit]),
+    )
 
-  import cats.effect.unsafe.implicits.global
-  def main(args: Array[String]): Unit = {
-    import scalaz.*
-    import scalaz.Scalaz.*
+  override def run(args: List[String]): IO[ExitCode] = {
+    def getArgs(
+      args: List[String],
+      command: Command[A],
+      prefs: Prefs,
+    ): IO[Either[PirateExitCode, A]] =
+      IO(Runners.runWithExit[A](args, command, prefs).unsafePerformIO().toEither)
 
-    def getArgs(args: Array[String], command: Command[A], prefs: Prefs): IO[PirateExitCode \/ A] =
-      IO(Runners.runWithExit[A](args.toList, command, prefs).unsafePerformIO())
-
-    def run0(a: A): IO[WhatsubError \/ Unit] = for {
-      result    <- run(a)
-      theResult <- IO(\/.fromEither[WhatsubError, Unit](result))
-    } yield theResult
-
-    (for {
+    for {
       codeOrA       <- getArgs(args, command, prefs)
-      errorOrResult <- codeOrA.fold[IO[WhatsubError \/ Unit]](exitWithPirate, run0)
-      _             <- errorOrResult.fold(
+      errorOrResult <- codeOrA.fold(exitWithPirate, runApp)
+      code          <- errorOrResult.fold(
                          err =>
                            IO(System.err.println(err.render)) >>
-                             exitWith(ExitCode.Error),
-                         IO(_),
+                             IO(ExitCode.Error),
+                         _ => IO(ExitCode.Success),
                        )
-    } yield ())
-      .unsafeRunSync()
+    } yield code
   }
 
 }

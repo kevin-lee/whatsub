@@ -30,7 +30,7 @@ lazy val core = subProject("core", file("core"))
     libraryDependencies ++=
       libs.catsAndCatsEffect3 ++ List(libs.catsParse),
     /* Build Info { */
-    buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
+    buildInfoKeys := List[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoObject := "WhatsubBuildInfo",
     buildInfoPackage := "whatsub.info",
     buildInfoOptions += BuildInfoOption.ToJson,
@@ -42,14 +42,14 @@ lazy val pirate = ProjectRef(props.pirateUri, "pirate")
 lazy val cli = subProject("cli", file("cli"))
   .enablePlugins(NativeImagePlugin)
   .settings(
-    nativeImageOptions ++= Seq(
+    nativeImageOptions ++= List(
       "--verbose",
       "--no-fallback",
       "-H:+ReportExceptionStackTraces",
       "--initialize-at-build-time",
-      //      s"-H:ReflectionConfigurationFiles=${ (sourceDirectory.value / "graal" / "reflect-config.json").getCanonicalPath }",
-      //      "--allow-incomplete-classpath",
-      //      "--report-unsupported-elements-at-runtime",
+//      s"-H:ReflectionConfigurationFiles=${ (baseDirectory.value / "graal" / "reflect-config.json").getCanonicalPath }",
+//      "--allow-incomplete-classpath",
+//      "--report-unsupported-elements-at-runtime",
     ),
   )
   .dependsOn(core, pirate)
@@ -95,7 +95,7 @@ lazy val libs =
   }
 
 // format: off
-def prefixedProjectName(name: String) = s"${props.RepoName}${if (name.isEmpty) "" else s"-$name"}"
+def prefixedProjectName(name: String): String = s"${props.RepoName}${if (name.isEmpty) "" else s"-$name"}"
 // format: on
 
 def subProject(projectName: String, file: File): Project =

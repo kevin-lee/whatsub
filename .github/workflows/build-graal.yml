@@ -1,16 +1,13 @@
 name: "[GraalVM] Build All"
 
-#on:
-#  push:
-#    branches:
-#      - main
-
-#  pull_request:
-#    branches:
-#      - main
-
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
 
 env:
   CLI_SCALA_VERSION: "3.0.0"
@@ -25,68 +22,13 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
-        run-binary: [whatsub-cli, whatsub-cli.exe]
-        exclude:
-          - os: ubuntu-latest
-            run-binary: whatsub-cli.exe
-          - os: macos-latest
-            run-binary: whatsub-cli.exe
-          - os: windows-latest
-            run-binary: whatsub-cli
-    steps:
-
-      - uses: actions/checkout@v2.3.4
-      - uses: olafurpg/setup-scala@v10
-        with:
-          java-version: ${{ env.GRAALVM_JAVA_VERSION }}
-      - name: Cache SBT
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.ivy2/cache
-            ~/.cache/coursier
-            ~/.sbt
-          key: ${{ runner.os }}-sbt-${{ env.CLI_SCALA_BINARY_VERSION }}-${{ hashFiles('**/*.sbt') }}-${{ hashFiles('**/build.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-sbt-${{ env.CLI_SCALA_BINARY_VERSION }}-
-
-      - name: "GraalVM Build for Scala ${{ env.CLI_SCALA_VERSION }} - ${{ github.run_number }}"
-        env:
-          CURRENT_BRANCH_NAME: ${{ github.ref }}
-          RUN_ID: ${{ github.run_id }}
-          RUN_NUMBER: ${{ github.run_number }}
-        run: |
-          sbt \
-            -J-Xmx2048m \
-            ++${{ env.CLI_SCALA_VERSION }}! \
-            clean \
-            test \
-            nativeImage
-
-          rm -f */target/scala-*/*.jar
-
-          ls -lGh cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/
-
-          sh -c "cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/${{ matrix.run-binary }} --version"
-          sh -c "cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/${{ matrix.run-binary }} --help"
-          sh -c "cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/${{ matrix.run-binary }} print --help"
-          sh -c "cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/${{ matrix.run-binary }} file --help"
-
-  graalvm_build_windows:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [windows-latest]
         run-binary: [whatsub-cli]
     steps:
-      - name: Configure git
-        run: "git config --global core.autocrlf false"
-        shell: bash
+
       - uses: actions/checkout@v2.3.4
       - uses: olafurpg/setup-scala@v10
         with:
           java-version: ${{ env.GRAALVM_JAVA_VERSION }}
-      - uses: ilammy/msvc-dev-cmd@v1
       - name: Cache SBT
         uses: actions/cache@v2
         with:
@@ -99,13 +41,13 @@ jobs:
             ${{ runner.os }}-sbt-${{ env.CLI_SCALA_BINARY_VERSION }}-
 
       - name: "GraalVM Build for Scala ${{ env.CLI_SCALA_VERSION }} - ${{ github.run_number }}"
-        shell: bash
         env:
           CURRENT_BRANCH_NAME: ${{ github.ref }}
           RUN_ID: ${{ github.run_id }}
           RUN_NUMBER: ${{ github.run_number }}
         run: |
           sbt \
+            -J-XX:MaxMetaspaceSize=1024m \
             -J-Xmx2048m \
             ++${{ env.CLI_SCALA_VERSION }}! \
             clean \
@@ -118,5 +60,53 @@ jobs:
 
           sh -c "cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/${{ matrix.run-binary }} --version"
           sh -c "cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/${{ matrix.run-binary }} --help"
-          sh -c "cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/${{ matrix.run-binary }} print --help"
-          sh -c "cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/${{ matrix.run-binary }} file --help"
+          sh -c "cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/${{ matrix.run-binary }} convert --help"
+
+#  graalvm_build_windows:
+#    runs-on: ${{ matrix.os }}
+#    strategy:
+#      matrix:
+#        os: [windows-latest]
+#        run-binary: [whatsub-cli]
+#    steps:
+#      - name: Configure git
+#        run: "git config --global core.autocrlf false"
+#        shell: bash
+#      - uses: actions/checkout@v2.3.4
+#      - uses: olafurpg/setup-scala@v10
+#        with:
+#          java-version: ${{ env.GRAALVM_JAVA_VERSION }}
+#      - uses: ilammy/msvc-dev-cmd@v1
+#      - name: Cache SBT
+#        uses: actions/cache@v2
+#        with:
+#          path: |
+#            ~/.ivy2/cache
+#            ~/.cache/coursier
+#            ~/.sbt
+#          key: ${{ runner.os }}-sbt-${{ env.CLI_SCALA_BINARY_VERSION }}-${{ hashFiles('**/*.sbt') }}-${{ hashFiles('**/build.properties') }}
+#          restore-keys: |
+#            ${{ runner.os }}-sbt-${{ env.CLI_SCALA_BINARY_VERSION }}-
+#
+#      - name: "GraalVM Build for Scala ${{ env.CLI_SCALA_VERSION }} - ${{ github.run_number }}"
+#        shell: bash
+#        env:
+#          CURRENT_BRANCH_NAME: ${{ github.ref }}
+#          RUN_ID: ${{ github.run_id }}
+#          RUN_NUMBER: ${{ github.run_number }}
+#        run: |
+#          sbt \
+#            -J-XX:MaxMetaspaceSize=1024m \
+#            -J-Xmx2048m \
+#            ++${{ env.CLI_SCALA_VERSION }}! \
+#            clean \
+#            test \
+#            nativeImage
+#
+#          rm -f */target/scala-*/*.jar
+#
+#          ls -lGh cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/
+#
+#          sh -c "cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/${{ matrix.run-binary }} --version"
+#          sh -c "cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/${{ matrix.run-binary }} --help"
+#          sh -c "cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/${{ matrix.run-binary }} convert --help"
