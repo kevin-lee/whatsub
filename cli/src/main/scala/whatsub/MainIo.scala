@@ -2,8 +2,8 @@ package whatsub
 
 import cats.effect.*
 import cats.syntax.all.*
-
-import pirate.{ExitCode => PirateExitCode, *}
+import pirate.{ExitCode as PirateExitCode, *}
+import piratex.{Help, Metavar}
 
 trait MainIo[A] extends IOApp {
 
@@ -11,12 +11,9 @@ trait MainIo[A] extends IOApp {
 
   def runApp(a: A): IO[Either[WhatsubError, Unit]]
 
-  def prefs: Prefs = DefaultPrefs()
+  def prefs: Prefs
 
-  def exitWith[X](exitCode: ExitCode): IO[X] =
-    IO(sys.exit(exitCode.code))
-
-  def exitWithPirate[X](exitCode: PirateExitCode): IO[Either[WhatsubError, Unit]] =
+  def exitCodeToEither(exitCode: PirateExitCode): IO[Either[WhatsubError, Unit]] =
     exitCode.fold(
       IO.pure(().asRight[WhatsubError]),
       code => IO(WhatsubError.FailedWithExitCode(code).asLeft[Unit]),
@@ -32,7 +29,7 @@ trait MainIo[A] extends IOApp {
 
     for {
       codeOrA       <- getArgs(args, command, prefs)
-      errorOrResult <- codeOrA.fold(exitWithPirate, runApp)
+      errorOrResult <- codeOrA.fold(exitCodeToEither, runApp)
       code          <- errorOrResult.fold(
                          err =>
                            IO(System.err.println(err.render)) >>
