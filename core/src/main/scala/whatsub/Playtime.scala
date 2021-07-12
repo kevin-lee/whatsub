@@ -7,8 +7,29 @@ final case class Playtime(
   m: Playtime.Minutes,
   s: Playtime.Seconds,
   ms: Playtime.Milliseconds,
-) derives CanEqual
+) derives CanEqual {
+  lazy val toMilliseconds: Long =
+    (h.hours * HourSeconds + m.minutes * MinuteSeconds + s.seconds) * 1000 + ms.milliseconds
+}
 object Playtime {
+
+  def fromMilliseconds(milliseconds: Long): Playtime = {
+    val ms        = (milliseconds % 1000).toInt
+    val inSeconds = (milliseconds / 1000).toInt
+    val hours     = (inSeconds / HourSeconds).toInt
+
+    val minutesLeftInSeconds = inSeconds - hours * HourSeconds
+
+    val minutes = (minutesLeftInSeconds / MinuteSeconds).toInt
+    val seconds = minutesLeftInSeconds - minutes * MinuteSeconds
+    
+    Playtime(
+      Hours(hours),
+      Minutes(minutes),
+      Seconds(seconds),
+      Milliseconds(ms)
+    )
+  }
 
   extension (playtime: Playtime) {
 
@@ -20,11 +41,6 @@ object Playtime {
     def -(another: Playtime): Playtime = (playtime, another) match {
       case (Playtime(h1, m1, s1, ms1), Playtime(h2, m2, s2, ms2)) =>
         Playtime(h1 - h2, m1 - m2, s1 - s2, ms1 - ms2)
-    }
-
-    def toMilliseconds: Long = playtime match {
-      case Playtime(h, m, s, ms) =>
-        (h.hours * HourSeconds + m.minutes * MinuteSeconds + s.seconds) * 1000 + ms.milliseconds
     }
 
   }

@@ -6,14 +6,71 @@ import cats.syntax.all.*
 final case class Srt(lines: List[Srt.SrtLine]) derives CanEqual
 object Srt {
 
+  private def formatTwoDigitBasedNumber(n: Int): String   = f"$n%02d"
+  private def formatThreeDigitBasedNumber(n: Int): String = f"$n%03d"
+
+  def renderMillisecondsToSrtTime(milliseconds: Long): String =
+    Playtime.fromMilliseconds(milliseconds) match {
+      case Playtime(hours, minutes, seconds, ms) =>
+        val hh  = formatTwoDigitBasedNumber(hours.hours)
+        val mm  = formatTwoDigitBasedNumber(minutes.minutes)
+        val ss  = formatTwoDigitBasedNumber(seconds.seconds)
+        val mss = formatThreeDigitBasedNumber(ms.milliseconds)
+        s"$hh:$mm:$ss,$mss"
+    }
+
+  extension (srt: Srt) {
+    def render: String = srt
+      .lines
+      .map {
+        case Srt.SrtLine(index, start, end, line) =>
+          s"""${index.index}
+             |${renderMillisecondsToSrtTime(start)} --> ${renderMillisecondsToSrtTime(end)}
+             |$line
+             |""".stripMargin
+      }
+      .mkString("\n")
+
+    def sync(sync: Syncer.Sync)(using Syncer[SrtLine]): Srt =
+      srt.copy(lines = Syncer[SrtLine].sync(srt.lines, sync))
+
+  }
+
   given canRenderSrt: CanRender[Srt] = _.render
 
   final case class SrtLine(
     index: Srt.Index,
     start: Srt.Start,
     end: Srt.End,
-    line: Srt.Line
+    line: Srt.Line,
   ) derives CanEqual
+
+  object SrtLine {
+
+    extension (srtLine: SrtLine) {
+      def +(playtime: Playtime): SrtLine = CanShift[SrtLine].shiftForward(srtLine, playtime)
+      def -(playtime: Playtime): SrtLine = CanShift[SrtLine].shiftBackward(srtLine, playtime)
+    }
+
+    given canShiftSrtLine: CanShift[SrtLine] with {
+      def shiftForward(srtLine: SrtLine, playtime: Playtime): SrtLine = {
+        val milliseconds = playtime.toMilliseconds
+        srtLine.copy(
+          start = Start(srtLine.start.start + milliseconds),
+          end = End(srtLine.end.end + milliseconds),
+        )
+      }
+
+      def shiftBackward(srtLine: SrtLine, playtime: Playtime): SrtLine = {
+        val milliseconds = playtime.toMilliseconds
+        srtLine.copy(
+          start = Start(srtLine.start.start - milliseconds),
+          end = End(srtLine.end.end - milliseconds),
+        )
+      }
+    }
+
+  }
 
   opaque type Index = Int
   object Index {
@@ -45,34 +102,6 @@ object Srt {
     extension (line0: Line) {
       def line: String = line0
     }
-  }
-
-  private def formatTwoDigitBasedNumber(n: Int): String = f"$n%02d"
-  private def formatThreeDigitBasedNumber(n: Int): String = f"$n%03d"
-
-  def millisecondsToSrtTime(milliseconds: Long): String = {
-    val ms        = (milliseconds % 1000).toInt
-    val inSeconds = (milliseconds / 1000).toInt
-    val hours     = (inSeconds / HourSeconds).toInt
-
-    val minutesLeftInSeconds = inSeconds - hours * HourSeconds
-
-    val minutes = (minutesLeftInSeconds / MinuteSeconds).toInt
-    val seconds = minutesLeftInSeconds - minutes * MinuteSeconds
-    s"${formatTwoDigitBasedNumber(hours)}:${formatTwoDigitBasedNumber(minutes)}:${formatTwoDigitBasedNumber(seconds)},${formatThreeDigitBasedNumber(ms)}"
-  }
-
-  extension (srt: Srt) {
-    def render: String = srt
-      .lines
-      .map {
-        case Srt.SrtLine(index, start, end, line) =>
-          s"""${index.index}
-             |${millisecondsToSrtTime(start)} --> ${millisecondsToSrtTime(end)}
-             |$line
-             |""".stripMargin
-      }
-      .mkString("\n")
   }
 
 }
