@@ -31,6 +31,10 @@ object Smi {
         s"""</BODY>
            |</SAMI>
            |""".stripMargin
+
+    def sync(sync: Syncer.Sync)(using Syncer[SmiLine]): Smi =
+      smi.copy(lines = Syncer[SmiLine].sync(smi.lines, sync))
+
   }
 
   final case class SmiLine(
@@ -38,6 +42,26 @@ object Smi {
     end: Smi.End,
     line: Smi.Line,
   ) derives CanEqual
+
+  object SmiLine {
+    given canShiftSmiLine: CanShift[SmiLine] with {
+      def shiftForward(smiLine: SmiLine, playtime: Playtime): SmiLine = {
+        val milliseconds = playtime.toMilliseconds
+        smiLine.copy(
+          start = Start(smiLine.start.start + milliseconds),
+          end = End(smiLine.end.end + milliseconds),
+        )
+      }
+
+      def shiftBackward(smiLine: SmiLine, playtime: Playtime): SmiLine = {
+        val milliseconds = playtime.toMilliseconds
+        smiLine.copy(
+          start = Start(smiLine.start.start - milliseconds),
+          end = End(smiLine.end.end - milliseconds),
+        )
+      }
+    }
+  }
 
   opaque type Title = String
   object Title {
