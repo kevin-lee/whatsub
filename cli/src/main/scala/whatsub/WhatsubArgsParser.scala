@@ -42,16 +42,53 @@ object WhatsubArgsParser {
     outFileParse,
   )
 
+  def subParse: Parse[SyncArgs.Sub] = flag[SyncArgs.Sub](
+    both('t', "sub-type"),
+    metavar("<sub-type>") |+| description("A type of subtitle. Either smi or srt"),
+  )
+
+  def syncParse: Parse[SyncArgs.Sync] = flag[SyncArgs.Sync](
+    both('m', "sync"),
+    metavar("<sync>") |+| description(
+      "resync playtime (e.g. shift 1 hour 12 minutes 3 seconds 100 milliseconds forward: +1h12m3s100ms",
+    ),
+  )
+
+  def syncSrcFileParse: Parse[SyncArgs.SrcFile] = flag[File](
+    both('s', "src"),
+    metavar("<src>") |+| description("The source subtitle file"),
+  ).map(SyncArgs.SrcFile(_))
+
+  def syncOutFileParse: Parse[Option[SyncArgs.OutFile]] = flag[File](
+    both('o', "out"),
+    metavar("<out>") |+| description("An optional output subtitle file. If missing, the result is printed out."),
+  ).option.map(_.map(SyncArgs.OutFile(_)))
+
+  def syncArgsParse: Parse[WhatsubArgs] = SyncArgs.apply |*| (
+    subParse,
+    syncParse,
+    syncSrcFileParse,
+    syncOutFileParse,
+  )
+
   val rawCmd: Command[WhatsubArgs] =
     Command(
       "Whatsub",
       "A tool to convert subtitles and re-sync".some,
-      (subcommand(
-        Command(
-          "convert",
-          "Convert subtitles".some,
-          convertParse,
+      (
+        subcommand(
+          Command(
+            "convert",
+            "Convert subtitles".some,
+            convertParse,
+          ),
+        ) ||| subcommand(
+          Command(
+            "sync",
+            "sync subtitles".some,
+            syncArgsParse,
+          ),
         ),
-      )) <* version(WhatsubBuildInfo.version),
+      ) <* version(WhatsubBuildInfo.version),
     )
 }

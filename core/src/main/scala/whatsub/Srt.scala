@@ -3,7 +3,9 @@ package whatsub
 import Time.*
 import cats.syntax.all.*
 
-final case class Srt(lines: List[Srt.SrtLine]) derives CanEqual
+final case class Srt(
+  lines: List[Srt.SrtLine],
+) derives CanEqual
 object Srt {
 
   private def formatTwoDigitBasedNumber(n: Int): String   = f"$n%02d"
@@ -32,11 +34,20 @@ object Srt {
       .mkString("\n")
 
     def sync(sync: Syncer.Sync)(using Syncer[SrtLine]): Srt =
-      srt.copy(lines = Syncer[SrtLine].sync(srt.lines, sync))
+      Syncer[Srt].sync(srt, sync)
 
   }
 
   given canRenderSrt: CanRender[Srt] = _.render
+
+  given smiSync: Syncer[Srt] =
+    (sub, sync) =>
+      sync match {
+        case Syncer.Sync(Syncer.Direction.Forward, playtime)  =>
+          sub.copy(lines = sub.lines.map(_ + playtime))
+        case Syncer.Sync(Syncer.Direction.Backward, playtime) =>
+          sub.copy(lines = sub.lines.map(_ - playtime))
+      }
 
   final case class SrtLine(
     index: Srt.Index,
@@ -48,20 +59,14 @@ object Srt {
   object SrtLine {
 
     extension (srtLine: SrtLine) {
-      def +(playtime: Playtime): SrtLine = CanShift[SrtLine].shiftForward(srtLine, playtime)
-      def -(playtime: Playtime): SrtLine = CanShift[SrtLine].shiftBackward(srtLine, playtime)
-    }
-
-    given canShiftSrtLine: CanShift[SrtLine] with {
-      def shiftForward(srtLine: SrtLine, playtime: Playtime): SrtLine = {
+      def +(playtime: Playtime): SrtLine = {
         val milliseconds = playtime.toMilliseconds
         srtLine.copy(
           start = Start(srtLine.start.start + milliseconds),
           end = End(srtLine.end.end + milliseconds),
         )
       }
-
-      def shiftBackward(srtLine: SrtLine, playtime: Playtime): SrtLine = {
+      def -(playtime: Playtime): SrtLine = {
         val milliseconds = playtime.toMilliseconds
         srtLine.copy(
           start = Start(srtLine.start.start - milliseconds),
