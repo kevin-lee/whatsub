@@ -6,7 +6,7 @@ import cats.effect.{Resource, Sync}
 import cats.syntax.all.*
 import pirate.{Command, ExitCode}
 import piratex.{Help, Metavar}
-import whatsub.WhatsubArgs.ConvertArgs
+import whatsub.WhatsubArgs.{ConvertArgs, SyncArgs}
 
 import java.io.File
 import scala.io.Source
@@ -48,6 +48,38 @@ object Whatsub {
                   }
     } yield ()).value
 
+  // TODO: Finish it
+  def resync[F[_]: Sync, A: CanRender: Syncer](
+    parser: String => Either[ParseError, A],
+    sync: Syncer.Sync,
+    src: File,
+    outFile: Option[SyncArgs.OutFile],
+  ): F[Either[WhatsubError, Unit]] = {
+    (for {
+      srcSub   <- EitherT(
+                    Resource
+                      .make(Sync[F].delay(Source.fromFile(src)))(source => Sync[F].delay(source.close()))
+                      .use { srcSource =>
+                        Sync[F]
+                          .delay(srcSource.getLines.map(_.trim).mkString("\n"))
+                          .flatMap(lines => Sync[F].delay(parser(lines)))
+                      },
+                  ).leftMap(WhatsubError.ParseFailure(_))
+      resynced <- EitherT.right(Sync[F].delay(Syncer[A].sync(srcSub, sync)))
+      _        <- EitherT
+                    .right(Sync[F].delay(outFile))
+                    .flatMapF(
+                      _.fold(
+                        Sync[F].delay(println(CanRender[A].render(resynced)).asRight),
+                      )(out => FileF.fileF[F].writeFile(resynced, out.outFile)),
+                    )
+                    .leftMap {
+                      case FileError.WriteFilure(file, throwable) =>
+                        WhatsubError.FileWriteFailure(file, throwable)
+                    }
+    } yield ()).value
+  }
+
   def apply[F[_]: Sync](args: WhatsubArgs): F[Either[WhatsubError, Unit]] = args match {
     case ConvertArgs(
           ConvertArgs.From(SupportedSub.Smi),
@@ -72,5 +104,11 @@ object Whatsub {
 
     case ConvertArgs(ConvertArgs.From(SupportedSub.Srt), ConvertArgs.To(SupportedSub.Srt), _, _) =>
       Sync[F].pure(WhatsubError.NoConversion(SupportedSub.Srt).asLeft)
+
+    case SyncArgs(SyncArgs.Sub(SupportedSub.Smi), sync, srcFile, outFile) =>
+      resync[F, Smi](SmiParser.parse, sync.sync, srcFile.srcFile, outFile)
+
+    case SyncArgs(SyncArgs.Sub(SupportedSub.Srt), sync, srcFile, outFile) =>
+      resync[F, Srt](SrtParser.parse, sync.sync, srcFile.srcFile, outFile)
   }
 }

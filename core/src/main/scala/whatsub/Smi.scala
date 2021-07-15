@@ -6,10 +6,18 @@ final case class Smi(
   title: Smi.Title,
   lines: List[Smi.SmiLine],
 ) derives CanEqual
-
 object Smi {
 
   given canRenderSmi: CanRender[Smi] = _.render
+
+  given smiSync: Syncer[Smi] =
+    (sub, sync) =>
+      sync match {
+        case Syncer.Sync(Syncer.Direction.Forward, playtime)  =>
+          sub.copy(lines = sub.lines.map(_ + playtime))
+        case Syncer.Sync(Syncer.Direction.Backward, playtime) =>
+          sub.copy(lines = sub.lines.map(_ - playtime))
+      }
 
   extension (smi: Smi) {
     def render: String =
@@ -33,7 +41,7 @@ object Smi {
            |""".stripMargin
 
     def sync(sync: Syncer.Sync)(using Syncer[SmiLine]): Smi =
-      smi.copy(lines = Syncer[SmiLine].sync(smi.lines, sync))
+      Syncer[Smi].sync(smi, sync)
 
   }
 
@@ -44,8 +52,8 @@ object Smi {
   ) derives CanEqual
 
   object SmiLine {
-    given canShiftSmiLine: CanShift[SmiLine] with {
-      def shiftForward(smiLine: SmiLine, playtime: Playtime): SmiLine = {
+    extension (smiLine: SmiLine) {
+      def +(playtime: Playtime): SmiLine = {
         val milliseconds = playtime.toMilliseconds
         smiLine.copy(
           start = Start(smiLine.start.start + milliseconds),
@@ -53,7 +61,7 @@ object Smi {
         )
       }
 
-      def shiftBackward(smiLine: SmiLine, playtime: Playtime): SmiLine = {
+      def -(playtime: Playtime): SmiLine = {
         val milliseconds = playtime.toMilliseconds
         smiLine.copy(
           start = Start(smiLine.start.start - milliseconds),

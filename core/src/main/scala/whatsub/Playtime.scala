@@ -11,7 +11,15 @@ final case class Playtime(
   lazy val toMilliseconds: Long =
     (h.hours * HourSeconds + m.minutes * MinuteSeconds + s.seconds) * 1000 + ms.milliseconds
 }
-object Playtime {
+object Playtime    {
+
+  def h(h: Int): Playtime = Playtime.fromMilliseconds(h * HourSeconds * 1000)
+
+  def m(m: Int): Playtime = Playtime.fromMilliseconds(m * MinuteSeconds * 1000)
+
+  def s(s: Int): Playtime = Playtime.fromMilliseconds(s * 1000)
+
+  def ms(ms: Int): Playtime = Playtime.fromMilliseconds(ms)
 
   def fromMilliseconds(milliseconds: Long): Playtime = {
     val ms        = (milliseconds % 1000).toInt
@@ -22,26 +30,22 @@ object Playtime {
 
     val minutes = (minutesLeftInSeconds / MinuteSeconds).toInt
     val seconds = minutesLeftInSeconds - minutes * MinuteSeconds
-    
+
     Playtime(
       Hours(hours),
       Minutes(minutes),
       Seconds(seconds),
-      Milliseconds(ms)
+      Milliseconds(ms),
     )
   }
 
   extension (playtime: Playtime) {
 
-    def +(another: Playtime): Playtime = (playtime, another) match {
-      case (Playtime(h1, m1, s1, ms1), Playtime(h2, m2, s2, ms2)) =>
-        Playtime(h1 + h2, m1 + m2, s1 + s2, ms1 + ms2)
-    }
+    def +(another: Playtime): Playtime =
+      Playtime.fromMilliseconds(playtime.toMilliseconds + another.toMilliseconds)
 
-    def -(another: Playtime): Playtime = (playtime, another) match {
-      case (Playtime(h1, m1, s1, ms1), Playtime(h2, m2, s2, ms2)) =>
-        Playtime(h1 - h2, m1 - m2, s1 - s2, ms1 - ms2)
-    }
+    def -(another: Playtime): Playtime =
+      Playtime.fromMilliseconds(playtime.toMilliseconds - another.toMilliseconds)
 
   }
 
@@ -50,9 +54,7 @@ object Playtime {
     def apply(hours: Int): Hours             = hours
     given hoursEqual: CanEqual[Hours, Hours] = CanEqual.derived
     extension (hours0: Hours) {
-      def hours: Int               = hours0
-      def +(another: Hours): Hours = hours0.hours + another.hours
-      def -(another: Hours): Hours = hours0.hours - another.hours
+      def hours: Int = hours0
     }
   }
 
@@ -62,9 +64,7 @@ object Playtime {
 
     given minutesEqual: CanEqual[Minutes, Minutes] = CanEqual.derived
     extension (minutes0: Minutes) {
-      def minutes: Int                 = minutes0
-      def +(another: Minutes): Minutes = minutes0.minutes + another.minutes
-      def -(another: Minutes): Minutes = minutes0.minutes - another.minutes
+      def minutes: Int = minutes0
     }
   }
 
@@ -74,9 +74,7 @@ object Playtime {
 
     given secondsEqual: CanEqual[Seconds, Seconds] = CanEqual.derived
     extension (seconds0: Seconds) {
-      def seconds: Int                 = seconds0
-      def +(another: Seconds): Seconds = seconds0.seconds + another.seconds
-      def -(another: Seconds): Seconds = seconds0.seconds - another.seconds
+      def seconds: Int = seconds0
     }
   }
 
@@ -86,9 +84,7 @@ object Playtime {
 
     given millisecondsEqual: CanEqual[Milliseconds, Milliseconds] = CanEqual.derived
     extension (milliseconds0: Milliseconds) {
-      def milliseconds: Int                      = milliseconds0
-      def +(another: Milliseconds): Milliseconds = milliseconds0.milliseconds + another.milliseconds
-      def -(another: Milliseconds): Milliseconds = milliseconds0.milliseconds - another.milliseconds
+      def milliseconds: Int = milliseconds0
     }
   }
 
