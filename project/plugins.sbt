@@ -1,6 +1,6 @@
 logLevel := sbt.Level.Warn
 
-addSbtPlugin("org.scalameta" % "sbt-native-image" % "0.3.1")
+addSbtPlugin("org.scalameta" % "sbt-native-image" % "0.3.0")
 addSbtPlugin("com.eed3si9n"  % "sbt-buildinfo"    % "0.10.0")
 
 val sbtDevOopsVersion = "2.6.0"
