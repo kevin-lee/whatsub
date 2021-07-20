@@ -14,10 +14,10 @@ object Srt {
   def renderMillisecondsToSrtTime(milliseconds: Long): String =
     Playtime.fromMilliseconds(milliseconds) match {
       case Playtime(hours, minutes, seconds, ms) =>
-        val hh  = formatTwoDigitBasedNumber(hours.hours)
-        val mm  = formatTwoDigitBasedNumber(minutes.minutes)
-        val ss  = formatTwoDigitBasedNumber(seconds.seconds)
-        val mss = formatThreeDigitBasedNumber(ms.milliseconds)
+        val hh  = formatTwoDigitBasedNumber(hours.value)
+        val mm  = formatTwoDigitBasedNumber(minutes.value)
+        val ss  = formatTwoDigitBasedNumber(seconds.value)
+        val mss = formatThreeDigitBasedNumber(ms.value)
         s"$hh:$mm:$ss,$mss"
     }
 
@@ -26,8 +26,8 @@ object Srt {
       .lines
       .map {
         case Srt.SrtLine(index, start, end, line) =>
-          s"""${index.index}
-             |${renderMillisecondsToSrtTime(start)} --> ${renderMillisecondsToSrtTime(end)}
+          s"""${index.value}
+             |${renderMillisecondsToSrtTime(start.value)} --> ${renderMillisecondsToSrtTime(end.value)}
              |$line
              |""".stripMargin
       }
@@ -62,50 +62,54 @@ object Srt {
       def +(playtime: Playtime): SrtLine = {
         val milliseconds = playtime.toMilliseconds
         srtLine.copy(
-          start = Start(srtLine.start.start + milliseconds),
-          end = End(srtLine.end.end + milliseconds),
+          start = Start(srtLine.start.value + milliseconds),
+          end = End(srtLine.end.value + milliseconds),
         )
       }
       def -(playtime: Playtime): SrtLine = {
         val milliseconds = playtime.toMilliseconds
         srtLine.copy(
-          start = Start(srtLine.start.start - milliseconds),
-          end = End(srtLine.end.end - milliseconds),
+          start = Start(srtLine.start.value - milliseconds),
+          end = End(srtLine.end.value - milliseconds),
         )
       }
     }
 
   }
 
-  opaque type Index = Int
+  type Index = Index.Index
   object Index {
+    opaque type Index = Int
     def apply(index: Int): Index = index
-    extension (index0: Index) {
-      def index: Int = index0
+    extension (index: Index) {
+      def value: Int = index
     }
   }
 
-  opaque type Start = Long
+  type Start = Start.Start
   object Start {
+    opaque type Start = Long
     def apply(start: Long): Start = start
-    extension (start0: Start) {
-      def start: Long = start0
+    extension (start: Start) {
+      def value: Long = start
     }
   }
 
-  opaque type End = Long
+  type End = End.End
   object End {
+    opaque type End = Long
     def apply(start: Long): End = start
-    extension (end0: End) {
-      def end: Long = end0
+    extension (end: End) {
+      def value: Long = end
     }
   }
 
-  opaque type Line = String
+  type Line = Line.Line
   object Line {
+    opaque type Line = String
     def apply(line: String): Line = line
-    extension (line0: Line) {
-      def line: String = line0
+    extension (line: Line) {
+      def value: String = line
     }
   }
 

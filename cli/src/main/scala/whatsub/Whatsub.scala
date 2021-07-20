@@ -40,7 +40,7 @@ object Whatsub {
                   .flatMapF(
                     _.fold(
                       Sync[F].delay(println(CanRender[B].render(outSub)).asRight),
-                    )(out => FileF.fileF[F].writeFile(outSub, out.outFile)),
+                    )(out => FileF.fileF[F].writeFile(outSub, out.value)),
                   )
                   .leftMap {
                     case FileError.WriteFilure(file, throwable) =>
@@ -48,7 +48,6 @@ object Whatsub {
                   }
     } yield ()).value
 
-  // TODO: Finish it
   def resync[F[_]: Sync, A: CanRender: Syncer](
     parser: String => Either[ParseError, A],
     sync: Syncer.Sync,
@@ -71,7 +70,7 @@ object Whatsub {
                     .flatMapF(
                       _.fold(
                         Sync[F].delay(println(CanRender[A].render(resynced)).asRight),
-                      )(out => FileF.fileF[F].writeFile(resynced, out.outFile)),
+                      )(out => FileF.fileF[F].writeFile(resynced, out.value)),
                     )
                     .leftMap {
                       case FileError.WriteFilure(file, throwable) =>
@@ -87,7 +86,7 @@ object Whatsub {
           srcFile,
           outFile,
         ) =>
-      val src = srcFile.srcFile.getCanonicalFile
+      val src = srcFile.value.getCanonicalFile
       parseAndConvert[F, Smi, Srt](SmiParser.parse, src, outFile)
 
     case ConvertArgs(
@@ -96,7 +95,7 @@ object Whatsub {
           srcFile,
           outFile,
         ) =>
-      val src = srcFile.srcFile.getCanonicalFile
+      val src = srcFile.value.getCanonicalFile
       parseAndConvert[F, Srt, Smi](SrtParser.parse, src, outFile)
 
     case ConvertArgs(ConvertArgs.From(SupportedSub.Smi), ConvertArgs.To(SupportedSub.Smi), _, _) =>
@@ -106,9 +105,9 @@ object Whatsub {
       Sync[F].pure(WhatsubError.NoConversion(SupportedSub.Srt).asLeft)
 
     case SyncArgs(SyncArgs.Sub(SupportedSub.Smi), sync, srcFile, outFile) =>
-      resync[F, Smi](SmiParser.parse, sync.sync, srcFile.srcFile, outFile)
+      resync[F, Smi](SmiParser.parse, sync.value, srcFile.value, outFile)
 
     case SyncArgs(SyncArgs.Sub(SupportedSub.Srt), sync, srcFile, outFile) =>
-      resync[F, Srt](SrtParser.parse, sync.sync, srcFile.srcFile, outFile)
+      resync[F, Srt](SrtParser.parse, sync.value, srcFile.value, outFile)
   }
 }

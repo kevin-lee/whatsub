@@ -29,9 +29,9 @@ object Convert {
         Srt(
           for {
             (smiLine, index) <- smi.lines.zipWithIndex
-            start             = smiLine.start.start
-            end               = smiLine.end.end
-            line              = smiLine.line.line
+            start             = smiLine.start.value
+            end               = smiLine.end.value
+            line              = smiLine.line.value
           } yield Srt.SrtLine(
             Srt.Index(index + 1),
             Srt.Start(start),
@@ -54,9 +54,9 @@ object Convert {
           Smi.Title(""),
           for {
             srtLine <- srt.lines
-            start    = srtLine.start.start
-            end      = srtLine.end.end
-            line     = srtLine.line.line
+            start    = srtLine.start.value
+            end      = srtLine.end.value
+            line     = srtLine.line.value
           } yield Smi.SmiLine(Smi.Start(start), Smi.End(end), Smi.Line(line)),
         ).asRight[ConversionError]
 

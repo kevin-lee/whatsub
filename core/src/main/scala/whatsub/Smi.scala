@@ -23,15 +23,15 @@ object Smi {
     def render: String =
       s"""<SAMI>
          |<HEAD>
-         |  <TITLE>${smi.title.title}</TITLE>
+         |  <TITLE>${smi.title.value}</TITLE>
          |</HEAD>
          |<BODY>
          |""".stripMargin + (
         smi
           .lines
           .map { strLine =>
-            s"""  <SYNC Start=${strLine.start.start}><P>${strLine.line.line}
-               |  <SYNC Start=${strLine.end.end}><P>&nbsp;
+            s"""  <SYNC Start=${strLine.start.value}><P>${strLine.line.value}
+               |  <SYNC Start=${strLine.end.value}><P>&nbsp;
                |""".stripMargin
           }
           .mkString
@@ -56,58 +56,62 @@ object Smi {
       def +(playtime: Playtime): SmiLine = {
         val milliseconds = playtime.toMilliseconds
         smiLine.copy(
-          start = Start(smiLine.start.start + milliseconds),
-          end = End(smiLine.end.end + milliseconds),
+          start = Start(smiLine.start.value + milliseconds),
+          end = End(smiLine.end.value + milliseconds),
         )
       }
 
       def -(playtime: Playtime): SmiLine = {
         val milliseconds = playtime.toMilliseconds
         smiLine.copy(
-          start = Start(smiLine.start.start - milliseconds),
-          end = End(smiLine.end.end - milliseconds),
+          start = Start(smiLine.start.value - milliseconds),
+          end = End(smiLine.end.value - milliseconds),
         )
       }
     }
   }
 
-  opaque type Title = String
+  type Title = Title.Title
   object Title {
+    opaque type Title = String
     def apply(title: String): Title = title
 
     given titleCanEqual: CanEqual[Title, Title] = CanEqual.derived
-    extension (title0: Title) {
-      def title: String = title0
+    extension (title: Title) {
+      def value: String = title
     }
   }
 
-  opaque type Start = Long
+  type Start = Start.Start
   object Start {
+    opaque type Start = Long
     def apply(start: Long): Start = start
 
     given startCanEqual: CanEqual[Start, Start] = CanEqual.derived
-    extension (start0: Start) {
-      def start: Long = start0
+    extension (start: Start) {
+      def value: Long = start
     }
   }
 
-  opaque type End = Long
+  type End = End.End
   object End {
+    opaque type End = Long
     def apply(end: Long): End = end
 
     given endCanEqual: CanEqual[End, End] = CanEqual.derived
-    extension (end0: End) {
-      def end: Long = end0
+    extension (end: End) {
+      def value: Long = end
     }
   }
 
-  opaque type Line = String
+  type Line = Line.Line
   object Line {
+    opaque type Line = String
     def apply(line: String): Line = line
 
     given lineCanEqual: CanEqual[Line, Line] = CanEqual.derived
-    extension (line0: Line) {
-      def line: String = line0
+    extension (line: Line) {
+      def value: String = line
     }
   }
 

@@ -129,14 +129,14 @@ object SmiParser {
             (
               maybeTitle,
               Smi.SmiLine(
-                Smi.Start(start.milliseconds),
-                Smi.End(end.milliseconds),
-                Smi.Line(line.line),
+                Smi.Start(start.value),
+                Smi.End(end.value),
+                Smi.Line(line.value),
               ) :: acc,
             )
 
           case SmiComponent.Head(title) =>
-            (Smi.Title(title.title).some, acc)
+            (Smi.Title(title.value).some, acc)
 
           case SmiComponent.SamiStart | SmiComponent.BodyStart | SmiComponent.BodyEnd | SmiComponent.SamiEnd =>
             (maybeTitle, acc)
