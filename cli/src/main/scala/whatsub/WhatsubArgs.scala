@@ -29,11 +29,12 @@ object WhatsubArgs {
   }
 
   object ConvertArgs {
-    opaque type From = SupportedSub
+    type From = From.From
     object From {
+      opaque type From = SupportedSub
       def apply(from: SupportedSub): From = from
 
-      def unapply(from: From): Some[SupportedSub] = Some(from.from)
+      def unapply(from: From): Some[SupportedSub] = Some(from.value)
 
       given fromCanEqual: CanEqual[From, From] = CanEqual.derived
 
@@ -45,16 +46,17 @@ object WhatsubArgs {
           .toRightDisjunction("Unknown subtitle type for 'from'. 'from' should be either smi or srt")
       }
 
-      extension (from0: From) {
-        def from: SupportedSub = from0
+      extension (from: From) {
+        def value: SupportedSub = from
       }
     }
 
-    opaque type To = SupportedSub
+    type To = To.To
     object To {
+      opaque type To = SupportedSub
       def apply(to: SupportedSub): To = to
 
-      def unapply(to: To): Some[SupportedSub] = Some(to.to)
+      def unapply(to: To): Some[SupportedSub] = Some(to.value)
 
       given toCanEqual: CanEqual[To, To] = CanEqual.derived
 
@@ -66,31 +68,33 @@ object WhatsubArgs {
           .toRightDisjunction("Unknown subtitle type for 'to'. 'to' should be either smi or srt")
       }
 
-      extension (to0: To) {
-        def to: SupportedSub = to0
+      extension (to: To) {
+        def value: SupportedSub = to
       }
     }
 
-    opaque type SrcFile = File
+    type SrcFile = SrcFile.SrcFile
     object SrcFile {
+      opaque type SrcFile = File
       def apply(srcFile: File): SrcFile = srcFile
 
       given srcFileCanEqual: CanEqual[SrcFile, SrcFile] = CanEqual.derived
 
-      extension (srcFile0: SrcFile) {
-        def srcFile: File = srcFile0
+      extension (srFile0: SrcFile) {
+        def value: File = srFile0
       }
 
     }
 
-    opaque type OutFile = File
+    type OutFile = OutFile.OutFile
     object OutFile {
+      opaque type OutFile = File
       def apply(outFile: File): OutFile = outFile
 
       given outFileCanEqual: CanEqual[OutFile, OutFile] = CanEqual.derived
 
-      extension (outFile0: OutFile) {
-        def outFile: File = outFile0
+      extension (outFile: OutFile) {
+        def value: File = outFile
       }
 
     }
@@ -98,12 +102,13 @@ object WhatsubArgs {
   }
 
   object SyncArgs {
-    opaque type Sub = SupportedSub
 
+    type Sub = Sub.Sub
     object Sub {
+      opaque type Sub = SupportedSub
       def apply(sub: SupportedSub): Sub = sub
 
-      def unapply(sub: Sub): Some[SupportedSub] = Some(sub.sub)
+      def unapply(sub: Sub): Some[SupportedSub] = Some(sub.value)
 
       given subCanEqual: CanEqual[Sub, Sub] = CanEqual.derived
 
@@ -115,13 +120,14 @@ object WhatsubArgs {
           .toRightDisjunction("Unknown subtitle type for 'sub'. 'sub' should be either smi or srt")
       }
 
-      extension (sub0: Sub) {
-        def sub: SupportedSub = sub0
+      extension (sub: Sub) {
+        def value: SupportedSub = sub
       }
     }
 
-    opaque type Sync = Syncer.Sync
+    type Sync = Sync.Sync
     object Sync {
+      opaque type Sync = Syncer.Sync
       def apply(sync: Syncer.Sync): Sync = sync
 
       given syncCanEqual: CanEqual[Sync, Sync] = CanEqual.derived
@@ -172,31 +178,33 @@ object WhatsubArgs {
 
       }
 
-      extension (sync0: Sync) {
-        def sync: Syncer.Sync = sync0
+      extension (sync: Sync) {
+        def value: Syncer.Sync = sync
       }
     }
 
-    opaque type SrcFile = File
+    type SrcFile = SrcFile.SrcFile
     object SrcFile {
+      opaque type SrcFile = File
       def apply(srcFile: File): SrcFile = srcFile
 
       given srcFileCanEqual: CanEqual[SrcFile, SrcFile] = CanEqual.derived
 
-      extension (srcFile0: SrcFile) {
-        def srcFile: File = srcFile0
+      extension (srcFile: SrcFile) {
+        def value: File = srcFile
       }
 
     }
 
-    opaque type OutFile = File
+    type OutFile = OutFile.OutFile
     object OutFile {
+      opaque type OutFile = File
       def apply(outFile: File): OutFile = outFile
 
       given outFileCanEqual: CanEqual[OutFile, OutFile] = CanEqual.derived
 
-      extension (outFile0: OutFile) {
-        def outFile: File = outFile0
+      extension (outFile: OutFile) {
+        def value: File = outFile
       }
 
     }

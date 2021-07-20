@@ -10,40 +10,43 @@ enum SmiComponent {
   case BodyLine(
     start: SmiComponent.Milliseconds,
     end: SmiComponent.Milliseconds,
-    line: SmiComponent.Line
+    line: SmiComponent.Line,
   )
   case BodyEnd
   case SamiEnd
 }
 
 object SmiComponent {
-  opaque type Title = String
+  type Title = Title.Title
   object Title {
+    opaque type Title = String
     def apply(title: String): Title = title
 
     given titleCanEqual: CanEqual[Title, Title] = CanEqual.derived
-    extension (title0: Title) {
-      def title: String = title0
+    extension (title: Title) {
+      def value: String = title
     }
   }
 
-  opaque type Milliseconds = Long
+  type Milliseconds = Milliseconds.Milliseconds
   object Milliseconds {
+    opaque type Milliseconds = Long
     def apply(milliseconds: Long): Milliseconds = milliseconds
 
     given millisecondsCanEqual: CanEqual[Milliseconds, Milliseconds] = CanEqual.derived
-    extension (milliseconds0: Milliseconds) {
-      def milliseconds: Long = milliseconds0
+    extension (milliseconds: Milliseconds) {
+      def value: Long = milliseconds
     }
   }
 
-  opaque type Line = String
+  type Line = Line.Line
   object Line {
+    opaque type Line = String
     def apply(line: String): Line = line
 
     given lineCanEqual: CanEqual[Line, Line] = CanEqual.derived
-    extension (line0: Line) {
-      def line: String = line0
+    extension (line: Line) {
+      def value: String = line
     }
   }
 
