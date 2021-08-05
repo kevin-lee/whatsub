@@ -56,7 +56,7 @@ lazy val cli = subProject("cli", file("cli"))
 
 lazy val props =
   new {
-    final val ScalaVersion = "3.0.0"
+    final val ScalaVersion = "3.0.1"
     final val Org          = "io.kevinlee"
 
     final val GitHubUsername = "Kevin-Lee"
@@ -67,7 +67,7 @@ lazy val props =
     final val HedgehogVersion = "0.7.0"
 
     final val CatsVersion        = "2.6.1"
-    final val CatsEffect3Version = "3.1.1"
+    final val CatsEffect3Version = "3.2.1"
 
     final val CatsParseVersion = "0.3.4"
 
