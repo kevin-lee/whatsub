@@ -1,7 +1,10 @@
 package whatsub
 
 import Time.*
+import cats.Monad
 import cats.syntax.all.*
+import effectie.cats.Effectful.*
+import effectie.cats.Fx
 
 final case class Srt(
   lines: List[Srt.SrtLine],
@@ -33,21 +36,24 @@ object Srt {
       }
       .mkString("\n")
 
-    def sync(sync: Syncer.Sync)(using Syncer[SrtLine]): Srt =
-      Syncer[Srt].sync(srt, sync)
+    def sync[F[_]: Fx: Monad](sync: Syncer.Sync): F[Srt] =
+      Syncer[F, Srt].sync(srt, sync)
 
   }
 
   given canRenderSrt: CanRender[Srt] = _.render
 
-  given smiSync: Syncer[Srt] =
+  given srtSync[F[_]: Fx: Monad]: Syncer[F, Srt] =
     (sub, sync) =>
-      sync match {
-        case Syncer.Sync(Syncer.Direction.Forward, playtime)  =>
-          sub.copy(lines = sub.lines.map(_ + playtime))
-        case Syncer.Sync(Syncer.Direction.Backward, playtime) =>
-          sub.copy(lines = sub.lines.map(_ - playtime))
-      }
+      for {
+        shift <- pureOf(sync match {
+                   case Syncer.Sync(Syncer.Direction.Forward, playtime)  =>
+                     ((_: SrtLine) + playtime)
+                   case Syncer.Sync(Syncer.Direction.Backward, playtime) =>
+                     ((_: SrtLine) - playtime)
+                 })
+        lines <- effectOf(sub.lines.map(shift))
+      } yield sub.copy(lines = lines)
 
   final case class SrtLine(
     index: Srt.Index,

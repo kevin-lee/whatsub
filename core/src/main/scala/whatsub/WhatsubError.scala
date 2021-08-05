@@ -10,6 +10,7 @@ import java.io.File
   */
 enum WhatsubError {
   case ConversionFailure(conversionError: ConversionError)
+
   case ParseFailure(parseError: ParseError)
 
   case NoConversion(supportedSub: SupportedSub)

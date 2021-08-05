@@ -2,7 +2,7 @@ package whatsub
 
 import cats.effect.*
 import cats.syntax.all.*
-import pirate.{ExitCode as PirateExitCode, *}
+import pirate.{ExitCode as PirateExitCode, Command, Prefs, Runners}
 import piratex.{Help, Metavar}
 
 trait MainIo[A] extends IOApp {

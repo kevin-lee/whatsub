@@ -1,11 +1,14 @@
 package whatsub
 
+import SubParsers.*
 import cats.effect.*
 import cats.parse.Rfc5234.*
 import cats.parse.{Parser as P, Parser0 as P0, *}
 import cats.syntax.all.*
-
-import SubParsers.*
+import cats.{Functor, Monad}
+import effectie.cats.*
+import effectie.cats.Effectful.*
+import effectie.cats.EitherTSupport.*
 
 object SmiParser {
 
@@ -37,7 +40,8 @@ object SmiParser {
 
   val bodyLine = (
     (
-      P.ignoreCase("<SYNC Start=") *> digit.rep.string <* (P.ignoreCase("><P") ~ (wsp ~ P.ignoreCase("Class=") ~ alpha.rep.string).? ~ P.ignoreCase(
+      P.ignoreCase("<SYNC Start=") *> digit.rep.string <* (P
+        .ignoreCase("><P") ~ (wsp ~ P.ignoreCase("Class=") ~ alpha.rep.string).? ~ P.ignoreCase(
         ">",
       ))
     ) ~ ((lwsp.string.?) *> P.charIn(SmiParser.NoNewlineChars).rep.string <* (lwsp.string.? ~ newlineP))
@@ -47,79 +51,93 @@ object SmiParser {
   val bodyEndP = (P.ignoreCase("</BODY>") <* (lwsp.string.? ~ newlineP.?)).map(_ => SmiComponent.BodyEnd)
   val samiEndP = (P.ignoreCase("</SAMI>") <* (lwsp.string.? ~ newlineP.?)).map(_ => SmiComponent.SamiEnd)
 
-  def parseSmiStart(lines: String, acc: List[SmiComponent]): Either[ParseError, List[SmiComponent]] =
-    samiSatartP.parse(lines) match {
-      case Right((remaining, start)) =>
-        parseSmiHead(remaining, start :: acc)
-
-      case Left(err) =>
-        ParseError.SmiParseError(err).asLeft
-    }
-
-  def parseSmiHead(lines: String, acc: List[SmiComponent]): Either[ParseError, List[SmiComponent]] =
-    headP.parse(lines) match {
-      case Right((remaining, head)) =>
-        parseBodyStart(remaining, head :: acc)
-
-      case Left(err) =>
-        ParseError.SmiParseError(err).asLeft
-    }
-
-  def parseBodyStart(lines: String, acc: List[SmiComponent]): Either[ParseError, List[SmiComponent]] =
-    bodyStartP.parse(lines) match {
-      case Right((remaining, bodyStart)) =>
-        parseBody(remaining, bodyStart :: acc)
-
-      case Left(err) =>
-        ParseError.SmiParseError(err).asLeft
-    }
-
-  def parseBody(lines: String, acc: List[SmiComponent]): Either[ParseError, List[SmiComponent]] = {
-
-    def parseNextLine(lines: String, previous: Option[StartAndLine], acc: List[SmiComponent]): Either[ParseError, List[SmiComponent]] =
-      bodyEndP.parse(lines) match {
-        case Right((remaining, bodyEnd)) =>
-          parseSamiEnd(remaining, bodyEnd :: acc)
-
-        case Left(_) =>
-          bodyLine.parse(lines) match {
-            case Right((remaining, StartAndLine(time, line))) =>
-              previous match {
-                case Some(StartAndLine(startTime, theLine)) =>
-                  parseNextLine(
-                    remaining,
-                    none,
-                    SmiComponent.BodyLine(
-                      SmiComponent.Milliseconds(startTime.toLong),
-                      SmiComponent.Milliseconds(time.toLong),
-                      SmiComponent.Line(theLine),
-                    ) :: acc,
-                  )
-
-                case None =>
-                  parseNextLine(
-                    remaining,
-                    StartAndLine(time.toLong, line).some,
-                    acc,
-                  )
-              }
-
-            case Left(err) =>
-              ParseError.SmiParseError(err).asLeft
-          }
+  def parseSmiStart[F[_]: Fx: Monad](
+    lines: String,
+    acc: List[SmiComponent],
+  ): F[Either[ParseError, List[SmiComponent]]] =
+    effectOf(samiSatartP.parse(lines))
+      .eitherT
+      .leftMap(err => ParseError.SmiParseError(err))
+      .flatMapF {
+        case ((remaining, start)) =>
+          parseSmiHead(remaining, start :: acc)
       }
+      .value
+
+  def parseSmiHead[F[_]: Fx: Monad](lines: String, acc: List[SmiComponent]): F[Either[ParseError, List[SmiComponent]]] =
+    effectOf(headP.parse(lines))
+      .eitherT
+      .leftMap(err => ParseError.SmiParseError(err))
+      .flatMapF {
+        case ((remaining, head)) =>
+          parseBodyStart(remaining, head :: acc)
+      }
+      .value
+
+  def parseBodyStart[F[_]: Fx: Monad](
+    lines: String,
+    acc: List[SmiComponent],
+  ): F[Either[ParseError, List[SmiComponent]]] =
+    effectOf(bodyStartP.parse(lines))
+      .eitherT
+      .leftMap(err => ParseError.SmiParseError(err))
+      .flatMapF {
+        case ((remaining, bodyStart)) =>
+          parseBody(remaining, bodyStart :: acc)
+      }
+      .value
+
+  def parseBody[F[_]: Fx: Monad](lines: String, acc: List[SmiComponent]): F[Either[ParseError, List[SmiComponent]]] = {
+
+    def parseNextLine(
+      lines: String,
+      previous: Option[StartAndLine],
+      acc: List[SmiComponent],
+    ): F[Either[ParseError, List[SmiComponent]]] =
+      effectOf(bodyEndP.parse(lines))
+        .flatMap {
+          case Right((remaining, bodyEnd)) =>
+            parseSamiEnd(remaining, bodyEnd :: acc)
+
+          case Left(_) =>
+            bodyLine.parse(lines) match {
+              case Right((remaining, StartAndLine(time, line))) =>
+                previous match {
+                  case Some(StartAndLine(startTime, theLine)) =>
+                    parseNextLine(
+                      remaining,
+                      none,
+                      SmiComponent.BodyLine(
+                        SmiComponent.Milliseconds(startTime.toLong),
+                        SmiComponent.Milliseconds(time.toLong),
+                        SmiComponent.Line(theLine),
+                      ) :: acc,
+                    )
+
+                  case None =>
+                    parseNextLine(
+                      remaining,
+                      StartAndLine(time.toLong, line).some,
+                      acc,
+                    )
+                }
+
+              case Left(err) =>
+                effectOf(ParseError.SmiParseError(err).asLeft)
+            }
+        }
 
     parseNextLine(lines, none, acc)
   }
 
-  def parseSamiEnd(lines: String, acc: List[SmiComponent]): Either[ParseError, List[SmiComponent]] =
-    samiEndP.parse(lines) match {
-      case Right((remining, samiEnd)) =>
-        (SmiComponent.SamiEnd :: acc).asRight
-
-      case Left(err) =>
-        ParseError.SmiParseError(err).asLeft
-    }
+  def parseSamiEnd[F[_]: Fx: Monad](lines: String, acc: List[SmiComponent]): F[Either[ParseError, List[SmiComponent]]] =
+    effectOf(samiEndP.parse(lines))
+      .map {
+        case Left(err)                  =>
+          ParseError.SmiParseError(err).asLeft
+        case Right((remining, samiEnd)) =>
+          (SmiComponent.SamiEnd :: acc).asRight
+      }
 
   private def fromSmiComponents(smiComponents: List[SmiComponent]): Smi =
     smiComponents.foldRight((none[Smi.Title], List.empty[Smi.SmiLine])) {
@@ -149,8 +167,10 @@ object SmiParser {
         Smi(Smi.Title(""), lines)
     }
 
-  def parse(lines: String): Either[ParseError, Smi] =
+  def parse[F[_]: Fx: Monad](lines: String): F[Either[ParseError, Smi]] =
     parseSmiStart(lines.removeEmptyChars, List.empty)
+      .eitherT
       .map(smiComponents => fromSmiComponents(smiComponents.reverse))
+      .value
 
 }
