@@ -6,6 +6,10 @@ import cats.effect.*
 import cats.parse.Rfc5234.*
 import cats.parse.{Parser as P, Parser0 as P0, *}
 import cats.syntax.all.*
+import cats.{Functor, Monad}
+import effectie.cats.*
+import effectie.cats.Effectful.*
+import effectie.cats.EitherTSupport.*
 
 /** @author Kevin Lee
   * @since 2021-07-03
@@ -37,9 +41,13 @@ object SrtParser {
   val playtimeRangeP: P[(Playtime, Playtime)] =
     (playtimeP ~ ((spaceP.rep ~ arrowP ~ spaceP.rep) *> playtimeP) <* (spaceP.? ~ newlineP))
 
-  def parseSrtLine(line: String, lineIndex: Int): Either[ParseError, Srt.SrtLine] =
-    ((indexP <* (spaceP.? ~ newlineP)) ~ playtimeRangeP)
-      .parse(line) match {
+  val srtLineParser = (indexP <* (spaceP.? ~ newlineP)) ~ playtimeRangeP
+
+  def parseSrtLine[F[_]: Fx: Functor](line: String, lineIndex: Int): F[Either[ParseError, Srt.SrtLine]] =
+    effectOf(
+      srtLineParser
+        .parse(line),
+    ).map {
       case Right((remaining, ((index, (playtimeStart, playtimeEnd))))) =>
         Srt
           .SrtLine(
@@ -54,13 +62,21 @@ object SrtParser {
         ParseError.SrtParseError(lineIndex, line, err).asLeft
     }
 
-  def parse(lines: String): Either[ParseError, Srt] =
-    lines
-      .removeEmptyChars
-      .split("[\r\n]{2}")
-      .zipWithIndex
-      .toList
-      .traverse(parseSrtLine)
+  def parse[F[_]: Fx: Monad](lines: String): F[Either[ParseError, Srt]] =
+    effectOf(
+      lines
+        .removeEmptyChars
+        .split("[\r\n]{2}")
+        .zipWithIndex
+        .toList,
+    )
+      .rightT[ParseError]
+      .flatMap {
+        _.traverse {
+          case (line, index) => parseSrtLine(line, index).eitherT
+        }
+      }
       .map(Srt.apply)
+      .value
 
 }

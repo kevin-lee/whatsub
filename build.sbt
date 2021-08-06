@@ -28,7 +28,7 @@ lazy val core = subProject("core", file("core"))
   .enablePlugins(BuildInfoPlugin)
   .settings(
     libraryDependencies ++=
-      libs.catsAndCatsEffect3 ++ List(libs.catsParse),
+      libs.catsAndCatsEffect3 ++ List(libs.catsParse, libs.effectieCatsEffect3),
     /* Build Info { */
     buildInfoKeys := List[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoObject := "WhatsubBuildInfo",
@@ -71,6 +71,8 @@ lazy val props =
 
     final val CatsParseVersion = "0.3.4"
 
+    final val EffectieCatsEffect3Version = "1.14.0"
+
     final val pirateVersion = "main"
     final val pirateUri     = uri(s"https://github.com/$GitHubUsername/pirate.git#$pirateVersion")
 
@@ -91,6 +93,8 @@ lazy val libs =
     )
 
     lazy val catsParse = "org.typelevel" %% "cats-parse" % props.CatsParseVersion
+
+    lazy val effectieCatsEffect3 = "io.kevinlee" %% "effectie-cats-effect3" % props.EffectieCatsEffect3Version
 
   }
 

@@ -1,9 +1,14 @@
 package whatsub
 
 import FileF.FileError
+import cats.Monad
 import cats.data.EitherT
+import cats.effect.kernel.MonadCancel
 import cats.effect.{Resource, Sync}
 import cats.syntax.all.*
+import effectie.cats.*
+import effectie.cats.Effectful.*
+import effectie.cats.EitherTSupport.*
 import pirate.{Command, ExitCode}
 import piratex.{Help, Metavar}
 import whatsub.WhatsubArgs.{ConvertArgs, SyncArgs}
@@ -16,30 +21,31 @@ import scala.io.Source
   */
 object Whatsub {
 
-  private def parseAndConvert[F[_]: Sync, A, B: CanRender](
-    parser: String => Either[ParseError, A],
+  private def parseAndConvert[F[_]: Monad: MCancel: Fx: CanCatch, A, B: CanRender](
+    parser: String => F[Either[ParseError, A]],
     src: File,
     outFile: Option[ConvertArgs.OutFile],
   )(
-    using convert: Convert[A, B],
+    using convert: Convert[F, A, B],
   ): F[Either[WhatsubError, Unit]] =
     (for {
       srcSub <- EitherT(
                   Resource
-                    .make(Sync[F].delay(Source.fromFile(src)))(source => Sync[F].delay(source.close()))
+                    .make(effectOf(Source.fromFile(src)))(source => effectOf(source.close()))
                     .use { srcSource =>
-                      Sync[F]
-                        .delay(srcSource.getLines.map(_.trim).mkString("\n"))
-                        .flatMap(lines => Sync[F].delay(parser(lines)))
+                      effectOf(srcSource.getLines.map(_.trim).mkString("\n"))
+                        .flatMap(lines => parser(lines))
                     },
                 ).leftMap(WhatsubError.ParseFailure(_))
-      outSub <- EitherT(Sync[F].delay(convert.convert(srcSub)))
+      outSub <- convert
+                  .convert(srcSub)
+                  .eitherT
                   .leftMap(WhatsubError.ConversionFailure(_))
-      _      <- EitherT
-                  .right(Sync[F].delay(outFile))
+      _      <- effectOf(outFile)
+                  .rightT[FileError]
                   .flatMapF(
                     _.fold(
-                      Sync[F].delay(println(CanRender[B].render(outSub)).asRight),
+                      effectOf(println(CanRender[B].render(outSub)).asRight),
                     )(out => FileF.fileF[F].writeFile(outSub, out.value)),
                   )
                   .leftMap {
@@ -48,28 +54,27 @@ object Whatsub {
                   }
     } yield ()).value
 
-  def resync[F[_]: Sync, A: CanRender: Syncer](
-    parser: String => Either[ParseError, A],
+  def resync[F[_]: Monad: MCancel: Fx: CanCatch, A: CanRender](
+    parser: String => F[Either[ParseError, A]],
     sync: Syncer.Sync,
     src: File,
     outFile: Option[SyncArgs.OutFile],
-  ): F[Either[WhatsubError, Unit]] = {
+  )(using syncer: Syncer[F, A]): F[Either[WhatsubError, Unit]] = {
     (for {
-      srcSub   <- EitherT(
-                    Resource
-                      .make(Sync[F].delay(Source.fromFile(src)))(source => Sync[F].delay(source.close()))
-                      .use { srcSource =>
-                        Sync[F]
-                          .delay(srcSource.getLines.map(_.trim).mkString("\n"))
-                          .flatMap(lines => Sync[F].delay(parser(lines)))
-                      },
-                  ).leftMap(WhatsubError.ParseFailure(_))
-      resynced <- EitherT.right(Sync[F].delay(Syncer[A].sync(srcSub, sync)))
-      _        <- EitherT
-                    .right(Sync[F].delay(outFile))
+      srcSub   <- Resource
+                    .make(effectOf(Source.fromFile(src)))(source => effectOf(source.close()))
+                    .use { srcSource =>
+                      effectOf(srcSource.getLines.map(_.trim).mkString("\n"))
+                        .flatMap(lines => parser(lines))
+                    }
+                    .eitherT
+                    .leftMap(WhatsubError.ParseFailure(_))
+      resynced <- syncer.sync(srcSub, sync).rightT
+      _        <- effectOf(outFile)
+                    .rightT[FileError]
                     .flatMapF(
                       _.fold(
-                        Sync[F].delay(println(CanRender[A].render(resynced)).asRight),
+                        effectOf(println(CanRender[A].render(resynced)).asRight),
                       )(out => FileF.fileF[F].writeFile(resynced, out.value)),
                     )
                     .leftMap {
@@ -79,35 +84,36 @@ object Whatsub {
     } yield ()).value
   }
 
-  def apply[F[_]: Sync](args: WhatsubArgs): F[Either[WhatsubError, Unit]] = args match {
-    case ConvertArgs(
-          ConvertArgs.From(SupportedSub.Smi),
-          ConvertArgs.To(SupportedSub.Srt),
-          srcFile,
-          outFile,
-        ) =>
-      val src = srcFile.value.getCanonicalFile
-      parseAndConvert[F, Smi, Srt](SmiParser.parse, src, outFile)
+  def apply[F[_]: Monad: MCancel: Fx: CanCatch](args: WhatsubArgs): F[Either[WhatsubError, Unit]] =
+    args match {
+      case ConvertArgs(
+            ConvertArgs.From(SupportedSub.Smi),
+            ConvertArgs.To(SupportedSub.Srt),
+            srcFile,
+            outFile,
+          ) =>
+        val src = srcFile.value.getCanonicalFile
+        parseAndConvert[F, Smi, Srt](SmiParser.parse, src, outFile)
 
-    case ConvertArgs(
-          ConvertArgs.From(SupportedSub.Srt),
-          ConvertArgs.To(SupportedSub.Smi),
-          srcFile,
-          outFile,
-        ) =>
-      val src = srcFile.value.getCanonicalFile
-      parseAndConvert[F, Srt, Smi](SrtParser.parse, src, outFile)
+      case ConvertArgs(
+            ConvertArgs.From(SupportedSub.Srt),
+            ConvertArgs.To(SupportedSub.Smi),
+            srcFile,
+            outFile,
+          ) =>
+        val src = srcFile.value.getCanonicalFile
+        parseAndConvert[F, Srt, Smi](SrtParser.parse, src, outFile)
 
-    case ConvertArgs(ConvertArgs.From(SupportedSub.Smi), ConvertArgs.To(SupportedSub.Smi), _, _) =>
-      Sync[F].pure(WhatsubError.NoConversion(SupportedSub.Smi).asLeft)
+      case ConvertArgs(ConvertArgs.From(SupportedSub.Smi), ConvertArgs.To(SupportedSub.Smi), _, _) =>
+        pureOf(WhatsubError.NoConversion(SupportedSub.Smi).asLeft)
 
-    case ConvertArgs(ConvertArgs.From(SupportedSub.Srt), ConvertArgs.To(SupportedSub.Srt), _, _) =>
-      Sync[F].pure(WhatsubError.NoConversion(SupportedSub.Srt).asLeft)
+      case ConvertArgs(ConvertArgs.From(SupportedSub.Srt), ConvertArgs.To(SupportedSub.Srt), _, _) =>
+        pureOf(WhatsubError.NoConversion(SupportedSub.Srt).asLeft)
 
-    case SyncArgs(SyncArgs.Sub(SupportedSub.Smi), sync, srcFile, outFile) =>
-      resync[F, Smi](SmiParser.parse, sync.value, srcFile.value, outFile)
+      case SyncArgs(SyncArgs.Sub(SupportedSub.Smi), sync, srcFile, outFile) =>
+        resync[F, Smi](SmiParser.parse, sync.value, srcFile.value, outFile)
 
-    case SyncArgs(SyncArgs.Sub(SupportedSub.Srt), sync, srcFile, outFile) =>
-      resync[F, Srt](SrtParser.parse, sync.value, srcFile.value, outFile)
-  }
+      case SyncArgs(SyncArgs.Sub(SupportedSub.Srt), sync, srcFile, outFile) =>
+        resync[F, Srt](SrtParser.parse, sync.value, srcFile.value, outFile)
+    }
 }

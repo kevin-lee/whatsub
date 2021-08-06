@@ -1,6 +1,9 @@
 package whatsub
 
+import cats.Monad
 import cats.syntax.all.*
+import effectie.cats.Effectful.*
+import effectie.cats.Fx
 
 final case class Smi(
   title: Smi.Title,
@@ -10,14 +13,17 @@ object Smi {
 
   given canRenderSmi: CanRender[Smi] = _.render
 
-  given smiSync: Syncer[Smi] =
+  given smiSync[F[_]: Fx: Monad]: Syncer[F, Smi] =
     (sub, sync) =>
-      sync match {
-        case Syncer.Sync(Syncer.Direction.Forward, playtime)  =>
-          sub.copy(lines = sub.lines.map(_ + playtime))
-        case Syncer.Sync(Syncer.Direction.Backward, playtime) =>
-          sub.copy(lines = sub.lines.map(_ - playtime))
-      }
+      for {
+        shift <- pureOf(sync match {
+                   case Syncer.Sync(Syncer.Direction.Forward, playtime)  =>
+                     ((_: SmiLine) + playtime)
+                   case Syncer.Sync(Syncer.Direction.Backward, playtime) =>
+                     ((_: SmiLine) - playtime)
+                 })
+        lines <- effectOf(sub.lines.map(shift))
+      } yield sub.copy(lines = lines)
 
   extension (smi: Smi) {
     def render: String =
@@ -40,8 +46,8 @@ object Smi {
            |</SAMI>
            |""".stripMargin
 
-    def sync(sync: Syncer.Sync)(using Syncer[SmiLine]): Smi =
-      Syncer[Smi].sync(smi, sync)
+    def sync[F[_]: Fx: Monad](sync: Syncer.Sync): F[Smi] =
+      Syncer[F, Smi].sync(smi, sync)
 
   }
 
