@@ -29,14 +29,14 @@ object Whatsub {
     using convert: Convert[F, A, B],
   ): F[Either[WhatsubError, Unit]] =
     (for {
-      srcSub <- EitherT(
-                  Resource
-                    .make(effectOf(Source.fromFile(src)))(source => effectOf(source.close()))
-                    .use { srcSource =>
-                      effectOf(srcSource.getLines.map(_.trim).mkString("\n"))
-                        .flatMap(lines => parser(lines))
-                    },
-                ).leftMap(WhatsubError.ParseFailure(_))
+      srcSub <- Resource
+                  .make(effectOf(Source.fromFile(src)))(source => effectOf(source.close()))
+                  .use { srcSource =>
+                    effectOf(srcSource.getLines.map(_.trim).mkString("\n"))
+                      .flatMap(lines => parser(lines))
+                  }
+                  .eitherT
+                  .leftMap(WhatsubError.ParseFailure(_))
       outSub <- convert
                   .convert(srcSub)
                   .eitherT
