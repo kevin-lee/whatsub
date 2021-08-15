@@ -1,7 +1,7 @@
-package whatsub
+package whatsub.parse
 
 import cats.Show
-import cats.parse.{Parser as P}
+import cats.parse.Parser as P
 
 enum ParseError {
   case SmiParseError(error: P.Error)

@@ -1,7 +1,8 @@
-package whatsub
+package whatsub.convert
 
 import cats.Show
 import cats.syntax.show.*
+import whatsub.SupportedSub
 
 /** @author Kevin Lee
   * @since 2021-06-18

@@ -5,6 +5,7 @@ import cats.Monad
 import cats.syntax.all.*
 import effectie.cats.Effectful.*
 import effectie.cats.Fx
+import whatsub.sync.Syncer
 
 final case class Srt(
   lines: List[Srt.SrtLine],
