@@ -1,4 +1,4 @@
-package whatsub
+package whatsub.parse
 
 import SubParsers.*
 import cats.effect.*
@@ -9,7 +9,11 @@ import cats.{Functor, Monad}
 import effectie.cats.*
 import effectie.cats.Effectful.*
 import effectie.cats.EitherTSupport.*
+import whatsub.{Smi, SmiComponent}
 
+/** @author Kevin Lee
+  * @since 2021-08-15
+  */
 object SmiParser {
 
   val NoNewlineChars = (0.toChar to Char.MaxValue).filter(c => c != '\n' && c != '\r')

@@ -3,6 +3,7 @@ package whatsub
 import WhatsubArgs.*
 import cats.syntax.option.*
 import pirate.Read
+import whatsub.sync.Syncer
 
 import java.io.File
 

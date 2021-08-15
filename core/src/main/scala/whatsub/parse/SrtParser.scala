@@ -1,4 +1,4 @@
-package whatsub
+package whatsub.parse
 
 import SubParsers.*
 import cats.data.NonEmptyList
@@ -10,6 +10,7 @@ import cats.{Functor, Monad}
 import effectie.cats.*
 import effectie.cats.Effectful.*
 import effectie.cats.EitherTSupport.*
+import whatsub.{Playtime, Srt}
 
 /** @author Kevin Lee
   * @since 2021-07-03

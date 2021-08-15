@@ -12,6 +12,9 @@ import effectie.cats.EitherTSupport.*
 import pirate.{Command, ExitCode}
 import piratex.{Help, Metavar}
 import whatsub.WhatsubArgs.{ConvertArgs, SyncArgs}
+import whatsub.convert.Convert
+import whatsub.parse.{ParseError, SmiParser, SrtParser}
+import whatsub.sync.Syncer
 
 import java.io.File
 import scala.io.Source

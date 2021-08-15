@@ -1,10 +1,11 @@
-package whatsub
+package whatsub.convert
 
 import cats.Applicative
 import cats.syntax.all.*
 import effectie.cats.Effectful.*
 import effectie.cats.EitherTSupport.*
 import effectie.cats.Fx
+import whatsub.{Smi, Srt, SupportedSub}
 
 /** @author Kevin Lee
   * @since 2021-06-18

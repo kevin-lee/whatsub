@@ -1,4 +1,6 @@
-package whatsub
+package whatsub.sync
+
+import whatsub.Playtime
 
 /** @author Kevin Lee
   * @since 2021-07-09

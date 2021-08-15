@@ -2,6 +2,8 @@ package whatsub
 
 import cats.Show
 import cats.syntax.all.*
+import whatsub.convert.ConversionError
+import whatsub.parse.ParseError
 
 import java.io.File
 
