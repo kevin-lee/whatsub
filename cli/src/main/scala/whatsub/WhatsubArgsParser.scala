@@ -71,6 +71,49 @@ object WhatsubArgsParser {
     syncOutFileParse,
   )
 
+  def charsetTaskSubcommand: Parse[WhatsubArgs] = (subcommand(
+    Command(
+      "list",
+      "List all available charsets".some,
+      charsetListParse,
+    ),
+  ) ||| subcommand(
+    Command(
+      "convert",
+      "Convert charset to another".some,
+      charsetConvertParse,
+    ),
+  )).map(WhatsubArgs.CharsetArgs(_))
+
+  def charsetListParse: Parse[CharsetArgs.CharsetTask] = ValueParse(CharsetArgs.CharsetTask.ListAll)
+
+  def charsetFromParse: Parse[CharsetArgs.From] = flag[CharsetArgs.From](
+    both('f', "from"),
+    metavar("<from>") |+| description("The name of charset to be converted from (e.g. 'Windows-949' for Korean charset)"),
+  )
+
+  def charsetToParse: Parse[CharsetArgs.To] = flag[CharsetArgs.To](
+    both('t', "to"),
+    metavar("<to>") |+| description("The name of charset to be converted to"),
+  )
+
+  def charsetSrcFileParse: Parse[CharsetArgs.SrcFile] = flag[File](
+    both('s', "src"),
+    metavar("<src>") |+| description("The source subtitle file"),
+  ).map(CharsetArgs.SrcFile(_))
+
+  def charsetOutFileParse: Parse[Option[CharsetArgs.OutFile]] = flag[File](
+    both('o', "out"),
+    metavar("<out>") |+| description("An optional output subtitle file. If missing, the result is printed out."),
+  ).option.map(_.map(CharsetArgs.OutFile(_)))
+
+  def charsetConvertParse: Parse[CharsetArgs.CharsetTask] = CharsetArgs.CharsetTask.Convert.apply |*| (
+    charsetFromParse,
+    charsetToParse,
+    charsetSrcFileParse,
+    charsetOutFileParse,
+  )
+
   val rawCmd: Command[WhatsubArgs] =
     Command(
       "Whatsub",
@@ -87,6 +130,12 @@ object WhatsubArgsParser {
             "sync",
             "sync subtitles".some,
             syncArgsParse,
+          ),
+        ) ||| subcommand(
+          Command(
+            "charset",
+            "Charset conversion".some,
+            charsetTaskSubcommand,
           ),
         ),
       ) <* version(WhatsubBuildInfo.version),

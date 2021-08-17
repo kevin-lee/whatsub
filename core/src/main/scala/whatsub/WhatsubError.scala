@@ -2,6 +2,7 @@ package whatsub
 
 import cats.Show
 import cats.syntax.all.*
+import whatsub.charset.{CharsetConvertError, ConvertCharset}
 import whatsub.convert.ConversionError
 import whatsub.parse.ParseError
 
@@ -20,6 +21,8 @@ enum WhatsubError {
   case FileWriteFailure(file: File, error: Throwable)
 
   case FailedWithExitCode(exitCode: Int)
+
+  case CharsetConversion(charsetConvertError: CharsetConvertError)
 }
 
 object WhatsubError {
@@ -46,6 +49,25 @@ object WhatsubError {
 
       case FailedWithExitCode(exitCode) =>
         s"Failed with exit code ${exitCode.toString}"
+
+      case CharsetConversion(
+            CharsetConvertError.Conversion(from, to, input, error),
+          ) =>
+        s"""Error when converting charset
+           | From: $from
+           |   To: $to
+           |input: $input
+           |error: ${error.getMessage}
+           |""".stripMargin
+
+      case CharsetConversion(
+            CharsetConvertError.Consumption(converted, error),
+          ) =>
+        s"""Error when consuming converted subtitle content
+           |converted: $converted
+           |    error: ${error.getMessage}
+           |""".stripMargin
+
     }
   }
 }

@@ -6,6 +6,9 @@ import pirate.Read
 import whatsub.sync.Syncer
 
 import java.io.File
+import java.nio.charset.{Charset, UnsupportedCharsetException}
+import scala.util.Try
+import scala.util.control.NonFatal
 
 enum WhatsubArgs derives CanEqual {
   case ConvertArgs(
@@ -19,6 +22,9 @@ enum WhatsubArgs derives CanEqual {
     sync: SyncArgs.Sync,
     src: SyncArgs.SrcFile,
     out: Option[SyncArgs.OutFile],
+  )
+  case CharsetArgs(
+    charsetTask: CharsetArgs.CharsetTask
   )
 }
 object WhatsubArgs {
@@ -210,6 +216,110 @@ object WhatsubArgs {
 
     }
 
+  }
+  
+  object CharsetArgs {
+    enum CharsetTask {
+      case ListAll
+      case Convert(
+        from: From,
+        to: To,
+        srcFile: SrcFile,
+        outFile: Option[OutFile],
+      )
+    }
+
+    private type ParamName = ParamName.ParamName
+    private object ParamName {
+      opaque type ParamName = String
+      def apply(paramName: String): ParamName = paramName
+
+      given paramNameCanEqual: CanEqual[ParamName, ParamName] = CanEqual.derived
+
+      extension (paramName: ParamName) {
+        def value: String = paramName
+      }
+    }
+
+    import scalaz.*
+    import Scalaz.*
+
+    def charsetFromString(charset: String, paramName: ParamName): String \/ Charset =
+      Try(Charset.forName(charset))
+        .toDisjunction
+        .leftMap {
+          case ex: UnsupportedCharsetException =>
+            s"${ex.getCharsetName} is unknown charset for '$paramName'. To see all supported ones please run 'charset list' command"
+          case NonFatal(ex) =>
+          s"$charset is unknown charset for '$paramName'. To see all supported ones please run 'charset list' command"
+        }
+
+    type From = From.From
+    object From {
+      opaque type From = Charset
+      def apply(from: Charset): From = from
+      
+      given fromCanEqual: CanEqual[From, From] = CanEqual.derived
+
+      def unapply(from: From): Some[Charset] = Some(from.value)
+
+      given fromRead: Read[From] = Read.eitherRead { fromCharset =>
+        import scalaz.*
+        import Scalaz.*
+        charsetFromString(fromCharset, ParamName("from")).map(From(_))
+      }
+      
+      extension (from: From) {
+        def value: Charset = from
+      }
+    }
+    
+    type To = To.To
+    object To {
+      opaque type To = Charset
+      def apply(to: Charset): To = to
+      
+      given toCanEqual: CanEqual[To, To] = CanEqual.derived
+
+      def unapply(to: To): Some[Charset] = Some(to.value)
+
+      given fromRead: Read[To] = Read.eitherRead { toCharset =>
+        import scalaz.*
+        import Scalaz.*
+        charsetFromString(toCharset, ParamName("to")).map(To(_))
+      }
+      
+      extension (to: To) {
+        def value: Charset = to
+      }
+    }
+
+    type SrcFile = SrcFile.SrcFile
+    object SrcFile {
+      opaque type SrcFile = File
+      def apply(srcFile: File): SrcFile = srcFile
+
+      given srcFileCanEqual: CanEqual[SrcFile, SrcFile] = CanEqual.derived
+
+      extension (srFile0: SrcFile) {
+        def value: File = srFile0
+      }
+
+    }
+
+    type OutFile = OutFile.OutFile
+    object OutFile {
+      opaque type OutFile = File
+      def apply(outFile: File): OutFile = outFile
+
+      given outFileCanEqual: CanEqual[OutFile, OutFile] = CanEqual.derived
+
+      extension (outFile: OutFile) {
+        def value: File = outFile
+      }
+
+    }
+    
   }
 
 }
