@@ -1,7 +1,7 @@
 package whatsub
 
 import FileF.FileError
-import cats.Monad
+import cats.{Monad, Monoid}
 import cats.data.EitherT
 import cats.effect.kernel.MonadCancel
 import cats.effect.{Resource, Sync}
@@ -11,12 +11,15 @@ import effectie.cats.Effectful.*
 import effectie.cats.EitherTSupport.*
 import pirate.{Command, ExitCode}
 import piratex.{Help, Metavar}
-import whatsub.WhatsubArgs.{ConvertArgs, SyncArgs}
+import whatsub.WhatsubArgs.{CharsetArgs, ConvertArgs, SyncArgs}
+import whatsub.charset.ConvertCharset
 import whatsub.convert.Convert
 import whatsub.parse.{ParseError, SmiParser, SrtParser}
 import whatsub.sync.Syncer
+import whatsub.charset.Charset
 
-import java.io.File
+import java.io.{BufferedWriter, File, FileWriter, Writer}
+import java.nio.charset.{Charset => JCharset}
 import scala.io.Source
 
 /** @author Kevin Lee
@@ -62,7 +65,7 @@ object Whatsub {
     sync: Syncer.Sync,
     src: File,
     outFile: Option[SyncArgs.OutFile],
-  )(using syncer: Syncer[F, A]): F[Either[WhatsubError, Unit]] = {
+  )(using syncer: Syncer[F, A]): F[Either[WhatsubError, Unit]] =
     (for {
       srcSub   <- Resource
                     .make(effectOf(Source.fromFile(src)))(source => effectOf(source.close()))
@@ -85,6 +88,58 @@ object Whatsub {
                         WhatsubError.FileWriteFailure(file, throwable)
                     }
     } yield ()).value
+
+  def charsetListAll[F[_]: Monad: Fx]: F[Unit] = {
+    import scala.jdk.CollectionConverters.*
+    ConsoleEffect[F].putStr(
+      JCharset
+        .availableCharsets()
+        .asScala
+        .keys
+        .mkString("== List of available charsets ==\n", "\n", "\n"),
+    )
+  }
+
+  def charsetConvert[F[_]: Monad: MCancel: Fx: CanCatch](
+    from: ConvertCharset.From,
+    to: ConvertCharset.To,
+    src: CharsetArgs.SrcFile,
+    out: Option[CharsetArgs.OutFile],
+  ): F[Either[WhatsubError, Unit]] = {
+
+    given monoidUnit: Monoid[Unit] with {
+      override def empty: Unit = ()
+
+      override def combine(x: Unit, y: Unit): Unit = ()
+    }
+
+    out match {
+      case None =>
+        val EoL = System.lineSeparator
+        ConvertCharset
+          .convertFileCharset[F, Unit]
+          .convert(from, to)(src.value)(s => ConsoleEffect[F].putStr(s + EoL))
+          .eitherT
+          .leftMap(WhatsubError.CharsetConversion(_))
+          .value
+
+      case Some(outFile) =>
+        Resource
+          .make[F, Writer](effectOf(new BufferedWriter(new FileWriter(outFile.value))))(writer =>
+            effectOf(writer.close()),
+          )
+          .use { writer =>
+            val EoL                  = System.lineSeparator
+            val f: String => F[Unit] = s => effectOf(writer.write(s + EoL))
+            ConvertCharset
+              .convertFileCharset[F, Unit]
+              .convert(from, to)(src.value)(f)
+              .eitherT
+              .leftMap(WhatsubError.CharsetConversion(_))
+              .value
+          }
+
+    }
   }
 
   def apply[F[_]: Monad: MCancel: Fx: CanCatch](args: WhatsubArgs): F[Either[WhatsubError, Unit]] =
@@ -118,5 +173,12 @@ object Whatsub {
 
       case SyncArgs(SyncArgs.Sub(SupportedSub.Srt), sync, srcFile, outFile) =>
         resync[F, Srt](SrtParser.parse, sync.value, srcFile.value, outFile)
+
+      case CharsetArgs(CharsetArgs.CharsetTask.ListAll) =>
+        charsetListAll[F].map(_.asRight[WhatsubError])
+
+      case CharsetArgs(CharsetArgs.CharsetTask.Convert(CharsetArgs.From(from), CharsetArgs.To(to), srcFile, outFile)) =>
+        charsetConvert[F](ConvertCharset.From(Charset(from)), ConvertCharset.To(Charset(to)), srcFile, outFile)
     }
+
 }
