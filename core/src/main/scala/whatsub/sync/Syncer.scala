@@ -14,7 +14,7 @@ object Syncer {
   def apply[F[_], A](using Syncer[F, A]): Syncer[F, A] = summon[Syncer[F, A]]
 
   final case class Sync(direction: Direction, playtime: Playtime) derives CanEqual
-  enum Direction {
+  enum Direction derives CanEqual {
     case Forward
     case Backward
   }

@@ -4,8 +4,10 @@ import cats.Show
 import cats.parse.Parser as P
 
 enum ParseError {
-  case SmiParseError(error: P.Error)
+  case SmiParseError(lineIndex: Int, lineStr: String, error: P.Error)
+  case SmiParseInvalidLineError(lineIndex: Int, lineStr: String, error: String)
   case SrtParseError(lineIndex: Int, lineStr: String, error: P.Error)
+  case SrtParseInvalidLineError(lineIndex: Int, lineStr: String, error: String)
 }
 object ParseError {
 
@@ -13,9 +15,24 @@ object ParseError {
 
   extension (parseError: ParseError) {
     def render: String = parseError match {
-      case SmiParseError(error) =>
+      case SmiParseError(lineIndex, lineStr, error) =>
         s"""SmiParseError:
+           |- lineIndex: $lineIndex
+           |- line:
+           |---
+           |$lineStr
+           |---
            |- error: ${error.toString}
+           |""".stripMargin
+
+      case SmiParseInvalidLineError(lineIndex, lineStr, error) =>
+        s"""SrtParseError:
+           |- lineIndex: $lineIndex
+           |- line:
+           |---
+           |$lineStr
+           |---
+           |- error: $error
            |""".stripMargin
 
       case SrtParseError(lineIndex, lineStr, error) =>
@@ -26,6 +43,16 @@ object ParseError {
            |$lineStr
            |---
            |- error: ${error.toString}
+           |""".stripMargin
+
+      case SrtParseInvalidLineError(lineIndex, lineStr, error) =>
+        s"""SrtParseError:
+           |- lineIndex: $lineIndex
+           |- line:
+           |---
+           |$lineStr
+           |---
+           |- error: $error
            |""".stripMargin
     }
   }

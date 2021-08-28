@@ -5,7 +5,7 @@ import cats.Show
 /** @author Kevin Lee
   * @since 2021-07-04
   */
-enum SupportedSub {
+enum SupportedSub derives CanEqual {
   case Smi
   case Srt
 }

@@ -3,7 +3,7 @@ package whatsub.convert
 import cats.Applicative
 import cats.syntax.all.*
 import effectie.cats.Effectful.*
-import effectie.cats.EitherTSupport.*
+import extras.cats.syntax.all.*
 import effectie.cats.Fx
 import whatsub.{Smi, Srt, SupportedSub}
 

@@ -1,26 +1,28 @@
 package whatsub
 
 import FileF.FileError
-import cats.{Monad, Monoid}
+import canequal.all
 import cats.data.EitherT
 import cats.effect.kernel.MonadCancel
 import cats.effect.{Resource, Sync}
 import cats.syntax.all.*
+import cats.{Monad, Monoid}
 import effectie.cats.*
 import effectie.cats.Effectful.*
 import effectie.cats.EitherTSupport.*
 import pirate.{Command, ExitCode}
 import piratex.{Help, Metavar}
 import whatsub.WhatsubArgs.{CharsetArgs, ConvertArgs, SyncArgs}
-import whatsub.charset.ConvertCharset
+import whatsub.charset.{Charset, ConvertCharset}
 import whatsub.convert.Convert
 import whatsub.parse.{ParseError, SmiParser, SrtParser}
 import whatsub.sync.Syncer
-import whatsub.charset.Charset
 
 import java.io.{BufferedWriter, File, FileWriter, Writer}
-import java.nio.charset.{Charset => JCharset}
+import java.nio.charset.Charset as JCharset
 import scala.io.Source
+
+import canequal.all.given
 
 /** @author Kevin Lee
   * @since 2021-06-30
@@ -28,7 +30,7 @@ import scala.io.Source
 object Whatsub {
 
   private def parseAndConvert[F[_]: Monad: MCancel: Fx: CanCatch, A, B: CanRender](
-    parser: String => F[Either[ParseError, A]],
+    parser: Seq[String] => F[Either[ParseError, A]],
     src: File,
     outFile: Option[ConvertArgs.OutFile],
   )(
@@ -38,7 +40,7 @@ object Whatsub {
       srcSub <- Resource
                   .make(effectOf(Source.fromFile(src)))(source => effectOf(source.close()))
                   .use { srcSource =>
-                    effectOf(srcSource.getLines.map(_.trim).mkString("\n"))
+                    effectOf(srcSource.getLines.to(LazyList))
                       .flatMap(lines => parser(lines))
                   }
                   .eitherT
@@ -61,7 +63,7 @@ object Whatsub {
     } yield ()).value
 
   def resync[F[_]: Monad: MCancel: Fx: CanCatch, A: CanRender](
-    parser: String => F[Either[ParseError, A]],
+    parser: Seq[String] => F[Either[ParseError, A]],
     sync: Syncer.Sync,
     src: File,
     outFile: Option[SyncArgs.OutFile],
@@ -70,7 +72,7 @@ object Whatsub {
       srcSub   <- Resource
                     .make(effectOf(Source.fromFile(src)))(source => effectOf(source.close()))
                     .use { srcSource =>
-                      effectOf(srcSource.getLines.map(_.trim).mkString("\n"))
+                      effectOf(srcSource.getLines.to(LazyList))
                         .flatMap(lines => parser(lines))
                     }
                     .eitherT
