@@ -7,7 +7,7 @@ import cats.syntax.all.*
 import scala.util.Try
 import effectie.cats.*
 import effectie.cats.Effectful.*
-import effectie.cats.EitherTSupport.*
+import extras.cats.syntax.all.*
 import whatsub.MCancel
 
 import java.io.File

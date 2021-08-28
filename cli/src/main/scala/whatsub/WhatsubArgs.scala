@@ -10,6 +10,8 @@ import java.nio.charset.{Charset, UnsupportedCharsetException}
 import scala.util.Try
 import scala.util.control.NonFatal
 
+import canequal.all.given
+
 enum WhatsubArgs derives CanEqual {
   case ConvertArgs(
     from: ConvertArgs.From,
@@ -219,7 +221,7 @@ object WhatsubArgs {
   }
   
   object CharsetArgs {
-    enum CharsetTask {
+    enum CharsetTask derives CanEqual {
       case ListAll
       case Convert(
         from: From,

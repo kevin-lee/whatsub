@@ -27,8 +27,9 @@ lazy val whatsub = (project in file("."))
 lazy val core = subProject("core", file("core"))
   .enablePlugins(BuildInfoPlugin)
   .settings(
+//    resolvers += Resolver.sonatypeRepo("snapshots"),
     libraryDependencies ++=
-      libs.catsAndCatsEffect3 ++ List(libs.catsParse, libs.effectieCatsEffect3),
+      libs.catsAndCatsEffect3 ++ List(libs.catsParse, libs.effectieCatsEffect3) ++ List(libs.extrasCats),
     /* Build Info { */
     buildInfoKeys := List[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoObject := "WhatsubBuildInfo",
@@ -67,7 +68,7 @@ lazy val props =
     final val HedgehogVersion = "0.7.0"
 
     final val CatsVersion        = "2.6.1"
-    final val CatsEffect3Version = "3.2.1"
+    final val CatsEffect3Version = "3.2.4"
 
     final val CatsParseVersion = "0.3.4"
 
@@ -77,6 +78,11 @@ lazy val props =
     final val pirateUri     = uri(s"https://github.com/$GitHubUsername/pirate.git#$pirateVersion")
 
     final val IncludeTest: String = "compile->compile;test->test"
+
+    final val ExtrasVersion = "0.1.0"
+
+    final val CanEqualVersion = "0.1.0"
+
   }
 
 lazy val libs =
@@ -96,6 +102,10 @@ lazy val libs =
 
     lazy val effectieCatsEffect3 = "io.kevinlee" %% "effectie-cats-effect3" % props.EffectieCatsEffect3Version
 
+    lazy val extrasCats = "io.kevinlee" %% "extras-cats" % props.ExtrasVersion
+
+    lazy val canEqual = "io.kevinlee" %% "can-equal" % props.CanEqualVersion
+
   }
 
 // format: off
@@ -106,7 +116,8 @@ def subProject(projectName: String, file: File): Project =
   Project(projectName, file)
     .settings(
       name := prefixedProjectName(projectName),
-      libraryDependencies ++= libs.hedgehogLibs,
+      useAggressiveScalacOptions := true,
+      libraryDependencies ++= libs.hedgehogLibs ++ List(libs.canEqual),
       testFrameworks ~= (testFws => (TestFramework("hedgehog.sbt.Framework") +: testFws).distinct),
       licenses := List("MIT" -> url("http://opensource.org/licenses/MIT")),
     )
