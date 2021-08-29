@@ -8,8 +8,9 @@ import WhatsubArgs.*
 import pirate.internal.ParseTraversal
 import whatsub.info.WhatsubBuildInfo
 
+import whatsub.charset.Charset
+
 import java.io.File
-import java.nio.charset.StandardCharsets
 
 /** @author Kevin Lee
   * @since 2021-07-01
@@ -96,7 +97,7 @@ object WhatsubArgsParser {
   def charsetToParse: Parse[CharsetArgs.To] = flag[CharsetArgs.To](
     both('t', "to"),
     metavar("<to>") |+| description("The name of charset to be converted to (default: UTF-8)"),
-  ).default(CharsetArgs.To(StandardCharsets.UTF_8))
+  ).default(CharsetArgs.To(Charset.Utf8.value))
 
   def charsetSrcFileParse: Parse[CharsetArgs.SrcFile] = flag[File](
     both('s', "src"),

@@ -2,6 +2,7 @@ package whatsub
 
 import cats.effect.*
 import cats.syntax.all.*
+import effectie.cats.ConsoleEffectful.*
 import pirate.{ExitCode as PirateExitCode, Command, Prefs, Runners}
 import piratex.{Help, Metavar}
 
@@ -32,7 +33,7 @@ trait MainIo[A] extends IOApp {
       errorOrResult <- codeOrA.fold(exitCodeToEither, runApp)
       code          <- errorOrResult.fold(
                          err =>
-                           IO(System.err.println(err.render)) >>
+                           putErrStrLn[IO](err.render) >>
                              IO(ExitCode.Error),
                          _ => IO(ExitCode.Success),
                        )

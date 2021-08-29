@@ -93,6 +93,7 @@ object Smi {
   object Start {
     opaque type Start = Long
     def apply(start: Long): Start = start
+    def fromSrt(start: Srt.Start): Start = Start(start.value)
 
     given startCanEqual: CanEqual[Start, Start] = CanEqual.derived
     extension (start: Start) {
@@ -104,6 +105,7 @@ object Smi {
   object End {
     opaque type End = Long
     def apply(end: Long): End = end
+    def fromSrt(end: Srt.End): End = End(end.value)
 
     given endCanEqual: CanEqual[End, End] = CanEqual.derived
     extension (end: End) {
@@ -115,6 +117,7 @@ object Smi {
   object Line {
     opaque type Line = String
     def apply(line: String): Line = line
+    def fromSrt(line: Srt.Line): Line = Line(line.value)
 
     given lineCanEqual: CanEqual[Line, Line] = CanEqual.derived
     extension (line: Line) {
