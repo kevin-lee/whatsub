@@ -1,33 +1,53 @@
 package whatsub
 
+import cats.Show
 import cats.effect.*
 import cats.syntax.all.*
 import effectie.cats.ConsoleEffectful.*
-import pirate.{ExitCode as PirateExitCode, Command, Prefs, Runners}
+import pirate.{Command, Prefs, Runners, ExitCode as PirateExitCode}
 import piratex.{Help, Metavar}
+import whatsub.WhatsubArgsParser.{ArgParseError, ArgParseFailureResult, JustMessageOrHelp}
 
 trait MainIo[A] extends IOApp {
 
   def command: Command[A]
 
-  def runApp(a: A): IO[Either[WhatsubError, Unit]]
+  def runApp(a: A): IO[Either[WhatsubError, Option[String]]]
 
   def prefs: Prefs
 
-  def exitCodeToEither(exitCode: PirateExitCode): IO[Either[WhatsubError, Unit]] =
-    exitCode.fold(
-      IO.pure(().asRight[WhatsubError]),
-      code => IO(WhatsubError.FailedWithExitCode(code).asLeft[Unit]),
-    )
+  def exitCodeToEither(argParseFailureResult: ArgParseFailureResult): IO[Either[WhatsubError, Option[String]]] =
+    argParseFailureResult match {
+      case err @ JustMessageOrHelp(_) =>
+        IO.pure(err.show.some.asRight[WhatsubError])
+      case err @ ArgParseError(_)     =>
+        IO(WhatsubError.ArgParse(err).asLeft[Option[String]])
+    }
 
   override def run(args: List[String]): IO[ExitCode] = {
     def getArgs(
       args: List[String],
       command: Command[A],
       prefs: Prefs,
-    ): IO[Either[PirateExitCode, A]] =
-      IO(Runners.runWithExit[A](args, command, prefs).unsafePerformIO().toEither)
-
+    ): IO[Either[ArgParseFailureResult, A]] = {
+      import scalaz.{-\/, \/-}
+      import pirate.Interpreter
+      import pirate.Usage
+      Interpreter.run(command.parse, args, prefs) match {
+        case (ctx, -\/(e)) =>
+          IO(
+            Usage
+              .printError(command, ctx, e, prefs)
+              .fold[ArgParseFailureResult](
+                ArgParseError(_),
+                JustMessageOrHelp(_),
+              )
+              .asLeft[A],
+          )
+        case (_, \/-(v))   =>
+          IO(v.asRight[ArgParseFailureResult])
+      }
+    }
     for {
       codeOrA       <- getArgs(args, command, prefs)
       errorOrResult <- codeOrA.fold(exitCodeToEither, runApp)
@@ -35,7 +55,9 @@ trait MainIo[A] extends IOApp {
                          err =>
                            putErrStrLn[IO](err.render) >>
                              IO(ExitCode.Error),
-                         _ => IO(ExitCode.Success),
+                         _.fold(
+                           IO(ExitCode.Success),
+                         )(msg => putStrLn[IO](msg) >> IO(ExitCode.Success)),
                        )
     } yield code
   }

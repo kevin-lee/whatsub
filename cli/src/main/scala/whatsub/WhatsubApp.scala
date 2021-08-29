@@ -1,6 +1,7 @@
 package whatsub
 
 import cats.effect.IO
+import cats.syntax.all.*
 import pirate.{Command, DefaultPrefs, Prefs}
 import piratex.{Help, Metavar}
 
@@ -16,8 +17,9 @@ object WhatsubApp extends MainIo[WhatsubArgs] {
 
   override def command: Command[WhatsubArgs] = cmd
 
-  override def prefs: Prefs = DefaultPrefs()
+  override def prefs: Prefs = DefaultPrefs().copy(width = 100)
 
-  override def runApp(args: WhatsubArgs): IO[Either[WhatsubError, Unit]] =
+  override def runApp(args: WhatsubArgs): IO[Either[WhatsubError, Option[String]]] =
     Whatsub[IO](args)
+      .map(_.map(_ => none[String]))
 }
