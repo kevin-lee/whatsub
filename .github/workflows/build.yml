@@ -9,6 +9,12 @@ on:
     branches:
       - main
 
+env:
+  GH_JAVA_VERSION: "adopt@1.11"
+  GH_JVM_OPTS: "-Xss64m -Xms1024m -XX:MaxMetaspaceSize=1G -Xmx2G -XX:MaxInlineLevel=18 -XX:+UnlockExperimentalVMOptions -XX:+UseJVMCICompiler"
+  CLI_SCALA_VERSION: "3.0.1"
+  CLI_SCALA_BINARY_VERSION: "3"
+
 
 jobs:
 
@@ -44,6 +50,7 @@ jobs:
           CURRENT_BRANCH_NAME: ${{ github.ref }}
           RUN_ID: ${{ github.run_id }}
           RUN_NUMBER: ${{ github.run_number }}
+          JVM_OPTS: ${{ env.GH_JVM_OPTS }}
         run: |
           echo "[BEFORE]CURRENT_BRANCH_NAME=${CURRENT_BRANCH_NAME}"
           export CURRENT_BRANCH_NAME="${CURRENT_BRANCH_NAME#refs/heads/}"
@@ -51,6 +58,8 @@ jobs:
           echo "RUN_ID=${RUN_ID}"
           echo "RUN_NUMBER=${RUN_NUMBER}"
           echo "Push #${PUSH_NUMBER}"
+          echo "JVM_OPTS=${JVM_OPTS}"
+          echo "SBT_OPTS=${SBT_OPTS}"
           java -version
           .github/workflows/sbt-build-all.sh ${{ matrix.scala.version }}
 
@@ -62,10 +71,91 @@ jobs:
           RUN_NUMBER: ${{ github.run_number }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+          JVM_OPTS: ${{ env.GH_JVM_OPTS }}
         run: |
           echo "Rull request to the '${CURRENT_BRANCH_NAME}' branch"
           echo "RUN_ID=${RUN_ID}"
           echo "RUN_NUMBER=${RUN_NUMBER}"
           echo "PR #${PR_NUMBER}"
+          echo "JVM_OPTS=${JVM_OPTS}"
+          echo "SBT_OPTS=${SBT_OPTS}"
           java -version
           .github/workflows/sbt-build-all.sh ${{ matrix.scala.version }}
+
+  build-package-bin:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: olafurpg/setup-scala@v10
+        with:
+          java-version: ${{ env.GH_JAVA_VERSION }}
+
+      - name: Cache SBT
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.ivy2/cache
+            ~/.cache/coursier
+            ~/.sbt
+          key: ${{ runner.os }}-sbt-${{ env.CLI_SCALA_BINARY_VERSION }}-${{ hashFiles('**/*.sbt') }}-${{ hashFiles('**/build.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-sbt-${{ env.CLI_SCALA_BINARY_VERSION }}-
+
+      - name: "[Push] Build bin package - ${{ github.run_number }}"
+        if: github.event_name == 'push'
+        env:
+          CURRENT_BRANCH_NAME: ${{ github.ref }}
+          RUN_ID: ${{ github.run_id }}
+          RUN_NUMBER: ${{ github.run_number }}
+          JVM_OPTS: ${{ env.GH_JVM_OPTS }}
+        run: |
+          echo "[BEFORE]CURRENT_BRANCH_NAME=${CURRENT_BRANCH_NAME}"
+          export CURRENT_BRANCH_NAME="${CURRENT_BRANCH_NAME#refs/heads/}"
+          echo " [AFTER]CURRENT_BRANCH_NAME=${CURRENT_BRANCH_NAME}"
+          echo "RUN_ID=${RUN_ID}"
+          echo "RUN_NUMBER=${RUN_NUMBER}"
+          echo "Push #${PUSH_NUMBER}"
+          echo "JVM_OPTS=${JVM_OPTS}"
+          echo "SBT_OPTS=${SBT_OPTS}"
+          java -version
+          sbt \
+            ++${{ env.CLI_SCALA_VERSION }}! \
+            clean \
+            universal:packageBin
+
+          cd cli/target/universal
+          unzip whatsub-cli-*.zip
+          rm whatsub-cli-*.zip
+          mv whatsub-cli-* whatsub-cli
+          cd whatsub-cli/bin
+          ./whatsub --version
+
+      - name: "[PR] Build bin package for - PR-#${{ github.event.pull_request.number }} - ${{ github.run_number }}"
+        if: github.event_name == 'pull_request'
+        env:
+          CURRENT_BRANCH_NAME: ${{ github.base_ref }}
+          RUN_ID: ${{ github.run_id }}
+          RUN_NUMBER: ${{ github.run_number }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+          JVM_OPTS: ${{ env.GH_JVM_OPTS }}
+        run: |
+          echo "Rull request to the '${CURRENT_BRANCH_NAME}' branch"
+          echo "RUN_ID=${RUN_ID}"
+          echo "RUN_NUMBER=${RUN_NUMBER}"
+          echo "PR #${PR_NUMBER}"
+          echo "JVM_OPTS=${JVM_OPTS}"
+          echo "SBT_OPTS=${SBT_OPTS}"
+          java -version
+          sbt \
+            ++${{ env.CLI_SCALA_VERSION }}! \
+            clean \
+            universal:packageBin
+
+          cd cli/target/universal
+          unzip whatsub-cli-*.zip
+          rm whatsub-cli-*.zip
+          mv whatsub-cli-* whatsub-cli
+          cd whatsub-cli/bin
+          ./whatsub --version

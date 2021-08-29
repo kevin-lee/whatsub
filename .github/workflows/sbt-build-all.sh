@@ -21,8 +21,6 @@ else
   if [[ "$CURRENT_BRANCH_NAME" == "main" || "$CURRENT_BRANCH_NAME" == "release" ]]
   then
     sbt \
-      -J-XX:MaxMetaspaceSize=1024m \
-      -J-Xmx2048m \
       ++${scala_version}! \
       -v \
       clean \
@@ -34,8 +32,6 @@ else
 #    ls -ld cli/target/universal/whatsub-cli*
   else
     sbt \
-      -J-XX:MaxMetaspaceSize=1024m \
-      -J-Xmx2048m \
       ++${scala_version}! \
       -v \
       clean \
