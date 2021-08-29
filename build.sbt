@@ -41,8 +41,13 @@ lazy val core = subProject("core", file("core"))
 lazy val pirate = ProjectRef(props.pirateUri, "pirate")
 
 lazy val cli = subProject("cli", file("cli"))
-  .enablePlugins(NativeImagePlugin)
+  .enablePlugins(JavaAppPackaging, NativeImagePlugin)
   .settings(
+    maintainer := "Kevin Lee <kevin.code@kevinlee.io>",
+    packageSummary := "Whatsub - subtitle converter and syncer",
+    packageDescription := "A tool to convert and sync subtitles",
+    executableScriptName := props.ExecutableScriptName,
+
     nativeImageOptions ++= List(
       "--verbose",
       "--no-fallback",
@@ -53,6 +58,7 @@ lazy val cli = subProject("cli", file("cli"))
 //      "--report-unsupported-elements-at-runtime",
     ),
   )
+  .settings(noPublish)
   .dependsOn(core, pirate)
 
 lazy val props =
@@ -64,6 +70,8 @@ lazy val props =
     final val RepoName       = "whatsub"
     final val ProjectName    = RepoName
     final val ProjectVersion = "0.1.0-SNAPSHOT"
+
+    final val ExecutableScriptName = RepoName
 
     final val HedgehogVersion = "0.7.0"
 
