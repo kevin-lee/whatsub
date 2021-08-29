@@ -59,6 +59,7 @@ lazy val cli = subProject("cli", file("cli"))
       "--no-fallback",
       "-H:+ReportExceptionStackTraces",
       "--initialize-at-build-time",
+      "-H:+AddAllCharsets",
 //      s"-H:ReflectionConfigurationFiles=${ (baseDirectory.value / "graal" / "reflect-config.json").getCanonicalPath }",
 //      "--allow-incomplete-classpath",
 //      "--report-unsupported-elements-at-runtime",
