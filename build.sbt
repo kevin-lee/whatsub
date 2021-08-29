@@ -18,8 +18,15 @@ ThisBuild / scmInfo      :=
 ThisBuild / licenses     := List("MIT" -> url("http://opensource.org/licenses/MIT"))
 
 lazy val whatsub = (project in file("."))
+  .enablePlugins(DevOopsGitHubReleasePlugin)
   .settings(
     name := props.ProjectName,
+    /* GitHub Release { */
+    devOopsPackagedArtifacts := List(
+      s"cli/target/universal/${name.value}*.zip",
+      s"cli/target/native-image/${props.RepoName}-cli-*",
+    ),
+    /* } GitHub Release */
   )
   .settings(noPublish)
   .aggregate(core, cli)
