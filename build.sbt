@@ -1,7 +1,7 @@
 ThisBuild / scalaVersion := props.ScalaVersion
-ThisBuild / version := props.ProjectVersion
+ThisBuild / version      := props.ProjectVersion
 ThisBuild / organization := props.Org
-ThisBuild / developers := List(
+ThisBuild / developers   := List(
   Developer(
     props.GitHubUsername,
     "Kevin Lee",
@@ -9,13 +9,13 @@ ThisBuild / developers := List(
     url(s"https://github.com/${props.GitHubUsername}"),
   ),
 )
-ThisBuild / homepage := url(s"https://github.com/${props.GitHubUsername}/${props.RepoName}").some
-ThisBuild / scmInfo :=
+ThisBuild / homepage     := url(s"https://github.com/${props.GitHubUsername}/${props.RepoName}").some
+ThisBuild / scmInfo      :=
   ScmInfo(
     url(s"https://github.com/${props.GitHubUsername}/${props.RepoName}"),
     s"https://github.com/${props.GitHubUsername}/${props.RepoName}.git",
   ).some
-ThisBuild / licenses := List("MIT" -> url("http://opensource.org/licenses/MIT"))
+ThisBuild / licenses     := List("MIT" -> url("http://opensource.org/licenses/MIT"))
 
 lazy val whatsub = (project in file("."))
   .settings(
@@ -31,8 +31,8 @@ lazy val core = subProject("core", file("core"))
     libraryDependencies ++=
       libs.catsAndCatsEffect3 ++ List(libs.catsParse, libs.effectieCatsEffect3) ++ List(libs.extrasCats),
     /* Build Info { */
-    buildInfoKeys := List[BuildInfoKey](name, version, scalaVersion, sbtVersion),
-    buildInfoObject := "WhatsubBuildInfo",
+    buildInfoKeys    := List[BuildInfoKey](name, version, scalaVersion, sbtVersion),
+    buildInfoObject  := "WhatsubBuildInfo",
     buildInfoPackage := "whatsub.info",
     buildInfoOptions += BuildInfoOption.ToJson,
     /* } Build Info */
@@ -43,11 +43,10 @@ lazy val pirate = ProjectRef(props.pirateUri, "pirate")
 lazy val cli = subProject("cli", file("cli"))
   .enablePlugins(JavaAppPackaging, NativeImagePlugin)
   .settings(
-    maintainer := "Kevin Lee <kevin.code@kevinlee.io>",
-    packageSummary := "Whatsub - subtitle converter and syncer",
-    packageDescription := "A tool to convert and sync subtitles",
+    maintainer           := "Kevin Lee <kevin.code@kevinlee.io>",
+    packageSummary       := "Whatsub - subtitle converter and syncer",
+    packageDescription   := "A tool to convert and sync subtitles",
     executableScriptName := props.ExecutableScriptName,
-
     nativeImageOptions ++= List(
       "--verbose",
       "--no-fallback",
@@ -69,7 +68,7 @@ lazy val props =
     final val GitHubUsername = "Kevin-Lee"
     final val RepoName       = "whatsub"
     final val ProjectName    = RepoName
-    final val ProjectVersion = "0.1.0-SNAPSHOT"
+    final val ProjectVersion = "0.1.0"
 
     final val ExecutableScriptName = RepoName
 
@@ -123,9 +122,9 @@ def prefixedProjectName(name: String): String = s"${props.RepoName}${if (name.is
 def subProject(projectName: String, file: File): Project =
   Project(projectName, file)
     .settings(
-      name := prefixedProjectName(projectName),
+      name                       := prefixedProjectName(projectName),
       useAggressiveScalacOptions := true,
       libraryDependencies ++= libs.hedgehogLibs ++ List(libs.canEqual),
       testFrameworks ~= (testFws => (TestFramework("hedgehog.sbt.Framework") +: testFws).distinct),
-      licenses := List("MIT" -> url("http://opensource.org/licenses/MIT")),
+      licenses                   := List("MIT" -> url("http://opensource.org/licenses/MIT")),
     )
