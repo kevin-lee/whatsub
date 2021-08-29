@@ -7,6 +7,7 @@ import cats.effect.kernel.MonadCancel
 import cats.syntax.all.*
 import effectie.cats.*
 import effectie.cats.Effectful.*
+import effectie.cats.ConsoleEffectful.*
 import effectie.cats.EitherTSupport.*
 import whatsub.FileF.FileError
 
@@ -44,19 +45,17 @@ object FileF {
         .make(effectOf(new BufferedWriter(new FileWriter(file))))(writer => effectOf(writer.close()))
         .use { writer =>
           (for {
-            content <- effectOf(CanRender[A].render(a)).rightT[FileError]
+            content <- effectOf(CanRender[A].render(a)).rightT
             _       <- CanCatch[F]
                          .catchNonFatal(effectOf(writer.write(content))) {
                            case NonFatal(th) =>
                              FileError.WriteFilure(file, th)
                          }
                          .eitherT
-            _       <- effectOf(
-                         println(
-                           s"""Success] The subtitle file has been successfully written at
+            _       <- putStrLn(
+                         s"""Success] The subtitle file has been successfully written at
                               |  ${file.getCanonicalPath}
                               |""".stripMargin,
-                         ),
                        ).rightT[FileError],
           } yield ()).value
         }

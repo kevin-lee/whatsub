@@ -9,7 +9,8 @@ import cats.syntax.all.*
 import cats.{Monad, Monoid}
 import effectie.cats.*
 import effectie.cats.Effectful.*
-import effectie.cats.EitherTSupport.*
+import effectie.cats.ConsoleEffectful.*
+import extras.cats.syntax.all.*
 import pirate.{Command, ExitCode}
 import piratex.{Help, Metavar}
 import whatsub.WhatsubArgs.{CharsetArgs, ConvertArgs, SyncArgs}
@@ -51,10 +52,10 @@ object Whatsub {
                   .leftMap(WhatsubError.ConversionFailure(_))
       _      <- effectOf(outFile)
                   .rightT[FileError]
-                  .flatMapF(
+                  .flatMap(
                     _.fold(
-                      effectOf(println(CanRender[B].render(outSub)).asRight),
-                    )(out => FileF.fileF[F].writeFile(outSub, out.value)),
+                      putStrLn(CanRender[B].render(outSub)).rightT[FileError],
+                    )(out => FileF.fileF[F].writeFile(outSub, out.value).eitherT),
                   )
                   .leftMap {
                     case FileError.WriteFilure(file, throwable) =>
@@ -78,13 +79,10 @@ object Whatsub {
                     .eitherT
                     .leftMap(WhatsubError.ParseFailure(_))
       resynced <- syncer.sync(srcSub, sync).rightT
-      _        <- effectOf(outFile)
-                    .rightT[FileError]
-                    .flatMapF(
-                      _.fold(
-                        effectOf(println(CanRender[A].render(resynced)).asRight),
-                      )(out => FileF.fileF[F].writeFile(resynced, out.value)),
-                    )
+      _        <- outFile
+                    .fold(
+                      putStrLn(CanRender[A].render(resynced)).rightT[FileError],
+                    )(out => FileF.fileF[F].writeFile(resynced, out.value).eitherT)
                     .leftMap {
                       case FileError.WriteFilure(file, throwable) =>
                         WhatsubError.FileWriteFailure(file, throwable)

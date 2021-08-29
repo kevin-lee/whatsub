@@ -44,27 +44,29 @@ object Convert {
 
   given srtToSmiConvert[F[_]: Fx: Applicative]: Convert[F, Srt, Smi] =
     srt =>
-      (if (srt.lines.isEmpty)
-         ConversionError
-           .noContent(
-             SupportedSub.Srt,
-             s"""The srt"""",
-           )
-           .leftTF[F, Smi]
-       else
-         effectOf(
-           for {
-             srtLine <- srt.lines
-             start    = srtLine.start.value
-             end      = srtLine.end.value
-             line     = srtLine.line.value
-           } yield Smi.SmiLine(Smi.Start(start), Smi.End(end), Smi.Line(line)),
-         ).rightT[ConversionError]
-           .map(lines =>
-             Smi(
-               Smi.Title(""),
-               lines,
-             ),
-           )).value
-
+      if (srt.lines.isEmpty) {
+        pureOf(
+          ConversionError
+            .noContent(
+              SupportedSub.Srt,
+              s"""The srt"""",
+            )
+            .asLeft[Smi],
+        )
+      } else {
+        val lines = srt.lines.map {
+          case Srt.SrtLine(_, start, end, line) =>
+            Smi.SmiLine(
+              Smi.Start.fromSrt(start),
+              Smi.End.fromSrt(end),
+              Smi.Line.fromSrt(line),
+            )
+        }
+        pureOf(
+          Smi(
+            Smi.Title(""),
+            lines,
+          ).asRight[ConversionError],
+        )
+      }
 }
