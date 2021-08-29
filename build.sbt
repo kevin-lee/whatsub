@@ -76,7 +76,7 @@ lazy val props =
     final val GitHubUsername = "Kevin-Lee"
     final val RepoName       = "whatsub"
     final val ProjectName    = RepoName
-    final val ProjectVersion = "0.1.0"
+    final val ProjectVersion = "0.1.1"
 
     final val ExecutableScriptName = RepoName
 
