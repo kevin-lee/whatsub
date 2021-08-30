@@ -25,6 +25,8 @@ enum WhatsubError {
   case ArgParse(argError: ArgParseError)
 
   case CharsetConversion(charsetConvertError: CharsetConvertError)
+
+  case IdenticalSrcAndOut(src: File, out: Option[File])
 }
 
 object WhatsubError {
@@ -72,6 +74,12 @@ object WhatsubError {
            |    error: ${error.getMessage}
            |""".stripMargin
 
+      case IdenticalSrcAndOut(src, out) =>
+        s"""${"Invalid out filename or path".red}
+           |The src file path and the out file path are the same. The out one should be different.
+           |src: ${src.getCanonicalPath}
+           |out: ${out.fold("")(_.getCanonicalPath)}
+           |""".stripMargin
     }
   }
 }

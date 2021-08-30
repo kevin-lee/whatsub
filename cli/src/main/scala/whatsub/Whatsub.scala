@@ -37,40 +37,11 @@ object Whatsub {
   )(
     using convert: Convert[F, A, B],
   ): F[Either[WhatsubError, Unit]] =
-    (for {
-      srcSub <- Resource
-                  .make(effectOf(Source.fromFile(src)))(source => effectOf(source.close()))
-                  .use { srcSource =>
-                    effectOf(srcSource.getLines.to(LazyList))
-                      .flatMap(lines => parser(lines))
-                  }
-                  .eitherT
-                  .leftMap(WhatsubError.ParseFailure(_))
-      outSub <- convert
-                  .convert(srcSub)
-                  .eitherT
-                  .leftMap(WhatsubError.ConversionFailure(_))
-      _      <- effectOf(outFile)
-                  .rightT[FileError]
-                  .flatMap(
-                    _.fold(
-                      putStrLn(CanRender[B].render(outSub)).rightT[FileError],
-                    )(out => FileF.fileF[F].writeFile(outSub, out.value).eitherT),
-                  )
-                  .leftMap {
-                    case FileError.WriteFilure(file, throwable) =>
-                      WhatsubError.FileWriteFailure(file, throwable)
-                  }
-    } yield ()).value
-
-  def resync[F[_]: Monad: MCancel: Fx: CanCatch, A: CanRender](
-    parser: Seq[String] => F[Either[ParseError, A]],
-    sync: Syncer.Sync,
-    src: File,
-    outFile: Option[SyncArgs.OutFile],
-  )(using syncer: Syncer[F, A]): F[Either[WhatsubError, Unit]] =
-    (for {
-      srcSub   <- Resource
+    if (outFile.exists(_.value.getCanonicalPath == src.getCanonicalPath)) {
+      pureOf(WhatsubError.IdenticalSrcAndOut(src, outFile.map(_.value)).asLeft[Unit])
+    } else {
+      (for {
+        srcSub <- Resource
                     .make(effectOf(Source.fromFile(src)))(source => effectOf(source.close()))
                     .use { srcSource =>
                       effectOf(srcSource.getLines.to(LazyList))
@@ -78,16 +49,53 @@ object Whatsub {
                     }
                     .eitherT
                     .leftMap(WhatsubError.ParseFailure(_))
-      resynced <- syncer.sync(srcSub, sync).rightT
-      _        <- outFile
-                    .fold(
-                      putStrLn(CanRender[A].render(resynced)).rightT[FileError],
-                    )(out => FileF.fileF[F].writeFile(resynced, out.value).eitherT)
+        outSub <- convert
+                    .convert(srcSub)
+                    .eitherT
+                    .leftMap(WhatsubError.ConversionFailure(_))
+        _      <- effectOf(outFile)
+                    .rightT[FileError]
+                    .flatMap(
+                      _.fold(
+                        putStrLn(CanRender[B].render(outSub)).rightT[FileError],
+                      )(out => FileF.fileF[F].writeFile(outSub, out.value).eitherT),
+                    )
                     .leftMap {
                       case FileError.WriteFilure(file, throwable) =>
                         WhatsubError.FileWriteFailure(file, throwable)
                     }
-    } yield ()).value
+      } yield ()).value
+    }
+
+  def resync[F[_]: Monad: MCancel: Fx: CanCatch, A: CanRender](
+    parser: Seq[String] => F[Either[ParseError, A]],
+    sync: Syncer.Sync,
+    src: File,
+    outFile: Option[SyncArgs.OutFile],
+  )(using syncer: Syncer[F, A]): F[Either[WhatsubError, Unit]] =
+    if (outFile.exists(_.value.getCanonicalPath == src.getCanonicalPath)) {
+      pureOf(WhatsubError.IdenticalSrcAndOut(src, outFile.map(_.value)).asLeft[Unit])
+    } else {
+      (for {
+        srcSub   <- Resource
+                      .make(effectOf(Source.fromFile(src)))(source => effectOf(source.close()))
+                      .use { srcSource =>
+                        effectOf(srcSource.getLines.to(LazyList))
+                          .flatMap(lines => parser(lines))
+                      }
+                      .eitherT
+                      .leftMap(WhatsubError.ParseFailure(_))
+        resynced <- syncer.sync(srcSub, sync).rightT
+        _        <- outFile
+                      .fold(
+                        putStrLn(CanRender[A].render(resynced)).rightT[FileError],
+                      )(out => FileF.fileF[F].writeFile(resynced, out.value).eitherT)
+                      .leftMap {
+                        case FileError.WriteFilure(file, throwable) =>
+                          WhatsubError.FileWriteFailure(file, throwable)
+                      }
+      } yield ()).value
+    }
 
   def charsetListAll[F[_]: Monad: Fx]: F[Unit] = {
     import scala.jdk.CollectionConverters.*
@@ -113,32 +121,36 @@ object Whatsub {
       override def combine(x: Unit, y: Unit): Unit = ()
     }
 
-    out match {
-      case None =>
-        val EoL = System.lineSeparator
-        ConvertCharset
-          .convertFileCharset[F, Unit]
-          .convert(from, to)(src.value)(s => ConsoleEffect[F].putStr(s + EoL))
-          .eitherT
-          .leftMap(WhatsubError.CharsetConversion(_))
-          .value
+    if (out.exists(_.value.getCanonicalPath == src.value.getCanonicalPath)) {
+      pureOf(WhatsubError.IdenticalSrcAndOut(src.value, out.map(_.value)).asLeft[Unit])
+    } else {
+      out match {
+        case None =>
+          val EoL = System.lineSeparator
+          ConvertCharset
+            .convertFileCharset[F, Unit]
+            .convert(from, to)(src.value)(s => ConsoleEffect[F].putStr(s + EoL))
+            .eitherT
+            .leftMap(WhatsubError.CharsetConversion(_))
+            .value
 
-      case Some(outFile) =>
-        Resource
-          .make[F, Writer](effectOf(new BufferedWriter(new FileWriter(outFile.value))))(writer =>
-            effectOf(writer.close()),
-          )
-          .use { writer =>
-            val EoL                  = System.lineSeparator
-            val f: String => F[Unit] = s => effectOf(writer.write(s + EoL))
-            ConvertCharset
-              .convertFileCharset[F, Unit]
-              .convert(from, to)(src.value)(f)
-              .eitherT
-              .leftMap(WhatsubError.CharsetConversion(_))
-              .value
-          }
+        case Some(outFile) =>
+          Resource
+            .make[F, Writer](effectOf(new BufferedWriter(new FileWriter(outFile.value))))(writer =>
+              effectOf(writer.close()),
+            )
+            .use { writer =>
+              val EoL                  = System.lineSeparator
+              val f: String => F[Unit] = s => effectOf(writer.write(s + EoL))
+              ConvertCharset
+                .convertFileCharset[F, Unit]
+                .convert(from, to)(src.value)(f)
+                .eitherT
+                .leftMap(WhatsubError.CharsetConversion(_))
+                .value
+            }
 
+      }
     }
   }
 
