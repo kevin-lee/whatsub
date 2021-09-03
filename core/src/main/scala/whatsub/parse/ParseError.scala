@@ -6,7 +6,7 @@ import cats.parse.Parser as P
 enum ParseError {
   case SmiParseError(lineIndex: Int, lineStr: String, error: P.Error)
   case SmiParseInvalidLineError(lineIndex: Int, lineStr: String, error: String)
-  case SrtParseError(lineIndex: Int, lineStr: String, error: P.Error)
+  case SrtParseError(lineIndex: Int, lineStr: String, additionalInfo: Option[String], error: P.Error)
   case SrtParseInvalidLineError(lineIndex: Int, lineStr: String, error: String)
 }
 object ParseError {
@@ -35,13 +35,14 @@ object ParseError {
            |- error: $error
            |""".stripMargin
 
-      case SrtParseError(lineIndex, lineStr, error) =>
+      case SrtParseError(lineIndex, lineStr, additionalInfo, error) =>
         s"""SrtParseError:
            |- lineIndex: $lineIndex
            |- line:
            |---
            |$lineStr
            |---
+           |additionalInfo: ${additionalInfo.getOrElse("Nothing")}
            |- error: ${error.toString}
            |""".stripMargin
 
