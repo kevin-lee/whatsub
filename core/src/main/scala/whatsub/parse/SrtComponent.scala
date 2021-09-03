@@ -9,6 +9,4 @@ object SrtComponent {
   final case class Index(index: Int)
   final case class Playtimes(start: Playtime, end: Playtime)
   final case class Line(line: String)
-
-  type Component = Index | Playtimes | Line
 }
