@@ -18,7 +18,7 @@ ThisBuild / scmInfo      :=
 ThisBuild / licenses     := List("MIT" -> url("http://opensource.org/licenses/MIT"))
 
 lazy val whatsub = (project in file("."))
-  .enablePlugins(DevOopsGitHubReleasePlugin)
+  .enablePlugins(DevOopsGitHubReleasePlugin, DocusaurPlugin)
   .settings(
     name := props.ProjectName,
     /* GitHub Release { */
@@ -27,6 +27,9 @@ lazy val whatsub = (project in file("."))
       s"cli/target/native-image/${props.RepoName}-cli-*",
     ),
     /* } GitHub Release */
+    docusaurDir := (ThisBuild / baseDirectory).value / "website",
+    docusaurBuildDir := docusaurDir.value / "build",
+
   )
   .settings(noPublish)
   .aggregate(core, cli)
