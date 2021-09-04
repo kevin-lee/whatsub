@@ -1,0 +1,92 @@
+---
+sidebar_position: 4
+---
+# Sync
+
+import Highlight from '../../src/components/Highlight';
+
+## Solve Out of Sync
+
+Is your subtitle file our of sync? Whatsub can solve it.
+
+## Sync
+
+Syncing subtitles is easy just run `whatsub sync` with `--sync` (or `-m` for short) option.
+
+`--sync +TIME` for moving forwards and `--sync -TIME` for moving backwards
+
+### TIME
+* `[NUMBER]h`: e.g.) `2h` for 2 hours
+* `[NUMBER]m`: e.g.) `15m` for 15 minutes
+* `[NUMBER]s`: e.g.) `30s` for 30 seconds
+* `[NUMBER]`: e.g.) `250` for 250 milliseconds
+
+### Examples
+* `1h2m45s200`: 1 hour 2 minutes 35 seconds and 200 milliseconds
+* `3m7s500`: 3 minutes 7 seconds and 500 milliseconds
+* `1m200`: 1 minute 200 milliseconds
+* `800`: 800 milliseconds
+
+## Sync SMI
+### Forwards
+Sync SMI subtitles 5 seconds forwards.
+```shell
+whatsub sync --sub-type smi --sync +5s --src sub.smi --out sub-synced.smi
+```
+Or
+```shell
+whatsub sync -t smi -m +5s -s sub.smi -o sub-synced.smi
+```
+
+### Backwards
+Sync SMI subtitles 5 seconds backwards.
+```shell
+whatsub sync --sub-type smi --sync -5s --src sub.smi --out sub-synced.smi
+```
+Or
+```shell
+whatsub sync -t smi -m -5s -s sub.smi -o sub-synced.smi
+```
+
+
+## Sync SRT
+### Forwards
+Sync SRT subtitles 5 seconds forwards.
+```shell
+whatsub sync --sub-type srt --sync +5s --src sub.srt --out sub-synced.srt
+```
+Or
+```shell
+whatsub sync -t srt -m +5s -s sub.srt -o sub-synced.srt
+```
+
+### Backwards
+Sync SRT subtitles 5 seconds backwards.
+```shell
+whatsub sync --sub-type srt --sync -5s --src sub.srt --out sub-synced.srt
+```
+Or
+```shell
+whatsub sync -t srt -m -5s -s sub.srt -o sub-synced.srt
+```
+
+## Help
+```shell
+whatsub sync --help
+```
+```shell
+Usage:
+  Whatsub sync -t|--sub-type <sub-type> -m|--sync <sync> -s|--src <src> [-o|--out <out>] [-h|--help HELP]
+
+sync subtitles
+
+Available options:
+  -t|--sub-type <sub-type> A type of subtitle. Either smi or srt
+  -m|--sync <sync>        resync playtime (e.g. shift 1 hour 12 minutes 3
+                          seconds 100 milliseconds forward: +1h12m3s100
+  -s|--src <src>          The source subtitle file
+  -o|--out <out>          An optional output subtitle file. If missing, the result is printed
+                          out.
+  -h|--help HELP          Prints the synopsis and a list of options and arguments.
+```
+

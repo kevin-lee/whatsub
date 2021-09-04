@@ -1,0 +1,49 @@
+---
+sidebar_position: 3
+---
+# Convert Subtitles
+
+import Highlight from '../../src/components/Highlight';
+
+## Conversion
+
+If you have a subtitle file in <Highlight color="#25c2a0">SAMI</Highlight> (<Highlight color="#25c2a0">SMI</Highlight>) format and want to convert it to an <Highlight color="#1877F2">SRT</Highlight> file, whatsub is the tool for you.Highlight
+
+The Google Chrome extension like [Substital](https://chrome.google.com/webstore/detail/substital-add-subtitles-t/kkkbiiikppgjdiebcabomlbidfodipjg) let you use custom subtitles.
+However, it supports only <Highlight color="#1877F2">SRT</Highlight> subtitles so if you have <Highlight color="#25c2a0">SMI</Highlight> ones, you need to convert it to <Highlight color="#1877F2">SRT</Highlight>.
+
+## Convert from SMI to SRT
+
+To convert `SMI` to `SRT`, you can use `whatsub convert`
+
+```shell
+whatsub convert --from smi --to srt --src sub.smi --out sub.srt
+```
+
+## Convert from SRT to SMI
+
+To convert `SRT` to `SMI`, you can use `whatsub convert`
+
+```shell
+whatsub convert --from srt --to smi --src sub.srt --out sub.smi
+```
+
+
+## Help
+```shell
+whatsub convert --help
+```
+```shell
+Usage:
+  Whatsub convert -f|--from <from> -t|--to <to> -s|--src <src> [-o|--out <out>] [-h|--help HELP]
+
+Convert subtitles
+
+Available options:
+  -f|--from <from>        A type of subtitle to be converted from
+  -t|--to <to>            A type of subtitle to be converted to
+  -s|--src <src>          The source subtitle file
+  -o|--out <out>          An optional output subtitle file. If missing, the result is printed
+                          out.
+  -h|--help HELP          Prints the synopsis and a list of options and arguments.
+```

@@ -1,0 +1,104 @@
+---
+sidebar_position: 2
+---
+# Convert Charset
+
+import Highlight from '../../src/components/Highlight';
+
+## Conversion
+
+Is your subtitle file not encoded in `UTF-8` (or another charset you want) and causing a problem?
+You can use whatsub to re-encode in `UTF-8` or another charset you want.
+
+For instance, if a sub file named `some-sub.smi` is encoded in <Highlight color="#25c2a0">Windows-949</Highlight> and you want to re-encode it in <Highlight color="#1877F2">UTF-8</Highlight>,
+You can simply use `whatsub charset convert` command.
+```shell
+whatsub charset convert --from Windows-949 --to UTF-8 --src some-sub.smi --out some-sub-utf8.smi
+```
+Or
+```shell
+whatsub charset convert -f Windows-949 -t UTF-8 -s some-sub.smi -o some-sub-utf8.smi
+```
+Or 
+```shell
+whatsub charset convert -f Windows-949 -s some-sub.smi -o some-sub-utf8.smi
+```
+If `--to` or `-t` is missing the default value is `UTF-8`.
+
+## All Available Charsets
+Would you like to see the list charsets supported by <Highlight color="#1877F2">whatsub</Highlight>? Just runt `whatsub charset list`
+```shell
+whatsub charset list
+```
+```shell
+== List of available charsets ==
+Big5
+Big5-HKSCS
+CESU-8
+EUC-JP
+EUC-KR
+GB18030
+GB2312
+GBK
+# ... omitted
+x-windows-874
+x-windows-949
+x-windows-950
+x-windows-iso2022jp
+```
+
+## Help
+
+### charset
+```shell
+whatsub charset --help
+```
+```shell
+Usage:
+  Whatsub charset (list ARGS... | convert ARGS...) [-h|--help HELP]
+
+Charset conversion
+
+Available options:
+  -h|--help HELP          Prints the synopsis and a list of options and arguments.
+
+
+Available commands:
+  list                    List all available charsets
+  convert                 Convert charset to another
+```
+
+### charset convert
+```shell
+whatsub charset convert --help
+```
+```shell
+Usage:
+  Whatsub charset convert -f|--from <from> [-t|--to <to>] -s|--src <src> [-o|--out <out>] [-h|--help
+                          HELP]
+
+Convert charset to another
+
+Available options:
+  -f|--from <from>        The name of charset to be converted from (e.g. Windows-949 for
+                          Korean charset)
+  -t|--to <to>            The name of charset to be converted to (default: UTF-8)
+  -s|--src <src>          The source subtitle file
+  -o|--out <out>          An optional output subtitle file. If missing, the result is printed
+                          out.
+  -h|--help HELP          Prints the synopsis and a list of options and arguments.
+```
+
+### charset list
+```shell
+whatsub charset list --help
+```
+```shell
+Usage:
+  Whatsub charset list [-h|--help HELP]
+
+List all available charsets
+
+Available options:
+  -h|--help HELP          Prints the synopsis and a list of options and arguments.
+```
