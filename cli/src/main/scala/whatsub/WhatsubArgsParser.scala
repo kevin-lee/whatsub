@@ -53,7 +53,7 @@ object WhatsubArgsParser {
   def syncParse: Parse[SyncArgs.Sync] = flag[SyncArgs.Sync](
     both('m', "sync"),
     metavar("<sync>") |+| description(
-      s"""resync playtime (e.g. shift ${"1 h".blue}our ${"12 m".blue}inutes ${"3 s".blue}econds ${"100 m".blue}illiseconds forward: ${"+1h12m3s100".blue}""",
+      s"""resync playtime (e.g. shift ${"1 h".blue}our ${"12 m".blue}inutes ${"3 s".blue}econds ${"100".blue} milliseconds forward: ${"+1h12m3s100".blue}""",
     ),
   )
 
