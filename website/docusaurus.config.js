@@ -24,6 +24,7 @@ const websiteConfig = {
   organizationName: 'Kevin-Lee', // Usually your GitHub org/user name.
   projectName: 'whatsub', // Usually your repo name.
   themeConfig: {
+    image: 'img/poster.png',
     prism: {
       theme: lightCodeTheme,
       darkTheme: darkCodeTheme,
