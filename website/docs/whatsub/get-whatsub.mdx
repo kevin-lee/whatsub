@@ -1,0 +1,47 @@
+---
+sidebar_position: 1
+id: 'get-whatsub'
+---
+import Highlight from '../../src/components/Highlight';
+
+# Get Whatsub
+
+## macOS (Native)
+
+### Install GraalVM Native Image (Recommended)
+
+Just run the following one in the terminal then it installs <Highlight color="#1877F2">whatsub</Highlight> GraalVM Native Image which does not require JVM so it's much faster to run.
+
+:::tip Recommended
+```shell
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/Kevin-Lee/whatsub/main/.scripts/install-graal-macos.sh)" 
+```
+:::
+
+## Debian / Ubuntu Linux
+
+### Install GraalVM Native Image (Recommended)
+
+Just run the following one in the terminal then it installs `whatsub` GraalVM Native Image which does not require JVM so much faster to run.
+
+:::tip Recommended
+```shell
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/Kevin-Lee/whatsub/main/.scripts/install-graal-ubuntu.sh)" 
+```
+:::
+
+
+### Windows
+#### Install GraalVM Native Image (Recommended)
+
+
+Download <Highlight color="#25c2a0">whatsub-cli-windows-latest.exe</Highlight> blow. Sorry, there's no installation script for Windows yet.
+
+:::tip Recommended
+Download: [whatsub-cli-windows-latest.exe](https://github.com/Kevin-Lee/whatsub/releases/download/v0.1.1/whatsub-cli-windows-latest.exe)
+:::
+
+#### Java Package (JVM)
+Download and unzip the `whatsub-cli-0.1.1.zip` just like Linux or macOS.
+
+You can run `whatsub-cli-0.1.1/bin/whatsub.bat` file but it hasn't been tested.
