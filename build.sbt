@@ -20,16 +20,15 @@ ThisBuild / licenses     := List("MIT" -> url("http://opensource.org/licenses/MI
 lazy val whatsub = (project in file("."))
   .enablePlugins(DevOopsGitHubReleasePlugin, DocusaurPlugin)
   .settings(
-    name := props.ProjectName,
+    name                     := props.ProjectName,
     /* GitHub Release { */
     devOopsPackagedArtifacts := List(
       s"cli/target/universal/${name.value}*.zip",
       s"cli/target/native-image/${props.RepoName}-cli-*",
     ),
     /* } GitHub Release */
-    docusaurDir := (ThisBuild / baseDirectory).value / "website",
-    docusaurBuildDir := docusaurDir.value / "build",
-
+    docusaurDir              := (ThisBuild / baseDirectory).value / "website",
+    docusaurBuildDir         := docusaurDir.value / "build",
   )
   .settings(noPublish)
   .aggregate(core, cli)
@@ -76,9 +75,13 @@ lazy val props =
     final val ScalaVersion = "3.0.1"
     final val Org          = "io.kevinlee"
 
-    final val GitHubUsername = "Kevin-Lee"
-    final val RepoName       = "whatsub"
-    final val ProjectName    = RepoName
+    private val gitHubRepo = findRepoOrgAndName
+
+    val GitHubUsername = gitHubRepo.fold("Kevin-Lee")(_.orgToString)
+    val RepoName       = gitHubRepo.fold("whatsub")(_.nameToString)
+
+    final val ProjectName = RepoName
+
     final val ProjectVersion = "0.1.2"
 
     final val ExecutableScriptName = RepoName
