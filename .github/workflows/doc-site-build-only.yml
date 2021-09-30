@@ -50,5 +50,6 @@ jobs:
             docusaurGenerateAlgoliaConfigFile \
             docusaurGenerateGoogleAnalyticsConfigFile \
             docusaurInstall \
+            docusaurAuditFix \
             docusaurCleanBuild \
             docusaurBuild
