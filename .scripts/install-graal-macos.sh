@@ -4,7 +4,7 @@ set -eu
 
 app_executable_name=whatsub
 app_name=whatsub-cli
-app_version=${1:-0.1.2}
+app_version=${1:-0.1.3}
 app_package_file="${app_name}-macos-latest"
 download_url="https://github.com/Kevin-Lee/whatsub/releases/download/v${app_version}/${app_package_file}"
 
