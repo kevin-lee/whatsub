@@ -78,70 +78,70 @@ object SmiParser {
   def parse[F[_]: Fx: Monad](lines: Seq[String]): F[Either[ParseError, Smi]] =
     parseAll(lines.map(_.removeEmptyChars.trim).zipWithIndex, none, Vector.empty)
       .eitherT
-      .map {
-        case (title, lines) =>
-          Smi(title.getOrElse(Smi.Title("")), lines.toList)
-      }
+      .map((title, lines) => Smi(title.getOrElse(Smi.Title("")), lines.toList))
       .value
 
-  def parseAll[F[_]: Fx: Monad](
+  private def parseAll[F[_]: Fx: Monad](
     lineAndLineNums: Seq[(String, Int)],
     title: Option[Smi.Title],
     acc: Vector[Smi.SmiLine],
   ): F[Either[ParseError, (Option[Smi.Title], Vector[Smi.SmiLine])]] =
-    lineAndLineNums match {
-      case (line, index) +: rest =>
-        effectOf(line.removeEmptyChars.trim)
-          .flatMap { preprocessed =>
-            parseNonLine(preprocessed) match {
-              case Some(ParseStatus.SamiStart)    =>
-                parseAll(skipUntil(rest, ParseStatus.HeadStart), title, acc)
-              case Some(ParseStatus.SamiEnd)      =>
-                effectOf((title, acc).asRight)
-              case Some(ParseStatus.HeadStart)    =>
-                parseAll(skipUntil(rest, ParseStatus.TitleStart), title, acc)
-              case Some(ParseStatus.HeadEnd)      =>
-                parseAll(skipUntil(rest, ParseStatus.BodyStart), title, acc)
-              case Some(ParseStatus.TitleStart)   =>
-                parseTitle(
-                  (preprocessed.drop(SmiStr.TitleStart.length), index) +: rest,
-                )
-                  .rightT[ParseError]
-                  .flatMapF {
-                    case (maybeTitle, rest) =>
-                      parseAll(rest, maybeTitle.orElse(title), acc)
-                  }
-                  .value
-              case Some(ParseStatus.TitleEnd)     =>
-                parseAll(skipUntil(rest, ParseStatus.StyleStart), title, acc)
-              case Some(ParseStatus.CommentStart) =>
-                parseAll(skipUntil(rest, ParseStatus.CommentEnd), title, acc)
-              case Some(ParseStatus.CommentEnd)   =>
-                parseAll(rest, title, acc)
-              case Some(ParseStatus.StyleStart)   =>
-                parseAll(skipUntil(rest, ParseStatus.StyleEnd), title, acc)
-              case Some(ParseStatus.StyleEnd)     =>
-                parseAll(skipUntil(rest, ParseStatus.HeadEnd), title, acc)
-              case Some(ParseStatus.BodyStart)    =>
-                parseAll(rest, title, acc)
-              case Some(ParseStatus.BodyEnd)      =>
-                parseAll(skipUntil(rest, ParseStatus.SamiEnd), title, acc)
-              case None                           =>
-                parseLine(lineAndLineNums, Vector.empty)
-                  .eitherT
-                  .flatMapF {
-                    case (remaining, lines) =>
-                      parseAll(remaining, title, acc ++ lines)
-                  }
-                  .value
-            }
+    (
+      lineAndLineNums
+        .traverse((line, index) => effectOf((line.removeEmptyChars.trim, index)))
+        .map(_.filter((line, index) => line.nonEmpty)),
+      )
+      .flatMap {
+        case (line, index) +: rest =>
+          parseNonLine(line) match {
+            case Some(ParseStatus.SamiStart)    =>
+              parseAll(skipUntil(rest, ParseStatus.HeadStart), title, acc)
+            case Some(ParseStatus.SamiEnd)      =>
+              effectOf((title, acc).asRight)
+            case Some(ParseStatus.HeadStart)    =>
+              parseAll(skipUntil(rest, ParseStatus.TitleStart), title, acc)
+            case Some(ParseStatus.HeadEnd)      =>
+              parseAll(skipUntil(rest, ParseStatus.BodyStart), title, acc)
+            case Some(ParseStatus.TitleStart)   =>
+              parseTitle(
+                (line.drop(SmiStr.TitleStart.length), index) +: rest,
+              )
+                .rightT[ParseError]
+                .flatMapF {
+                  case (maybeTitle, rest) =>
+                    parseAll(rest, maybeTitle.orElse(title), acc)
+                }
+                .value
+            case Some(ParseStatus.TitleEnd)     =>
+              parseAll(skipUntil(rest, ParseStatus.StyleStart), title, acc)
+            case Some(ParseStatus.CommentStart) =>
+              parseAll(skipUntil(rest, ParseStatus.CommentEnd), title, acc)
+            case Some(ParseStatus.CommentEnd)   =>
+              parseAll(rest, title, acc)
+            case Some(ParseStatus.StyleStart)   =>
+              parseAll(skipUntil(rest, ParseStatus.StyleEnd), title, acc)
+            case Some(ParseStatus.StyleEnd)     =>
+              parseAll(skipUntil(rest, ParseStatus.HeadEnd), title, acc)
+            case Some(ParseStatus.BodyStart)    =>
+              parseAll(rest, title, acc)
+            case Some(ParseStatus.BodyEnd)      =>
+              parseAll(skipUntil(rest, ParseStatus.SamiEnd), title, acc)
+            case None                           =>
+              parseLine(lineAndLineNums, Vector.empty)
+                .eitherT
+                .flatMapF {
+                  case (remaining, lines) =>
+                    parseAll(remaining, title, acc ++ lines)
+                }
+                .value
           }
-      case Seq()                 =>
-        effectOf((title, acc).asRight)
-    }
+
+        case Seq() =>
+          effectOf((title, acc).asRight)
+      }
 
   @tailrec
-  def skipUntil(lineAndLineNums: Seq[(String, Int)], target: ParseStatus): Seq[(String, Int)] =
+  private def skipUntil(lineAndLineNums: Seq[(String, Int)], target: ParseStatus): Seq[(String, Int)] =
     lineAndLineNums match {
       case (line, index) +: rest =>
         val preprocessed = line.removeEmptyChars.trim
@@ -157,7 +157,7 @@ object SmiParser {
         List.empty
     }
 
-  def parseLine[F[_]: Fx: Monad](
+  private def parseLine[F[_]: Fx: Monad](
     lineAndLineNums: Seq[(String, Int)],
     acc: Vector[Smi.SmiLine],
   ): F[Either[ParseError, (Seq[(String, Int)], Vector[Smi.SmiLine])]] =
@@ -202,7 +202,7 @@ object SmiParser {
         effectOf((lineAndLineNums, acc).asRight[ParseError])
     }
 
-  def parseLineWithPrevious[F[_]: Fx: Monad](
+  private def parseLineWithPrevious[F[_]: Fx: Monad](
     lineAndLineNums: Seq[(String, Int)],
     previous: SyncInfoAndLine | SyncInfo,
     acc: Vector[Smi.SmiLine],
@@ -271,7 +271,7 @@ object SmiParser {
       effectOf((lineAndLineNums, acc).asRight)
   }
 
-  def parseNonLine(line: String): Option[ParseStatus] = {
+  private def parseNonLine(line: String): Option[ParseStatus] = {
     val lower = line.toLowerCase
     if (lower.startsWith(SmiStr.SamiStart))
       ParseStatus.SamiStart.some
@@ -301,7 +301,9 @@ object SmiParser {
       none
   }
 
-  def parseTitle[F[_]: Fx, Monad](lineAndLineNums: Seq[(String, Int)]): F[(Option[Smi.Title], Seq[(String, Int)])] = {
+  private def parseTitle[F[_]: Fx](
+    lineAndLineNums: Seq[(String, Int)],
+  ): F[(Option[Smi.Title], Seq[(String, Int)])] = {
     @tailrec
     def keepParsingTitle(
       lineAndLineNums: Seq[(String, Int)],
