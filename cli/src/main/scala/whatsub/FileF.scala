@@ -54,8 +54,8 @@ object FileF {
                          .eitherT
             _       <- putStrLn(
                          s"""Success] The subtitle file has been successfully written at
-                              |  ${file.getCanonicalPath}
-                              |""".stripMargin,
+                            |  ${file.getCanonicalPath}
+                            |""".stripMargin,
                        ).rightT[FileError],
           } yield ()).value
         }
