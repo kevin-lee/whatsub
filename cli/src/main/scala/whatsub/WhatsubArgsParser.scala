@@ -28,13 +28,11 @@ object WhatsubArgsParser {
     metavar("<to>") |+| description("A type of subtitle to be converted to"),
   )
 
-  def srcFileParse: Parse[ConvertArgs.SrcFile] = flag[File](
-    both('s', "src"),
+  def srcFileParse: Parse[ConvertArgs.SrcFile] = argument[File](
     metavar("<src>") |+| description("The source subtitle file"),
   ).map(ConvertArgs.SrcFile(_))
 
-  def outFileParse: Parse[Option[ConvertArgs.OutFile]] = flag[File](
-    both('o', "out"),
+  def outFileParse: Parse[Option[ConvertArgs.OutFile]] = argument[File](
     metavar("<out>") |+| description(s"""An ${"optional".green} output subtitle file. If missing, the result is printed out."""),
   ).option.map(_.map(ConvertArgs.OutFile(_)))
 
@@ -57,13 +55,11 @@ object WhatsubArgsParser {
     ),
   )
 
-  def syncSrcFileParse: Parse[SyncArgs.SrcFile] = flag[File](
-    both('s', "src"),
+  def syncSrcFileParse: Parse[SyncArgs.SrcFile] = argument[File](
     metavar("<src>") |+| description("The source subtitle file"),
   ).map(SyncArgs.SrcFile(_))
 
-  def syncOutFileParse: Parse[Option[SyncArgs.OutFile]] = flag[File](
-    both('o', "out"),
+  def syncOutFileParse: Parse[Option[SyncArgs.OutFile]] = argument[File](
     metavar("<out>") |+| description(s"""An ${"optional".green} output subtitle file. If missing, the result is printed out."""),
   ).option.map(_.map(SyncArgs.OutFile(_)))
 
@@ -100,13 +96,11 @@ object WhatsubArgsParser {
     metavar("<to>") |+| description(s"""The name of charset to be converted to (${"default".green}: ${"UTF-8".blue})"""),
   ).default(CharsetArgs.To(Charset.Utf8.value))
 
-  def charsetSrcFileParse: Parse[CharsetArgs.SrcFile] = flag[File](
-    both('s', "src"),
+  def charsetSrcFileParse: Parse[CharsetArgs.SrcFile] = argument[File](
     metavar("<src>") |+| description("The source subtitle file"),
   ).map(CharsetArgs.SrcFile(_))
 
-  def charsetOutFileParse: Parse[Option[CharsetArgs.OutFile]] = flag[File](
-    both('o', "out"),
+  def charsetOutFileParse: Parse[Option[CharsetArgs.OutFile]] = argument[File](
     metavar("<out>") |+| description(s"""An ${"optional".green} output subtitle file. If missing, the result is printed out."""),
   ).option.map(_.map(CharsetArgs.OutFile(_)))
 
