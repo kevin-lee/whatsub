@@ -14,7 +14,7 @@ import canequal.all.given
 
 enum WhatsubArgs derives CanEqual {
   case ConvertArgs(
-    from: ConvertArgs.From,
+    from: Option[ConvertArgs.From],
     to: ConvertArgs.To,
     src: ConvertArgs.SrcFile,
     out: Option[ConvertArgs.OutFile],

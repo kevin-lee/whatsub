@@ -157,7 +157,7 @@ object Whatsub {
   def apply[F[_]: Monad: MCancel: Fx: CanCatch](args: WhatsubArgs): F[Either[WhatsubError, Unit]] =
     args match {
       case ConvertArgs(
-            ConvertArgs.From(SupportedSub.Smi),
+            Some(ConvertArgs.From(SupportedSub.Smi)),
             ConvertArgs.To(SupportedSub.Srt),
             srcFile,
             outFile,
@@ -166,7 +166,7 @@ object Whatsub {
         parseAndConvert[F, Smi, Srt](SmiParser.parse, src, outFile)
 
       case ConvertArgs(
-            ConvertArgs.From(SupportedSub.Srt),
+            Some(ConvertArgs.From(SupportedSub.Srt)),
             ConvertArgs.To(SupportedSub.Smi),
             srcFile,
             outFile,
@@ -174,11 +174,20 @@ object Whatsub {
         val src = srcFile.value.getCanonicalFile
         parseAndConvert[F, Srt, Smi](SrtParser.parse, src, outFile)
 
-      case ConvertArgs(ConvertArgs.From(SupportedSub.Smi), ConvertArgs.To(SupportedSub.Smi), _, _) =>
+      case ConvertArgs(Some(ConvertArgs.From(SupportedSub.Smi)), ConvertArgs.To(SupportedSub.Smi), _, _) =>
         pureOf(WhatsubError.NoConversion(SupportedSub.Smi).asLeft)
 
-      case ConvertArgs(ConvertArgs.From(SupportedSub.Srt), ConvertArgs.To(SupportedSub.Srt), _, _) =>
+      case ConvertArgs(Some(ConvertArgs.From(SupportedSub.Srt)), ConvertArgs.To(SupportedSub.Srt), _, _) =>
         pureOf(WhatsubError.NoConversion(SupportedSub.Srt).asLeft)
+
+      case ConvertArgs(
+            None,
+            _,
+            from,
+            _,
+          ) =>
+        // TODO: Error for missing from type info
+        pureOf(WhatsubError.MissingFrom(from.value).asLeft)
 
       case SyncArgs(SyncArgs.Sub(SupportedSub.Smi), sync, srcFile, outFile) =>
         resync[F, Smi](SmiParser.parse, sync.value, srcFile.value, outFile)
