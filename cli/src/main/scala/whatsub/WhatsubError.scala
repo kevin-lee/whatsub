@@ -20,6 +20,8 @@ enum WhatsubError {
 
   case NoConversion(supportedSub: SupportedSub)
 
+  case MissingFrom(srcFile: File)
+
   case FileWriteFailure(file: File, error: Throwable)
 
   case ArgParse(argError: ArgParseError)
@@ -47,6 +49,9 @@ object WhatsubError {
 
       case NoConversion(supportedSub) =>
         s"""${"No conversion".red}: The subtitle to convert from and to are the same (i.e. ${supportedSub.show})"""
+
+      case MissingFrom(srcFile) =>
+        s"${"Missing from type".red}: There is no from type set nor is the from type info found from the file (${srcFile.toString})."
 
       case FileWriteFailure(file: File, error: Throwable) =>
         s"""${"Error".red}: Writing file at ${file.getCanonicalPath} has failed with ${error.getMessage}"""

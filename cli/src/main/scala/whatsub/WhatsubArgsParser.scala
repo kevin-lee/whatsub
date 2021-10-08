@@ -10,6 +10,7 @@ import cats.Show
 import pirate.internal.ParseTraversal
 import whatsub.info.WhatsubBuildInfo
 import whatsub.charset.Charset
+import canequal.all.given
 
 import java.io.File
 
@@ -18,10 +19,10 @@ import java.io.File
   */
 object WhatsubArgsParser {
 
-  def fromParse: Parse[ConvertArgs.From] = flag[ConvertArgs.From](
+  def fromParse: Parse[Option[ConvertArgs.From]] = flag[ConvertArgs.From](
     both('f', "from"),
     metavar("<from>") |+| description("A type of subtitle to be converted from"),
-  )
+  ).option
 
   def toParse: Parse[ConvertArgs.To] = flag[ConvertArgs.To](
     both('t', "to"),
@@ -33,15 +34,36 @@ object WhatsubArgsParser {
   ).map(ConvertArgs.SrcFile(_))
 
   def outFileParse: Parse[Option[ConvertArgs.OutFile]] = argument[File](
-    metavar("<out>") |+| description(s"""An ${"optional".green} output subtitle file. If missing, the result is printed out."""),
+    metavar("<out>") |+| description(
+      s"""An ${"optional".green} output subtitle file. If missing, the result is printed out.""",
+    ),
   ).option.map(_.map(ConvertArgs.OutFile(_)))
 
-  def convertParse: Parse[WhatsubArgs] = WhatsubArgs.ConvertArgs.apply |*| (
+  def convertParse: Parse[WhatsubArgs] = (WhatsubArgs.ConvertArgs.apply |*| (
     fromParse,
     toParse,
     srcFileParse,
     outFileParse,
-  )
+  )).map {
+    case WhatsubArgs.ConvertArgs(
+          None,
+          to,
+          srcFile,
+          outFile,
+        ) if srcFile.value.toPath.getFileName.toString.endsWith(".smi") =>
+      WhatsubArgs.ConvertArgs(ConvertArgs.From(SupportedSub.Smi).some, to, srcFile, outFile)
+
+    case WhatsubArgs.ConvertArgs(
+          None,
+          to,
+          srcFile,
+          outFile,
+        ) if srcFile.value.toPath.getFileName.toString.endsWith(".srt") =>
+      WhatsubArgs.ConvertArgs(ConvertArgs.From(SupportedSub.Srt).some, to, srcFile, outFile)
+
+    case whatsubArgs =>
+      whatsubArgs
+  }
 
   def subParse: Parse[SyncArgs.Sub] = flag[SyncArgs.Sub](
     both('t', "sub-type"),
@@ -60,7 +82,9 @@ object WhatsubArgsParser {
   ).map(SyncArgs.SrcFile(_))
 
   def syncOutFileParse: Parse[Option[SyncArgs.OutFile]] = argument[File](
-    metavar("<out>") |+| description(s"""An ${"optional".green} output subtitle file. If missing, the result is printed out."""),
+    metavar("<out>") |+| description(
+      s"""An ${"optional".green} output subtitle file. If missing, the result is printed out.""",
+    ),
   ).option.map(_.map(SyncArgs.OutFile(_)))
 
   def syncArgsParse: Parse[WhatsubArgs] = SyncArgs.apply |*| (
@@ -88,7 +112,9 @@ object WhatsubArgsParser {
 
   def charsetFromParse: Parse[CharsetArgs.From] = flag[CharsetArgs.From](
     both('f', "from"),
-    metavar("<from>") |+| description(s"""The name of charset to be converted from (e.g. ${"Windows-949".blue} for ${"Korean".blue} charset)"""),
+    metavar("<from>") |+| description(
+      s"""The name of charset to be converted from (e.g. ${"Windows-949".blue} for ${"Korean".blue} charset)""",
+    ),
   )
 
   def charsetToParse: Parse[CharsetArgs.To] = flag[CharsetArgs.To](
@@ -101,7 +127,9 @@ object WhatsubArgsParser {
   ).map(CharsetArgs.SrcFile(_))
 
   def charsetOutFileParse: Parse[Option[CharsetArgs.OutFile]] = argument[File](
-    metavar("<out>") |+| description(s"""An ${"optional".green} output subtitle file. If missing, the result is printed out."""),
+    metavar("<out>") |+| description(
+      s"""An ${"optional".green} output subtitle file. If missing, the result is printed out.""",
+    ),
   ).option.map(_.map(CharsetArgs.OutFile(_)))
 
   def charsetConvertParse: Parse[CharsetArgs.CharsetTask] = CharsetArgs.CharsetTask.Convert.apply |*| (
@@ -143,7 +171,7 @@ object WhatsubArgsParser {
     given show: Show[JustMessageOrHelp] = _.messages.mkString("\n")
   }
   final case class ArgParseError(errors: List[String])
-  object ArgParseError {
+  object ArgParseError     {
     given show: Show[ArgParseError] = _.errors.mkString("\n")
   }
 
