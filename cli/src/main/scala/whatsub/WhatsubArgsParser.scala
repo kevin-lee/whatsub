@@ -65,10 +65,10 @@ object WhatsubArgsParser {
       whatsubArgs
   }
 
-  def subParse: Parse[SyncArgs.Sub] = flag[SyncArgs.Sub](
+  def subParse: Parse[Option[SyncArgs.Sub]] = flag[SyncArgs.Sub](
     both('t', "sub-type"),
     metavar("<sub-type>") |+| description(s"""A type of subtitle. Either ${"smi".blue} or ${"srt".blue}"""),
-  )
+  ).option
 
   def syncParse: Parse[SyncArgs.Sync] = flag[SyncArgs.Sync](
     both('m', "sync"),
@@ -87,12 +87,41 @@ object WhatsubArgsParser {
     ),
   ).option.map(_.map(SyncArgs.OutFile(_)))
 
-  def syncArgsParse: Parse[WhatsubArgs] = SyncArgs.apply |*| (
+  def syncArgsParse: Parse[WhatsubArgs] = (SyncArgs.apply |*| (
     subParse,
     syncParse,
     syncSrcFileParse,
     syncOutFileParse,
-  )
+  )).map {
+    case WhatsubArgs.SyncArgs(
+      None,
+      sync,
+      srcFile,
+      out,
+    ) if srcFile.value.toPath.getFileName.toString.endsWith(".smi") =>
+      WhatsubArgs.SyncArgs(
+        SyncArgs.Sub(SupportedSub.Smi).some,
+        sync,
+        srcFile,
+        out,
+      )
+
+    case WhatsubArgs.SyncArgs(
+      None,
+      sync,
+      srcFile,
+      out,
+    ) if srcFile.value.toPath.getFileName.toString.endsWith(".srt") =>
+      WhatsubArgs.SyncArgs(
+        SyncArgs.Sub(SupportedSub.Srt).some,
+        sync,
+        srcFile,
+        out,
+      )
+
+    case whatsubArgs =>
+      whatsubArgs
+  }
 
   def charsetTaskSubcommand: Parse[WhatsubArgs] = (subcommand(
     Command(

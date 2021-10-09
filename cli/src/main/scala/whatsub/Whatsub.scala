@@ -183,17 +183,20 @@ object Whatsub {
       case ConvertArgs(
             None,
             _,
-            from,
+            srcFile,
             _,
           ) =>
         // TODO: Error for missing from type info
-        pureOf(WhatsubError.MissingFrom(from.value).asLeft)
+        pureOf(WhatsubError.MissingSubType("from", srcFile.value).asLeft)
 
-      case SyncArgs(SyncArgs.Sub(SupportedSub.Smi), sync, srcFile, outFile) =>
+      case SyncArgs(Some(SyncArgs.Sub(SupportedSub.Smi)), sync, srcFile, outFile) =>
         resync[F, Smi](SmiParser.parse, sync.value, srcFile.value, outFile)
 
-      case SyncArgs(SyncArgs.Sub(SupportedSub.Srt), sync, srcFile, outFile) =>
+      case SyncArgs(Some(SyncArgs.Sub(SupportedSub.Srt)), sync, srcFile, outFile) =>
         resync[F, Srt](SrtParser.parse, sync.value, srcFile.value, outFile)
+
+      case SyncArgs(None, _, srcFile, _) =>
+        pureOf(WhatsubError.MissingSubType("sub", srcFile.value).asLeft)
 
       case CharsetArgs(CharsetArgs.CharsetTask.ListAll) =>
         charsetListAll[F].map(_.asRight[WhatsubError])
