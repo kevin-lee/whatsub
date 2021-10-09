@@ -20,7 +20,7 @@ enum WhatsubArgs derives CanEqual {
     out: Option[ConvertArgs.OutFile],
   )
   case SyncArgs(
-    sub: SyncArgs.Sub,
+    sub: Option[SyncArgs.Sub],
     sync: SyncArgs.Sync,
     src: SyncArgs.SrcFile,
     out: Option[SyncArgs.OutFile],
