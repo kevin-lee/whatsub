@@ -13,6 +13,7 @@ import whatsub.charset.Charset
 import canequal.all.given
 
 import java.io.File
+import scala.io
 
 /** @author Kevin Lee
   * @since 2021-07-01
@@ -66,6 +67,26 @@ object WhatsubArgsParser {
           outFile,
         ) if srcFile.value.toPath.getFileName.toString.endsWith(".srt") =>
       WhatsubArgs.ConvertArgs(ConvertArgs.From(SupportedSub.Srt).some, to, srcFile, outFile)
+
+    case arg @ WhatsubArgs.ConvertArgs(
+          None,
+          to,
+          srcFile,
+          outFile,
+        ) =>
+      val firstLine = FileF.firstLineFromFile(srcFile.value)
+      firstLine match {
+        case Some(line) =>
+          val trimmed = line.trim
+          if trimmed.equalsIgnoreCase("<SAMI>") then
+            WhatsubArgs.ConvertArgs(ConvertArgs.From(SupportedSub.Smi).some, to, srcFile, outFile)
+          else if trimmed.equalsIgnoreCase("1") then
+            WhatsubArgs.ConvertArgs(ConvertArgs.From(SupportedSub.Srt).some, to, srcFile, outFile)
+          else arg
+
+        case None =>
+          arg
+      }
 
     case whatsubArgs =>
       whatsubArgs
@@ -147,6 +168,36 @@ object WhatsubArgsParser {
         srcFile,
         out,
       )
+
+    case arg @ WhatsubArgs.SyncArgs(
+          None,
+          sync,
+          srcFile,
+          out,
+        ) =>
+      val firstLine = FileF.firstLineFromFile(srcFile.value)
+      firstLine match {
+        case Some(line) =>
+          val trimmed = line.trim
+          if trimmed.equalsIgnoreCase("<SAMI>") then
+            WhatsubArgs.SyncArgs(
+              SyncArgs.Sub(SupportedSub.Smi).some,
+              sync,
+              srcFile,
+              out,
+            )
+          else if trimmed.equalsIgnoreCase("1") then
+            WhatsubArgs.SyncArgs(
+              SyncArgs.Sub(SupportedSub.Srt).some,
+              sync,
+              srcFile,
+              out,
+            )
+          else arg
+
+        case None =>
+          arg
+      }
 
     case whatsubArgs =>
       whatsubArgs

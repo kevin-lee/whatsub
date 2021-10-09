@@ -60,4 +60,7 @@ object FileF {
           } yield ()).value
         }
   }
+
+  def firstLineFromFile(file: File): Option[String] =
+    util.Using(io.Source.fromFile(file))(_.getLines.find(_ => true)).toOption.flatten
 }
