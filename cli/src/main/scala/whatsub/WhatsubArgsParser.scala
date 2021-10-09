@@ -93,7 +93,10 @@ object WhatsubArgsParser {
 
   def subParse: Parse[Option[SyncArgs.Sub]] = flag[SyncArgs.Sub](
     both('t', "sub-type"),
-    metavar("<sub-type>") |+| description(s"""A type of subtitle. Either ${"smi".blue} or ${"srt".blue}"""),
+    metavar("<sub-type>") |+| description(
+      s"""A type of subtitle. Either ${"smi".blue} or ${"srt".blue}. """ +
+        "Optional. If missing, it gets the sub-type from the extension of the src file.",
+    ),
   ).option
 
   def syncParse: Parse[SyncArgs.Sync] = flag[SyncArgs.Sync](
