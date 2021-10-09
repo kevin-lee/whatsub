@@ -1,8 +1,8 @@
 package whatsub
 
 import FileF.FileError
-import canequal.all
-import cats.data.EitherT
+import canequal.all.given
+import cats.data.{EitherT, NonEmptyList}
 import cats.effect.kernel.MonadCancel
 import cats.effect.{Resource, Sync}
 import cats.syntax.all.*
@@ -22,8 +22,6 @@ import whatsub.sync.Syncer
 import java.io.{BufferedWriter, File, FileWriter, Writer}
 import java.nio.charset.Charset as JCharset
 import scala.io.Source
-
-import canequal.all.given
 
 /** @author Kevin Lee
   * @since 2021-06-30
@@ -158,7 +156,7 @@ object Whatsub {
     args match {
       case ConvertArgs(
             Some(ConvertArgs.From(SupportedSub.Smi)),
-            ConvertArgs.To(SupportedSub.Srt),
+            Some(ConvertArgs.To(SupportedSub.Srt)),
             srcFile,
             outFile,
           ) =>
@@ -167,18 +165,32 @@ object Whatsub {
 
       case ConvertArgs(
             Some(ConvertArgs.From(SupportedSub.Srt)),
-            ConvertArgs.To(SupportedSub.Smi),
+            Some(ConvertArgs.To(SupportedSub.Smi)),
             srcFile,
             outFile,
           ) =>
         val src = srcFile.value.getCanonicalFile
         parseAndConvert[F, Srt, Smi](SrtParser.parse, src, outFile)
 
-      case ConvertArgs(Some(ConvertArgs.From(SupportedSub.Smi)), ConvertArgs.To(SupportedSub.Smi), _, _) =>
+      case ConvertArgs(Some(ConvertArgs.From(SupportedSub.Smi)), Some(ConvertArgs.To(SupportedSub.Smi)), _, _) =>
         pureOf(WhatsubError.NoConversion(SupportedSub.Smi).asLeft)
 
-      case ConvertArgs(Some(ConvertArgs.From(SupportedSub.Srt)), ConvertArgs.To(SupportedSub.Srt), _, _) =>
+      case ConvertArgs(Some(ConvertArgs.From(SupportedSub.Srt)), Some(ConvertArgs.To(SupportedSub.Srt)), _, _) =>
         pureOf(WhatsubError.NoConversion(SupportedSub.Srt).asLeft)
+
+      case ConvertArgs(
+            None,
+            None,
+            srcFile,
+            outFile,
+          ) =>
+        pureOf(
+          WhatsubError
+            .MissingSubTypes(
+              NonEmptyList.of("from" -> srcFile.value.some, "to" -> outFile.map(_.value)),
+            )
+            .asLeft,
+        )
 
       case ConvertArgs(
             None,
@@ -186,8 +198,27 @@ object Whatsub {
             srcFile,
             _,
           ) =>
-        // TODO: Error for missing from type info
-        pureOf(WhatsubError.MissingSubType("from", srcFile.value).asLeft)
+        pureOf(
+          WhatsubError
+            .MissingSubTypes(
+              NonEmptyList.of("from" -> srcFile.value.some),
+            )
+            .asLeft,
+        )
+
+      case ConvertArgs(
+            _,
+            None,
+            _,
+            outFile,
+          ) =>
+        pureOf(
+          WhatsubError
+            .MissingSubTypes(
+              NonEmptyList.of("to" -> outFile.map(_.value)),
+            )
+            .asLeft,
+        )
 
       case SyncArgs(Some(SyncArgs.Sub(SupportedSub.Smi)), sync, srcFile, outFile) =>
         resync[F, Smi](SmiParser.parse, sync.value, srcFile.value, outFile)
@@ -196,7 +227,7 @@ object Whatsub {
         resync[F, Srt](SrtParser.parse, sync.value, srcFile.value, outFile)
 
       case SyncArgs(None, _, srcFile, _) =>
-        pureOf(WhatsubError.MissingSubType("sub", srcFile.value).asLeft)
+        pureOf(WhatsubError.MissingSubTypes(NonEmptyList.of("sub" -> srcFile.value.some)).asLeft)
 
       case CharsetArgs(CharsetArgs.CharsetTask.ListAll) =>
         charsetListAll[F].map(_.asRight[WhatsubError])

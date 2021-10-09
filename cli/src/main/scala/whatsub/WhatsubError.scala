@@ -1,6 +1,8 @@
 package whatsub
 
+import canequal.all.given
 import cats.Show
+import cats.data.NonEmptyList
 import cats.syntax.all.*
 import extras.shell.syntax.color.*
 import whatsub.WhatsubArgsParser.ArgParseError
@@ -20,7 +22,7 @@ enum WhatsubError {
 
   case NoConversion(supportedSub: SupportedSub)
 
-  case MissingSubType(forWhat: String, srcFile: File)
+  case MissingSubTypes(typeToFile: NonEmptyList[(String, Option[File])])
 
   case FileWriteFailure(file: File, error: Throwable)
 
@@ -47,21 +49,29 @@ object WhatsubError {
            |${parseError.render}
            |""".stripMargin
 
-      case NoConversion(supportedSub) =>
+      case WhatsubError.NoConversion(supportedSub) =>
         s"""${"No conversion".red}: The subtitle to convert from and to are the same (i.e. ${supportedSub.show})"""
 
-      case MissingSubType(what, srcFile) =>
-        s"${s"Missing $what type".red}: There is no $what type set nor is the $what type info found from the file (${srcFile.toString})."
+      case WhatsubError.MissingSubTypes(typeToFile) =>
+        typeToFile
+          .map {
+            case (what, Some(file)) =>
+              s"${s"Missing $what type".red}: There is no $what type set nor is the $what type info found from the file (${file.toString})."
+            case (what, None)       =>
+              s"${s"Missing $what type".red}: There is no $what type set nor is there a file path given for the $what type."
+          }
+          .toList
+          .mkString("\n")
 
-      case FileWriteFailure(file: File, error: Throwable) =>
+      case WhatsubError.FileWriteFailure(file: File, error: Throwable) =>
         s"""${"Error".red}: Writing file at ${file.getCanonicalPath} has failed with ${error.getMessage}"""
 
-      case ArgParse(error) =>
+      case WhatsubError.ArgParse(error) =>
         s"""${"CLI arguments error".red}:
            |${error.show}
            |""".stripMargin
 
-      case CharsetConversion(
+      case WhatsubError.CharsetConversion(
             CharsetConvertError.Conversion(from, to, input, error),
           ) =>
         s"""${"Error when converting charset".red}
@@ -71,7 +81,7 @@ object WhatsubError {
            |error: ${error.getMessage}
            |""".stripMargin
 
-      case CharsetConversion(
+      case WhatsubError.CharsetConversion(
             CharsetConvertError.Consumption(converted, error),
           ) =>
         s"""${"Error when consuming converted subtitle content".red}
@@ -79,7 +89,7 @@ object WhatsubError {
            |    error: ${error.getMessage}
            |""".stripMargin
 
-      case IdenticalSrcAndOut(src, out) =>
+      case WhatsubError.IdenticalSrcAndOut(src, out) =>
         s"""${"Invalid out filename or path".red}
            |The src file path and the out file path are the same. The out one should be different.
            |src: ${src.getCanonicalPath}

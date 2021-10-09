@@ -21,13 +21,19 @@ object WhatsubArgsParser {
 
   def fromParse: Parse[Option[ConvertArgs.From]] = flag[ConvertArgs.From](
     both('f', "from"),
-    metavar("<from>") |+| description("A type of subtitle to be converted from"),
+    metavar("<from>") |+| description(
+      "A type of subtitle to be converted from. Optional. " +
+        "If missing, it gets the from type from the extension of the src file.",
+    ),
   ).option
 
-  def toParse: Parse[ConvertArgs.To] = flag[ConvertArgs.To](
+  def toParse: Parse[Option[ConvertArgs.To]] = flag[ConvertArgs.To](
     both('t', "to"),
-    metavar("<to>") |+| description("A type of subtitle to be converted to"),
-  )
+    metavar("<to>") |+| description(
+      "A type of subtitle to be converted to. Optional. " +
+        "If missing it gets the to type from the extension of the out file.",
+    ),
+  ).option
 
   def srcFileParse: Parse[ConvertArgs.SrcFile] = argument[File](
     metavar("<src>") |+| description("The source subtitle file"),
@@ -63,6 +69,26 @@ object WhatsubArgsParser {
 
     case whatsubArgs =>
       whatsubArgs
+  }.map {
+    case WhatsubArgs.ConvertArgs(
+          from,
+          None,
+          srcFile,
+          Some(outFile),
+        ) if outFile.value.toPath.getFileName.toString.endsWith(".smi") =>
+      WhatsubArgs.ConvertArgs(from, ConvertArgs.To(SupportedSub.Smi).some, srcFile, outFile.some)
+
+    case WhatsubArgs.ConvertArgs(
+          from,
+          None,
+          srcFile,
+          Some(outFile),
+        ) if outFile.value.toPath.getFileName.toString.endsWith(".srt") =>
+      WhatsubArgs.ConvertArgs(from, ConvertArgs.To(SupportedSub.Srt).some, srcFile, outFile.some)
+
+    case whatsubArgs =>
+      whatsubArgs
+
   }
 
   def subParse: Parse[Option[SyncArgs.Sub]] = flag[SyncArgs.Sub](
@@ -94,11 +120,11 @@ object WhatsubArgsParser {
     syncOutFileParse,
   )).map {
     case WhatsubArgs.SyncArgs(
-      None,
-      sync,
-      srcFile,
-      out,
-    ) if srcFile.value.toPath.getFileName.toString.endsWith(".smi") =>
+          None,
+          sync,
+          srcFile,
+          out,
+        ) if srcFile.value.toPath.getFileName.toString.endsWith(".smi") =>
       WhatsubArgs.SyncArgs(
         SyncArgs.Sub(SupportedSub.Smi).some,
         sync,
@@ -107,11 +133,11 @@ object WhatsubArgsParser {
       )
 
     case WhatsubArgs.SyncArgs(
-      None,
-      sync,
-      srcFile,
-      out,
-    ) if srcFile.value.toPath.getFileName.toString.endsWith(".srt") =>
+          None,
+          sync,
+          srcFile,
+          out,
+        ) if srcFile.value.toPath.getFileName.toString.endsWith(".srt") =>
       WhatsubArgs.SyncArgs(
         SyncArgs.Sub(SupportedSub.Srt).some,
         sync,
