@@ -13,15 +13,15 @@ You can use whatsub to re-encode in `UTF-8` or another charset you want.
 For instance, if a sub file named `some-sub.smi` is encoded in <Highlight color="#25c2a0">Windows-949</Highlight> and you want to re-encode it in <Highlight color="#1877F2">UTF-8</Highlight>,
 You can simply use `whatsub charset convert` command.
 ```shell
-whatsub charset convert --from Windows-949 --to UTF-8 --src some-sub.smi --out some-sub-utf8.smi
+whatsub charset convert --from Windows-949 --to UTF-8 some-sub.smi some-sub-utf8.smi
 ```
 Or
 ```shell
-whatsub charset convert -f Windows-949 -t UTF-8 -s some-sub.smi -o some-sub-utf8.smi
+whatsub charset convert -f Windows-949 -t UTF-8 some-sub.smi some-sub-utf8.smi
 ```
 Or 
 ```shell
-whatsub charset convert -f Windows-949 -s some-sub.smi -o some-sub-utf8.smi
+whatsub charset convert -f Windows-949 some-sub.smi some-sub-utf8.smi
 ```
 If `--to` or `-t` is missing the default value is `UTF-8`.
 
@@ -74,8 +74,7 @@ whatsub charset convert --help
 ```
 ```shell
 Usage:
-  Whatsub charset convert -f|--from <from> [-t|--to <to>] -s|--src <src> [-o|--out <out>] [-h|--help
-                          HELP]
+  Whatsub charset convert -f|--from <from> [-t|--to <to>] <src> [<out>] [-h|--help HELP]
 
 Convert charset to another
 
@@ -83,10 +82,12 @@ Available options:
   -f|--from <from>        The name of charset to be converted from (e.g. Windows-949 for
                           Korean charset)
   -t|--to <to>            The name of charset to be converted to (default: UTF-8)
-  -s|--src <src>          The source subtitle file
-  -o|--out <out>          An optional output subtitle file. If missing, the result is printed
-                          out.
   -h|--help HELP          Prints the synopsis and a list of options and arguments.
+
+Positional arguments:
+  <src>                   The source subtitle file
+  <out>                   An optional output subtitle file. If missing, the result is printed
+                          out.
 ```
 
 ### charset list

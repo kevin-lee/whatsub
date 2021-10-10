@@ -17,15 +17,26 @@ However, it supports only <Highlight color="#1877F2">SRT</Highlight> subtitles s
 To convert `SMI` to `SRT`, you can use `whatsub convert`
 
 ```shell
-whatsub convert --from smi --to srt --src sub.smi --out sub.srt
+whatsub convert sub.smi sub.srt
 ```
+
+Or if you want to specify the subtitle types explicitly, you can do so like
+```shell
+whatsub convert --from smi --to srt sub.smi sub.srt
+```
+
 
 ## Convert from SRT to SMI
 
 To convert `SRT` to `SMI`, you can use `whatsub convert`
 
 ```shell
-whatsub convert --from srt --to smi --src sub.srt --out sub.smi
+whatsub convert sub.srt sub.smi
+```
+
+Or again, if you want to specify the subtitle types explicitly, you can do so like
+```shell
+whatsub convert --from srt --to smi sub.srt sub.smi
 ```
 
 
@@ -35,15 +46,20 @@ whatsub convert --help
 ```
 ```shell
 Usage:
-  Whatsub convert -f|--from <from> -t|--to <to> -s|--src <src> [-o|--out <out>] [-h|--help HELP]
+  Whatsub convert [-f|--from <from>] [-t|--to <to>] <src> [<out>] [-h|--help HELP]
 
 Convert subtitles
 
 Available options:
-  -f|--from <from>        A type of subtitle to be converted from
-  -t|--to <to>            A type of subtitle to be converted to
-  -s|--src <src>          The source subtitle file
-  -o|--out <out>          An optional output subtitle file. If missing, the result is printed
-                          out.
+  -f|--from <from>        A type of subtitle to be converted from. Optional. If missing, it gets the
+                          from type from the extension of the src file.
+  -t|--to <to>            A type of subtitle to be converted to. Optional. If missing it gets the to
+                          type from the extension of the out file.
   -h|--help HELP          Prints the synopsis and a list of options and arguments.
+
+Positional arguments:
+  <src>                   The source subtitle file
+  <out>                   An optional output subtitle file. If missing, the result is printed
+                          out.
+
 ```

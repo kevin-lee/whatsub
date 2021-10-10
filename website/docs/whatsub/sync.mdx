@@ -29,45 +29,97 @@ Syncing subtitles is easy just run `whatsub sync` with `--sync` (or `-m` for sho
 
 ## Sync SMI
 ### Forwards
+
 Sync SMI subtitles 5 seconds forwards.
+
 ```shell
-whatsub sync --sub-type smi --sync +5s --src sub.smi --out sub-synced.smi
+whatsub sync --sync +5s sub.smi sub-synced.smi
 ```
 Or
+
 ```shell
-whatsub sync -t smi -m +5s -s sub.smi -o sub-synced.smi
+whatsub sync -m +5s sub.smi sub-synced.smi
+```
+
+Or if you want to specify the subtitle type explicitly, you can do so like
+
+```shell
+whatsub sync --sub-type smi --sync +5s sub.smi sub-synced.smi
+```
+Or
+
+```shell
+whatsub sync -t smi -m +5s sub.smi sub-synced.smi
 ```
 
 ### Backwards
+
 Sync SMI subtitles 5 seconds backwards.
+
 ```shell
-whatsub sync --sub-type smi --sync -5s --src sub.smi --out sub-synced.smi
+whatsub sync --sync -5s sub.smi sub-synced.smi
 ```
 Or
+
 ```shell
-whatsub sync -t smi -m -5s -s sub.smi -o sub-synced.smi
+whatsub sync -m -5s sub.smi sub-synced.smi
+```
+
+Or if you want to specify the subtitle type explicitly, you can do so like
+```shell
+whatsub sync --sub-type smi --sync -5s sub.smi sub-synced.smi
+```
+Or
+
+```shell
+whatsub sync -t smi -m -5s sub.smi sub-synced.smi
 ```
 
 
 ## Sync SRT
 ### Forwards
+
 Sync SRT subtitles 5 seconds forwards.
+
 ```shell
-whatsub sync --sub-type srt --sync +5s --src sub.srt --out sub-synced.srt
+whatsub sync --sync +5s sub.srt sub-synced.srt
 ```
 Or
+
 ```shell
-whatsub sync -t srt -m +5s -s sub.srt -o sub-synced.srt
+whatsub sync -m +5s sub.srt sub-synced.srt
+```
+
+Or if you want to specify the subtitle type explicitly, you can do so like
+```shell
+whatsub sync --sub-type srt --sync +5s sub.srt sub-synced.srt
+```
+Or
+
+```shell
+whatsub sync -t srt -m +5s sub.srt sub-synced.srt
 ```
 
 ### Backwards
+
 Sync SRT subtitles 5 seconds backwards.
+
 ```shell
-whatsub sync --sub-type srt --sync -5s --src sub.srt --out sub-synced.srt
+whatsub sync --sync -5s sub.srt sub-synced.srt
 ```
 Or
 ```shell
-whatsub sync -t srt -m -5s -s sub.srt -o sub-synced.srt
+whatsub sync -m -5s sub.srt sub-synced.srt
+```
+
+Or if you want to specify the subtitle type explicitly, you can do so like
+
+```shell
+whatsub sync --sub-type srt --sync -5s sub.srt sub-synced.srt
+```
+Or
+```shell
+whatsub sync -t srt -m -5s sub.srt sub-synced.srt
 ```
 
 ## Help
@@ -76,17 +128,21 @@ whatsub sync --help
 ```
 ```shell
 Usage:
-  Whatsub sync -t|--sub-type <sub-type> -m|--sync <sync> -s|--src <src> [-o|--out <out>] [-h|--help HELP]
+  Whatsub sync [-t|--sub-type <sub-type>] -m|--sync <sync> <src> [<out>] [-h|--help HELP]
 
 sync subtitles
 
 Available options:
-  -t|--sub-type <sub-type> A type of subtitle. Either smi or srt
+  -t|--sub-type <sub-type> A type of subtitle. Either smi or srt. Optional. If
+                          missing, it gets the sub-type from the extension of the src file.
   -m|--sync <sync>        resync playtime (e.g. shift 1 hour 12 minutes 3
                           seconds 100 milliseconds forward: +1h12m3s100
-  -s|--src <src>          The source subtitle file
-  -o|--out <out>          An optional output subtitle file. If missing, the result is printed
-                          out.
   -h|--help HELP          Prints the synopsis and a list of options and arguments.
+
+Positional arguments:
+  <src>                   The source subtitle file
+  <out>                   An optional output subtitle file. If missing, the result is printed
+                          out.
+
 ```
 
