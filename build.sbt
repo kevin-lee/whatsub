@@ -102,7 +102,7 @@ lazy val props =
 
     final val ExtrasVersion = "0.1.0"
 
-    final val CanEqualVersion = "0.1.0"
+    final val CanEqualVersion = "0.1.1"
 
   }
 
