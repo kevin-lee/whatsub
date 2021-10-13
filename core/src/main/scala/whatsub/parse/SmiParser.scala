@@ -104,7 +104,7 @@ object SmiParser {
               parseAll(skipUntil(rest, ParseStatus.BodyStart), title, acc)
             case Some(ParseStatus.TitleStart)   =>
               parseTitle(
-                (line.drop(SmiStr.TitleStart.length), index) +: rest,
+                (line.drop(SmiStr.TitleStart.length + 1), index) +: rest,
               )
                 .rightT[ParseError]
                 .flatMapF {
@@ -119,7 +119,9 @@ object SmiParser {
             case Some(ParseStatus.CommentEnd)   =>
               parseAll(rest, title, acc)
             case Some(ParseStatus.StyleStart)   =>
-              parseAll(skipUntil(rest, ParseStatus.StyleEnd), title, acc)
+              val skippedToStyleEnd = skipUntil(rest, ParseStatus.StyleEnd)
+              if skippedToStyleEnd.isEmpty then parseAll(rest, title, acc)
+              else parseAll(skippedToStyleEnd, title, acc)
             case Some(ParseStatus.StyleEnd)     =>
               parseAll(skipUntil(rest, ParseStatus.HeadEnd), title, acc)
             case Some(ParseStatus.BodyStart)    =>
