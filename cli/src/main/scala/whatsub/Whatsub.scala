@@ -1,7 +1,6 @@
 package whatsub
 
 import FileF.FileError
-import canequal.all.given
 import cats.data.{EitherT, NonEmptyList}
 import cats.effect.kernel.MonadCancel
 import cats.effect.{Resource, Sync}

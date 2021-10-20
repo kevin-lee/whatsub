@@ -10,7 +10,6 @@ import cats.Show
 import pirate.internal.ParseTraversal
 import whatsub.info.WhatsubBuildInfo
 import whatsub.charset.Charset
-import canequal.all.given
 
 import java.io.File
 import scala.io

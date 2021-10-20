@@ -1,6 +1,5 @@
 package whatsub
 
-import canequal.all.given
 import cats.Show
 import cats.data.NonEmptyList
 import cats.syntax.all.*
