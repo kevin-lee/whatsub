@@ -13,8 +13,6 @@ import whatsub.Smi
 
 import scala.annotation.tailrec
 
-import canequal.all.given
-
 /** @author Kevin Lee
   * @since 2021-08-15
   */

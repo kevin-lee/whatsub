@@ -72,7 +72,7 @@ lazy val cli = subProject("cli", file("cli"))
 
 lazy val props =
   new {
-    final val ScalaVersion = "3.0.1"
+    final val ScalaVersion = "3.1.0"
     final val Org          = "io.kevinlee"
 
     private val gitHubRepo = findRepoOrgAndName
@@ -95,14 +95,12 @@ lazy val props =
 
     final val EffectieCatsEffect3Version = "1.15.0"
 
-    final val pirateVersion = "main"
+    final val pirateVersion = "deec3408b08a751de9b2df2d17fc1ab7b8daeaaf"
     final val pirateUri     = uri(s"https://github.com/$GitHubUsername/pirate.git#$pirateVersion")
 
     final val IncludeTest: String = "compile->compile;test->test"
 
     final val ExtrasVersion = "0.1.0"
-
-    final val CanEqualVersion = "0.1.1"
 
   }
 
@@ -125,8 +123,6 @@ lazy val libs =
 
     lazy val extrasCats = "io.kevinlee" %% "extras-cats" % props.ExtrasVersion
 
-    lazy val canEqual = "io.kevinlee" %% "can-equal" % props.CanEqualVersion
-
   }
 
 // format: off
@@ -138,7 +134,7 @@ def subProject(projectName: String, file: File): Project =
     .settings(
       name                       := prefixedProjectName(projectName),
       useAggressiveScalacOptions := true,
-      libraryDependencies ++= libs.hedgehogLibs ++ List(libs.canEqual),
+      libraryDependencies ++= libs.hedgehogLibs,
       testFrameworks ~= (testFws => (TestFramework("hedgehog.sbt.Framework") +: testFws).distinct),
       licenses                   := List("MIT" -> url("http://opensource.org/licenses/MIT")),
     )
