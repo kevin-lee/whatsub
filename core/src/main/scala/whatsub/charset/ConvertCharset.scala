@@ -3,16 +3,14 @@ package whatsub.charset
 import cats.*
 import cats.effect.Resource
 import cats.syntax.all.*
-
-import scala.util.Try
 import effectie.cats.*
 import effectie.cats.Effectful.*
+import effectie.cats.syntax.error.*
 import extras.cats.syntax.all.*
 import whatsub.MCancel
 
 import java.io.File
 import scala.io.Source
-import scala.util.control.NonFatal
 
 /** @author Kevin Lee
   * @since 2021-08-15
@@ -31,27 +29,18 @@ object ConvertCharset {
     new ConvertCharset[F, String, B] {
       override def convert(from: From, to: To)(input: String)(f: String => F[B]): F[Either[CharsetConvertError, B]] =
         (for {
-          converted <-
-            CanCatch[F]
-              .catchNonFatal(
-                effectOf(
-                  new String(
-                    input
-                      .replaceAll(EmptyCharRegEx, "")
-                      .getBytes(from.javaCharset),
-                    to.javaCharset,
-                  ),
-                ),
-              ) {
-                case NonFatal(err) =>
-                  CharsetConvertError.Conversion(from, to, input, err)
-              }
-              .eitherT
-          result    <- CanCatch[F]
-                         .catchNonFatal(f(converted)) {
-                           case NonFatal(err) =>
-                             CharsetConvertError.Consumption(converted, err)
-                         }
+          converted <- effectOf(
+                         new String(
+                           input
+                             .replaceAll(EmptyCharRegEx, "")
+                             .getBytes(from.javaCharset),
+                           to.javaCharset,
+                         ),
+                       )
+                         .catchNonFatal(err => CharsetConvertError.Conversion(from, to, input, err))
+                         .eitherT
+          result    <- f(converted)
+                         .catchNonFatal(err => CharsetConvertError.Consumption(converted, err))
                          .eitherT
         } yield result).value
     }
@@ -65,29 +54,21 @@ object ConvertCharset {
           .use { source =>
             source
               .getLines
-              .toList
+              .to(LazyList)
               .traverse { line =>
                 (for {
-                  converted <- CanCatch[F]
-                                 .catchNonFatal(
-                                   effectOf(
-                                     new String(
-                                       line.replaceAll(EmptyCharRegEx, "").getBytes(Charset.Utf8.value),
-                                       to.javaCharset,
-                                     ),
-                                   ),
-                                 ) {
-                                   case NonFatal(err) =>
-                                     CharsetConvertError.Conversion(from, to, s"File at ${input.getCanonicalPath}", err)
-                                 }
-                                 .eitherT
-                  result    <- CanCatch[F]
-                                 .catchNonFatal(
-                                   f(converted),
-                                 ) {
-                                   case NonFatal(err) =>
-                                     CharsetConvertError.Consumption(converted, err)
-                                 }
+                  converted <- effectOf(
+                                 new String(
+                                   line
+                                     .replaceAll(EmptyCharRegEx, "")
+                                     .getBytes(Charset.Utf8.value),
+                                   to.javaCharset,
+                                 ),
+                               ).catchNonFatal(err =>
+                                 CharsetConvertError.Conversion(from, to, s"File at ${input.getCanonicalPath}", err),
+                               ).eitherT
+                  result    <- f(converted)
+                                 .catchNonFatal(err => CharsetConvertError.Consumption(converted, err))
                                  .eitherT
                 } yield result).value
               }

@@ -93,7 +93,7 @@ lazy val props =
 
     final val CatsParseVersion = "0.3.4"
 
-    final val EffectieCatsEffect3Version = "1.15.0"
+    final val EffectieCatsEffect3Version = "1.16.0"
 
     final val pirateVersion = "deec3408b08a751de9b2df2d17fc1ab7b8daeaaf"
     final val pirateUri     = uri(s"https://github.com/$GitHubUsername/pirate.git#$pirateVersion")
