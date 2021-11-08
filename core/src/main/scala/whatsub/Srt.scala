@@ -25,36 +25,35 @@ object Srt {
         s"$hh:$mm:$ss,$mss"
     }
 
-  extension (srt: Srt) {
-    def render: String = srt
-      .lines
-      .map {
-        case Srt.SrtLine(index, start, end, line) =>
-          s"""${index.value}
-             |${renderMillisecondsToSrtTime(start.value)} --> ${renderMillisecondsToSrtTime(end.value)}
-             |$line
-             |""".stripMargin
-      }
-      .mkString("\n")
-
-    def sync[F[_]: Fx: Monad](sync: Syncer.Sync): F[Srt] =
-      Syncer[F, Srt].sync(srt, sync)
-
+  given canRenderSrt: CanRender[Srt] with {
+    extension (srt: Srt) {
+      def render: String = srt
+        .lines
+        .map {
+          case Srt.SrtLine(index, start, end, line) =>
+            s"""${index.value}
+               |${renderMillisecondsToSrtTime(start.value)} --> ${renderMillisecondsToSrtTime(end.value)}
+               |$line
+               |""".stripMargin
+        }
+        .mkString("\n")
+    }
   }
 
-  given canRenderSrt: CanRender[Srt] = _.render
-
-  given srtSync[F[_]: Fx: Monad]: Syncer[F, Srt] =
-    (sub, sync) =>
-      for {
-        shift <- pureOf(sync match {
-                   case Syncer.Sync(Syncer.Direction.Forward, playtime)  =>
-                     ((_: SrtLine) + playtime)
-                   case Syncer.Sync(Syncer.Direction.Backward, playtime) =>
-                     ((_: SrtLine) - playtime)
-                 })
-        lines <- effectOf(sub.lines.map(shift))
-      } yield sub.copy(lines = lines)
+  given srtSync[F[_]: Fx: Monad]: Syncer[F, Srt] with {
+    extension (sub: Srt) {
+      def sync(sync: Syncer.Sync): F[Srt] =
+        for {
+          shift <- pureOf(sync match {
+                     case Syncer.Sync(Syncer.Direction.Forward, playtime)  =>
+                       ((_: SrtLine) + playtime)
+                     case Syncer.Sync(Syncer.Direction.Backward, playtime) =>
+                       ((_: SrtLine) - playtime)
+                   })
+          lines <- effectOf(sub.lines.map(shift))
+        } yield sub.copy(lines = lines)
+    }
+  }
 
   final case class SrtLine(
     index: Srt.Index,

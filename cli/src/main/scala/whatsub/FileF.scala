@@ -56,7 +56,7 @@ object FileF {
                          s"""Success] The subtitle file has been successfully written at
                             |  ${file.getCanonicalPath}
                             |""".stripMargin,
-                       ).rightT[FileError],
+                       ).rightT[FileError]
           } yield ()).value
         }
   }
