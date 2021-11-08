@@ -6,7 +6,9 @@ import whatsub.Playtime
   * @since 2021-07-09
   */
 trait Syncer[F[_], A] {
-  def sync(a: A, sync: Syncer.Sync): F[A]
+  extension (a: A) {
+    def sync(sync: Syncer.Sync): F[A]
+  }
 }
 
 object Syncer {

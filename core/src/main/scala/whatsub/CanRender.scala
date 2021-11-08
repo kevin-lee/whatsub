@@ -4,7 +4,9 @@ package whatsub
   * @since 2021-07-06
   */
 trait CanRender[A] {
-  def render(a: A): String
+  extension (a: A) {
+    def render: String
+  }
 }
 
 object CanRender {

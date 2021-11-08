@@ -54,7 +54,7 @@ object Whatsub {
                     .rightT[FileError]
                     .flatMap(
                       _.fold(
-                        putStrLn(CanRender[B].render(outSub)).rightT[FileError],
+                        putStrLn(outSub.render).rightT[FileError],
                       )(out => FileF.fileF[F].writeFile(outSub, out.value).eitherT),
                     )
                     .leftMap {
@@ -82,7 +82,7 @@ object Whatsub {
                       }
                       .eitherT
                       .leftMap(WhatsubError.ParseFailure(_))
-        resynced <- syncer.sync(srcSub, sync).rightT
+        resynced <- srcSub.sync(sync).rightT
         _        <- outFile
                       .fold(
                         putStrLn(CanRender[A].render(resynced)).rightT[FileError],

@@ -12,44 +12,44 @@ final case class Smi(
 ) derives CanEqual
 object Smi {
 
-  given canRenderSmi: CanRender[Smi] = _.render
+  given canRenderSmi: CanRender[Smi] with {
+    extension (smi: Smi) {
+      def render: String =
+        s"""<SAMI>
+           |<HEAD>
+           |  <TITLE>${smi.title.value}</TITLE>
+           |</HEAD>
+           |<BODY>
+           |""".stripMargin + (
+          smi
+            .lines
+            .map { strLine =>
+              s"""  <SYNC Start=${strLine.start.value}><P>${strLine.line.value}
+                 |  <SYNC Start=${strLine.end.value}><P>&nbsp;
+                 |""".stripMargin
+            }
+            .mkString
+          ) +
+          s"""</BODY>
+             |</SAMI>
+             |""".stripMargin
 
-  given smiSync[F[_]: Fx: Monad]: Syncer[F, Smi] =
-    (sub, sync) =>
-      for {
-        shift <- pureOf(sync match {
-                   case Syncer.Sync(Syncer.Direction.Forward, playtime)  =>
-                     ((_: SmiLine) + playtime)
-                   case Syncer.Sync(Syncer.Direction.Backward, playtime) =>
-                     ((_: SmiLine) - playtime)
-                 })
-        lines <- effectOf(sub.lines.map(shift))
-      } yield sub.copy(lines = lines)
+    }
+  }
 
-  extension (smi: Smi) {
-    def render: String =
-      s"""<SAMI>
-         |<HEAD>
-         |  <TITLE>${smi.title.value}</TITLE>
-         |</HEAD>
-         |<BODY>
-         |""".stripMargin + (
-        smi
-          .lines
-          .map { strLine =>
-            s"""  <SYNC Start=${strLine.start.value}><P>${strLine.line.value}
-               |  <SYNC Start=${strLine.end.value}><P>&nbsp;
-               |""".stripMargin
-          }
-          .mkString
-      ) +
-        s"""</BODY>
-           |</SAMI>
-           |""".stripMargin
-
-    def sync[F[_]: Fx: Monad](sync: Syncer.Sync): F[Smi] =
-      Syncer[F, Smi].sync(smi, sync)
-
+  given smiSync[F[_]: Fx: Monad]: Syncer[F, Smi] with {
+    extension (sub: Smi) {
+      def sync(sync: Syncer.Sync): F[Smi] =
+        for {
+          shift <- pureOf(sync match {
+                     case Syncer.Sync(Syncer.Direction.Forward, playtime)  =>
+                       ((_: SmiLine) + playtime)
+                     case Syncer.Sync(Syncer.Direction.Backward, playtime) =>
+                       ((_: SmiLine) - playtime)
+                   })
+          lines <- effectOf(sub.lines.map(shift))
+        } yield sub.copy(lines = lines)
+    }
   }
 
   final case class SmiLine(
@@ -92,7 +92,7 @@ object Smi {
   type Start = Start.Start
   object Start {
     opaque type Start = Long
-    def apply(start: Long): Start = start
+    def apply(start: Long): Start        = start
     def fromSrt(start: Srt.Start): Start = Start(start.value)
 
     given startCanEqual: CanEqual[Start, Start] = CanEqual.derived
@@ -104,7 +104,7 @@ object Smi {
   type End = End.End
   object End {
     opaque type End = Long
-    def apply(end: Long): End = end
+    def apply(end: Long): End      = end
     def fromSrt(end: Srt.End): End = End(end.value)
 
     given endCanEqual: CanEqual[End, End] = CanEqual.derived
@@ -116,7 +116,7 @@ object Smi {
   type Line = Line.Line
   object Line {
     opaque type Line = String
-    def apply(line: String): Line = line
+    def apply(line: String): Line     = line
     def fromSrt(line: Srt.Line): Line = Line(line.value)
 
     given lineCanEqual: CanEqual[Line, Line] = CanEqual.derived
