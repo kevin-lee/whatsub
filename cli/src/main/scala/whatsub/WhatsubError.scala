@@ -3,7 +3,7 @@ package whatsub
 import cats.Show
 import cats.data.NonEmptyList
 import cats.syntax.all.*
-import extras.shell.syntax.color.*
+import extras.scala.io.syntax.color.*
 import whatsub.WhatsubArgsParser.ArgParseError
 import whatsub.charset.{CharsetConvertError, ConvertCharset}
 import whatsub.convert.ConversionError
