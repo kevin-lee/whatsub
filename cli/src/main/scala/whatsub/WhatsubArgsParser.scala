@@ -1,15 +1,15 @@
 package whatsub
 
-import extras.shell.syntax.color.*
+import extras.scala.io.syntax.color.*
 import scalaz.*
 import Scalaz.*
-import pirate.{ParseError, *}
+import pirate.*
 import Pirate.*
 import WhatsubArgs.*
 import cats.Show
 import pirate.internal.ParseTraversal
-import whatsub.info.WhatsubBuildInfo
 import whatsub.charset.Charset
+import whatsub.info.WhatsubBuildInfo
 
 import java.io.File
 import scala.io

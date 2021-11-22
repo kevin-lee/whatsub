@@ -38,7 +38,7 @@ lazy val core = subProject("core", file("core"))
   .settings(
 //    resolvers += Resolver.sonatypeRepo("snapshots"),
     libraryDependencies ++=
-      libs.catsAndCatsEffect3 ++ List(libs.catsParse, libs.effectieCatsEffect3) ++ List(libs.extrasCats),
+      libs.catsAndCatsEffect3 ++ List(libs.catsParse, libs.effectieCatsEffect3) ++ List(libs.extrasCats, libs.extrasScalaIo),
     /* Build Info { */
     buildInfoKeys    := List[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoObject  := "WhatsubBuildInfo",
@@ -100,7 +100,7 @@ lazy val props =
 
     final val IncludeTest: String = "compile->compile;test->test"
 
-    final val ExtrasVersion = "0.1.0"
+    final val ExtrasVersion = "0.2.0"
 
   }
 
@@ -122,6 +122,7 @@ lazy val libs =
     lazy val effectieCatsEffect3 = "io.kevinlee" %% "effectie-cats-effect3" % props.EffectieCatsEffect3Version
 
     lazy val extrasCats = "io.kevinlee" %% "extras-cats" % props.ExtrasVersion
+    lazy val extrasScalaIo = "io.kevinlee" %% "extras-scala-io" % props.ExtrasVersion
 
   }
 
