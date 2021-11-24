@@ -28,7 +28,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2.4.0
-      - uses: olafurpg/setup-scala@v10
+      - uses: olafurpg/setup-scala@v13
         with:
           java-version: ${{ matrix.scala.java-version }}
 
@@ -87,7 +87,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2.4.0
-      - uses: olafurpg/setup-scala@v10
+      - uses: olafurpg/setup-scala@v13
         with:
           java-version: ${{ env.GH_JAVA_VERSION }}
 

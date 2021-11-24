@@ -27,7 +27,7 @@ jobs:
     steps:
 
       - uses: actions/checkout@v2.4.0
-      - uses: olafurpg/setup-scala@v10
+      - uses: olafurpg/setup-scala@v13
         with:
           java-version: ${{ env.GRAALVM_JAVA_VERSION }}
       - name: Cache SBT
@@ -76,7 +76,7 @@ jobs:
         run: "git config --global core.autocrlf false"
         shell: bash
       - uses: actions/checkout@v2.4.0
-      - uses: olafurpg/setup-scala@v10
+      - uses: olafurpg/setup-scala@v13
         with:
           java-version: ${{ env.GRAALVM_JAVA_VERSION }}
       - uses: ilammy/msvc-dev-cmd@v1
