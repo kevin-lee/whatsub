@@ -7,7 +7,7 @@ import java.io.File
   * @since 2021-07-25
   */
 package object whatsub {
-  type MCancel[F[_]] = MonadCancel[F, Throwable]
+  type MCancel[F[*]] = MonadCancel[F, Throwable]
 
   given fileCanEqual: CanEqual[File, File] = CanEqual.derived
 }

@@ -27,7 +27,7 @@ import scala.io.Source
   */
 object Whatsub {
 
-  private def parseAndConvert[F[_]: Monad: MCancel: Fx: CanCatch, A, B: CanRender](
+  private def parseAndConvert[F[*]: Monad: MCancel: Fx: CanCatch, A, B: CanRender](
     parser: Seq[String] => F[Either[ParseError, A]],
     src: File,
     outFile: Option[ConvertArgs.OutFile],
@@ -64,7 +64,7 @@ object Whatsub {
       } yield ()).value
     }
 
-  def resync[F[_]: Monad: MCancel: Fx: CanCatch, A: CanRender](
+  def resync[F[*]: Monad: MCancel: Fx: CanCatch, A: CanRender](
     parser: Seq[String] => F[Either[ParseError, A]],
     sync: Syncer.Sync,
     src: File,
@@ -94,7 +94,7 @@ object Whatsub {
       } yield ()).value
     }
 
-  def charsetListAll[F[_]: Monad: Fx]: F[Unit] = {
+  def charsetListAll[F[*]: Monad: Fx]: F[Unit] = {
     import scala.jdk.CollectionConverters.*
     ConsoleEffect[F].putStr(
       JCharset
@@ -105,7 +105,7 @@ object Whatsub {
     )
   }
 
-  def charsetConvert[F[_]: Monad: MCancel: Fx: CanCatch](
+  def charsetConvert[F[*]: Monad: MCancel: Fx: CanCatch](
     from: ConvertCharset.From,
     to: ConvertCharset.To,
     src: CharsetArgs.SrcFile,
@@ -151,7 +151,7 @@ object Whatsub {
     }
   }
 
-  def apply[F[_]: Monad: MCancel: Fx: CanCatch](args: WhatsubArgs): F[Either[WhatsubError, Unit]] =
+  def apply[F[*]: Monad: MCancel: Fx: CanCatch](args: WhatsubArgs): F[Either[WhatsubError, Unit]] =
     args match {
       case ConvertArgs(
             Some(ConvertArgs.From(SupportedSub.Smi)),

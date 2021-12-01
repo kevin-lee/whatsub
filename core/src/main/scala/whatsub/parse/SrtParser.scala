@@ -59,7 +59,7 @@ object SrtParser {
   val srtPlaytimeParser: P[SrtComponent.Playtimes] = playtimeRangeP
   val srtLineParser: P[SrtComponent.Line]          = lineP
 
-  def parseAllWithIndexPlaytimesLines[F[_]: Fx: Monad](
+  def parseAllWithIndexPlaytimesLines[F[*]: Fx: Monad](
     linesAndIndices: Seq[(String, Int)],
     srtIndex: SrtComponent.Index,
     playtimes: SrtComponent.Playtimes,
@@ -115,7 +115,7 @@ object SrtParser {
         )
     }
 
-  def parseAllWithIndexPlaytimes[F[_]: Fx: Monad](
+  def parseAllWithIndexPlaytimes[F[*]: Fx: Monad](
     linesAndIndices: Seq[(String, Int)],
     srtIndex: SrtComponent.Index,
     playtimes: SrtComponent.Playtimes,
@@ -153,7 +153,7 @@ object SrtParser {
         pureOf(acc.asRight)
     }
 
-  def parseAllWithIndex[F[_]: Fx: Monad](
+  def parseAllWithIndex[F[*]: Fx: Monad](
     linesAndIndices: Seq[(String, Int)],
     srtIndex: SrtComponent.Index,
     acc: Vector[Srt.SrtLine],
@@ -188,7 +188,7 @@ object SrtParser {
         pureOf(acc.asRight)
     }
 
-  def parseAll[F[_]: Fx: Monad](
+  def parseAll[F[*]: Fx: Monad](
     linesAndIndices: Seq[(String, Int)],
     acc: Vector[Srt.SrtLine],
   ): F[Either[ParseError, Vector[Srt.SrtLine]]] = effectOf(linesAndIndices)
@@ -221,7 +221,7 @@ object SrtParser {
         pureOf(acc.asRight)
     }
 
-  def parse[F[_]: Fx: Monad](lines: Seq[String]): F[Either[ParseError, Srt]] =
+  def parse[F[*]: Fx: Monad](lines: Seq[String]): F[Either[ParseError, Srt]] =
     effectOf(lines.zipWithIndex)
       .rightT[ParseError]
       .flatMapF {

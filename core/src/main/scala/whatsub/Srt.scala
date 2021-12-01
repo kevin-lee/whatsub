@@ -40,7 +40,7 @@ object Srt {
     }
   }
 
-  given srtSync[F[_]: Fx: Monad]: Syncer[F, Srt] with {
+  given srtSync[F[*]: Fx: Monad]: Syncer[F, Srt] with {
     extension (sub: Srt) {
       def sync(sync: Syncer.Sync): F[Srt] =
         for {

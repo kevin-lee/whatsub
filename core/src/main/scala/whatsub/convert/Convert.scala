@@ -10,15 +10,15 @@ import whatsub.{Smi, Srt, SupportedSub}
 /** @author Kevin Lee
   * @since 2021-06-18
   */
-trait Convert[F[_], A, B] {
+trait Convert[F[*], A, B] {
   def convert(a: A): F[Either[ConversionError, B]]
 }
 
 object Convert {
 
-  def apply[F[_], A, B](using Convert[F, A, B]): Convert[F, A, B] = summon[Convert[F, A, B]]
+  def apply[F[*], A, B](using Convert[F, A, B]): Convert[F, A, B] = summon[Convert[F, A, B]]
 
-  given smiToSrtConvert[F[_]: Fx: Applicative]: Convert[F, Smi, Srt] =
+  given smiToSrtConvert[F[*]: Fx: Applicative]: Convert[F, Smi, Srt] =
     smi =>
       (if (smi.lines.isEmpty)
          ConversionError
@@ -42,7 +42,7 @@ object Convert {
            ),
          ).rightT[ConversionError].map(Srt(_))).value
 
-  given srtToSmiConvert[F[_]: Fx: Applicative]: Convert[F, Srt, Smi] =
+  given srtToSmiConvert[F[*]: Fx: Applicative]: Convert[F, Srt, Smi] =
     srt =>
       if (srt.lines.isEmpty) {
         pureOf(

@@ -37,7 +37,7 @@ object Smi {
     }
   }
 
-  given smiSync[F[_]: Fx: Monad]: Syncer[F, Smi] with {
+  given smiSync[F[*]: Fx: Monad]: Syncer[F, Smi] with {
     extension (sub: Smi) {
       def sync(sync: Syncer.Sync): F[Smi] =
         for {

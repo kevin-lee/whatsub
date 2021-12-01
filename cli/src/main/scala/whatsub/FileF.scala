@@ -17,7 +17,7 @@ import scala.util.control.NonFatal
 /** @author Kevin Lee
   * @since 2021-07-06
   */
-trait FileF[F[_]] {
+trait FileF[F[*]] {
   def writeFile[A: CanRender](a: A, file: File): F[Either[FileError, Unit]]
 }
 
@@ -36,9 +36,9 @@ object FileF {
     }
   }
 
-  def fileF[F[_]: Monad: MCancel: Fx: CanCatch]: FileF[F] = new FileFSync[F]
+  def fileF[F[*]: Monad: MCancel: Fx: CanCatch]: FileF[F] = new FileFSync[F]
 
-  final class FileFSync[F[_]: Monad: MCancel: Fx: CanCatch] extends FileF[F] {
+  final class FileFSync[F[*]: Monad: MCancel: Fx: CanCatch] extends FileF[F] {
 
     def writeFile[A: CanRender](a: A, file: File): F[Either[FileError, Unit]] =
       Resource
