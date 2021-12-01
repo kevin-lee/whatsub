@@ -15,7 +15,7 @@ import scala.io.Source
 /** @author Kevin Lee
   * @since 2021-08-15
   */
-trait ConvertCharset[F[_], A, B] {
+trait ConvertCharset[F[*], A, B] {
   def convert(from: ConvertCharset.From, to: ConvertCharset.To)(input: A)(
     f: String => F[B],
   ): F[Either[CharsetConvertError, B]]
@@ -25,7 +25,7 @@ object ConvertCharset {
 
   final val EmptyCharRegEx = "[\uFEFF-\uFFFF]"
 
-  def convertStringCharset[F[_]: Fx: Monad: CanCatch, B]: ConvertCharset[F, String, B] =
+  def convertStringCharset[F[*]: Fx: Monad: CanCatch, B]: ConvertCharset[F, String, B] =
     new ConvertCharset[F, String, B] {
       override def convert(from: From, to: To)(input: String)(f: String => F[B]): F[Either[CharsetConvertError, B]] =
         (for {
@@ -45,7 +45,7 @@ object ConvertCharset {
         } yield result).value
     }
 
-  def convertFileCharset[F[_]: Monad: MCancel: Fx: CanCatch, B: Monoid]: ConvertCharset[F, File, B] =
+  def convertFileCharset[F[*]: Monad: MCancel: Fx: CanCatch, B: Monoid]: ConvertCharset[F, File, B] =
     new ConvertCharset[F, File, B] {
 
       override def convert(from: From, to: To)(input: File)(f: String => F[B]): F[Either[CharsetConvertError, B]] =

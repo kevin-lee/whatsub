@@ -73,13 +73,13 @@ object SmiParser {
     case BodyEnd
   }
 
-  def parse[F[_]: Fx: Monad](lines: Seq[String]): F[Either[ParseError, Smi]] =
+  def parse[F[*]: Fx: Monad](lines: Seq[String]): F[Either[ParseError, Smi]] =
     parseAll(lines.map(_.removeEmptyChars.trim).zipWithIndex, none, Vector.empty)
       .eitherT
       .map((title, lines) => Smi(title.getOrElse(Smi.Title("")), lines.toList))
       .value
 
-  private def parseAll[F[_]: Fx: Monad](
+  private def parseAll[F[*]: Fx: Monad](
     lineAndLineNums: Seq[(String, Int)],
     title: Option[Smi.Title],
     acc: Vector[Smi.SmiLine],
@@ -157,7 +157,7 @@ object SmiParser {
         List.empty
     }
 
-  private def parseLine[F[_]: Fx: Monad](
+  private def parseLine[F[*]: Fx: Monad](
     lineAndLineNums: Seq[(String, Int)],
     acc: Vector[Smi.SmiLine],
   ): F[Either[ParseError, (Seq[(String, Int)], Vector[Smi.SmiLine])]] =
@@ -202,7 +202,7 @@ object SmiParser {
         effectOf((lineAndLineNums, acc).asRight[ParseError])
     }
 
-  private def parseLineWithPrevious[F[_]: Fx: Monad](
+  private def parseLineWithPrevious[F[*]: Fx: Monad](
     lineAndLineNums: Seq[(String, Int)],
     previous: SyncInfoAndLine | SyncInfo,
     acc: Vector[Smi.SmiLine],
@@ -301,7 +301,7 @@ object SmiParser {
       none
   }
 
-  private def parseTitle[F[_]: Fx](
+  private def parseTitle[F[*]: Fx](
     lineAndLineNums: Seq[(String, Int)],
   ): F[(Option[Smi.Title], Seq[(String, Int)])] = {
     @tailrec

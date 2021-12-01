@@ -38,7 +38,10 @@ lazy val core = subProject("core", file("core"))
   .settings(
 //    resolvers += Resolver.sonatypeRepo("snapshots"),
     libraryDependencies ++=
-      libs.catsAndCatsEffect3 ++ List(libs.catsParse, libs.effectieCatsEffect3) ++ List(libs.extrasCats, libs.extrasScalaIo),
+      libs.catsAndCatsEffect3 ++ List(libs.catsParse, libs.effectieCatsEffect3) ++ List(
+        libs.extrasCats,
+        libs.extrasScalaIo,
+      ),
     /* Build Info { */
     buildInfoKeys    := List[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoObject  := "WhatsubBuildInfo",
@@ -52,6 +55,7 @@ lazy val pirate = ProjectRef(props.pirateUri, "pirate")
 lazy val cli = subProject("cli", file("cli"))
   .enablePlugins(JavaAppPackaging, NativeImagePlugin)
   .settings(
+    scalacOptions ++= List("-source:3.1"),
     maintainer           := "Kevin Lee <kevin.code@kevinlee.io>",
     packageSummary       := "Whatsub - subtitle converter and syncer",
     packageDescription   := "A tool to convert and sync subtitles",
@@ -121,7 +125,7 @@ lazy val libs =
 
     lazy val effectieCatsEffect3 = "io.kevinlee" %% "effectie-cats-effect3" % props.EffectieCatsEffect3Version
 
-    lazy val extrasCats = "io.kevinlee" %% "extras-cats" % props.ExtrasVersion
+    lazy val extrasCats    = "io.kevinlee" %% "extras-cats"     % props.ExtrasVersion
     lazy val extrasScalaIo = "io.kevinlee" %% "extras-scala-io" % props.ExtrasVersion
 
   }
