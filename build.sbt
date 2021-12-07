@@ -90,7 +90,7 @@ lazy val props =
 
     final val ExecutableScriptName = RepoName
 
-    final val HedgehogVersion = "0.7.0"
+    final val HedgehogVersion = "0.8.0"
 
     final val CatsVersion        = "2.6.1"
     final val CatsEffect3Version = "3.2.5"
