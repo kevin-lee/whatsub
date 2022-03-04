@@ -165,38 +165,43 @@ object SmiParser {
       case (line, lineNum) +: rest =>
         val preprocessed  = line.removeEmptyChars.trim
         val nonLineParsed = parseNonLine(preprocessed)
-        if (nonLineParsed.isEmpty) {
-          lineP.parse(preprocessed) match {
-            case Right((remaining, SyncInfoAndLine(start, line))) =>
-              parseLineWithPrevious(
-                rest,
-                SyncInfoAndLine(start, line),
-                acc,
-              )
+        nonLineParsed match {
+          case Some(ParseStatus.CommentStart) =>
+            parseLine(skipUntil(rest, ParseStatus.CommentEnd), acc)
 
-            case Right((remaining, SyncInfo(start))) =>
-              parseLineWithPrevious(
-                rest,
-                SyncInfo(start),
-                acc,
-              )
+          case Some(_) =>
+            effectOf((lineAndLineNums, acc).asRight[ParseError])
 
-            case Right((remaining, Line(line))) =>
-              effectOf(
-                ParseError
-                  .SmiParseInvalidLineError(
-                    lineNum,
-                    line,
-                    s"SMI line appears at unexpected position. [parsed line: $line, remaining: $remaining]",
-                  )
-                  .asLeft[(Seq[(String, Int)], Vector[Smi.SmiLine])],
-              )
+          case None =>
+            lineP.parse(preprocessed) match {
+              case Right((remaining, SyncInfoAndLine(start, line))) =>
+                parseLineWithPrevious(
+                  rest,
+                  SyncInfoAndLine(start, line),
+                  acc,
+                )
 
-            case Left(err) =>
-              effectOf(ParseError.SmiParseError(lineNum, line, err).asLeft[(Seq[(String, Int)], Vector[Smi.SmiLine])])
-          }
-        } else {
-          effectOf((lineAndLineNums, acc).asRight[ParseError])
+              case Right((remaining, SyncInfo(start))) =>
+                parseLineWithPrevious(
+                  rest,
+                  SyncInfo(start),
+                  acc,
+                )
+
+              case Right((remaining, Line(line))) =>
+                effectOf(
+                  ParseError
+                    .SmiParseInvalidLineError(
+                      lineNum,
+                      line,
+                      s"SMI line appears at unexpected position. [parsed line: $line, remaining: $remaining]",
+                    )
+                    .asLeft[(Seq[(String, Int)], Vector[Smi.SmiLine])],
+                )
+
+              case Left(err) =>
+                effectOf(ParseError.SmiParseError(lineNum, line, err).asLeft[(Seq[(String, Int)], Vector[Smi.SmiLine])])
+            }
         }
       case Seq()                   =>
         effectOf((lineAndLineNums, acc).asRight[ParseError])
@@ -209,65 +214,71 @@ object SmiParser {
   ): F[Either[ParseError, (Seq[(String, Int)], Vector[Smi.SmiLine])]] = lineAndLineNums match {
     case (line, lineNum) +: rest =>
       val preprocessed = line.removeEmptyChars.trim
-      if (parseNonLine(preprocessed).isEmpty)
-        lineP.parse(preprocessed) match {
-          case Right((remaining, SyncInfoAndLine(end, line))) =>
-            previous match {
-              case SyncInfoAndLine(start, previousLine) =>
-                parseLineWithPrevious(
-                  rest,
-                  SyncInfoAndLine(end, line),
-                  acc :+ Smi.SmiLine(Smi.Start(start), Smi.End(end), Smi.Line(previousLine)),
-                )
+      parseNonLine(preprocessed) match {
+        case Some(ParseStatus.CommentStart) =>
+          parseLineWithPrevious(skipUntil(rest, ParseStatus.CommentEnd), previous, acc)
 
-              case SyncInfo(start) =>
-                parseLineWithPrevious(
-                  rest,
-                  SyncInfoAndLine(end, line),
-                  acc,
-                )
-            }
-          case Right((remaining, SyncInfo(end)))              =>
-            previous match {
-              case SyncInfoAndLine(start, previousLine) =>
-                parseLineWithPrevious(
-                  rest,
-                  SyncInfo(end),
-                  acc :+ Smi.SmiLine(Smi.Start(start), Smi.End(end), Smi.Line(previousLine)),
-                )
+        case Some(_) =>
+          effectOf((lineAndLineNums, acc).asRight)
 
-              case SyncInfo(start) =>
-                parseLineWithPrevious(
-                  rest,
-                  SyncInfo(end),
-                  acc,
-                )
-            }
+        case None =>
+          lineP.parse(preprocessed) match {
+            case Right((remaining, SyncInfoAndLine(end, line))) =>
+              previous match {
+                case SyncInfoAndLine(start, previousLine) =>
+                  parseLineWithPrevious(
+                    rest,
+                    SyncInfoAndLine(end, line),
+                    acc :+ Smi.SmiLine(Smi.Start(start), Smi.End(end), Smi.Line(previousLine)),
+                  )
 
-          case Right((remaining, Line(line))) =>
-            previous match {
-              case SyncInfoAndLine(start, previousLine) =>
-                parseLineWithPrevious(
-                  rest,
-                  SyncInfoAndLine(start, s"$previousLine<br>$line"),
-                  acc,
-                )
+                case SyncInfo(start) =>
+                  parseLineWithPrevious(
+                    rest,
+                    SyncInfoAndLine(end, line),
+                    acc,
+                  )
+              }
 
-              case SyncInfo(start) =>
-                parseLineWithPrevious(
-                  rest,
-                  SyncInfoAndLine(start, line),
-                  acc,
-                )
-            }
+            case Right((remaining, SyncInfo(end))) =>
+              previous match {
+                case SyncInfoAndLine(start, previousLine) =>
+                  parseLineWithPrevious(
+                    rest,
+                    SyncInfo(end),
+                    acc :+ Smi.SmiLine(Smi.Start(start), Smi.End(end), Smi.Line(previousLine)),
+                  )
 
-          case Left(err) =>
-            effectOf(ParseError.SmiParseError(lineNum, line, err).asLeft)
-        }
-      else
-        effectOf((lineAndLineNums, acc).asRight)
+                case SyncInfo(start) =>
+                  parseLineWithPrevious(
+                    rest,
+                    SyncInfo(end),
+                    acc,
+                  )
+              }
 
-    case Seq() =>
+            case Right((remaining, Line(line))) =>
+              previous match {
+                case SyncInfoAndLine(start, previousLine) =>
+                  parseLineWithPrevious(
+                    rest,
+                    SyncInfoAndLine(start, s"$previousLine<br>$line"),
+                    acc,
+                  )
+
+                case SyncInfo(start) =>
+                  parseLineWithPrevious(
+                    rest,
+                    SyncInfoAndLine(start, line),
+                    acc,
+                  )
+              }
+
+            case Left(err) =>
+              effectOf(ParseError.SmiParseError(lineNum, line, err).asLeft)
+          }
+      }
+    case Seq()                   =>
       effectOf((lineAndLineNums, acc).asRight)
   }
 
@@ -285,9 +296,10 @@ object SmiParser {
       ParseStatus.TitleStart.some
     else if (lower.startsWith(SmiStr.TitleEnd))
       ParseStatus.TitleEnd.some
-    else if (lower.startsWith(SmiStr.CommentStart))
-      ParseStatus.CommentStart.some
-    else if (lower.startsWith(SmiStr.CommentEnd))
+    else if (lower.startsWith(SmiStr.CommentStart) || lower.startsWith(SmiStr.CommentStart2)) {
+      if lower.endsWith(SmiStr.CommentEnd) then ParseStatus.CommentEnd.some
+      else ParseStatus.CommentStart.some
+    } else if (lower.startsWith(SmiStr.CommentEnd))
       ParseStatus.CommentEnd.some
     else if (lower.startsWith(SmiStr.StyleStart))
       ParseStatus.StyleStart.some
