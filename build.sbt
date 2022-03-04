@@ -88,7 +88,7 @@ lazy val props =
 
     final val ProjectName = RepoName
 
-    final val ProjectVersion = "1.0.1"
+    final val ProjectVersion = "1.0.2"
 
     final val ExecutableScriptName = RepoName
 
