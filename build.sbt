@@ -78,7 +78,7 @@ lazy val cli = subProject("cli", file("cli"))
 
 lazy val props =
   new {
-    final val ScalaVersion = "3.1.0"
+    final val ScalaVersion = "3.1.1"
     final val Org          = "io.kevinlee"
 
     private val gitHubRepo = findRepoOrgAndName
