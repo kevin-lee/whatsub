@@ -21,32 +21,75 @@ object SmiParser {
   val NoNewlineChars = (0.toChar to Char.MaxValue).filter(c => c != '\n' && c != '\r')
 
   final case class SyncInfo(sync: Long)
+  final case class SyncStartEndInfo(start: Long, end: Long)
   final case class SyncInfoAndLine(sync: Long, line: String)
+  final case class SyncStartEndInfoAndLine(start: Long, end: Long, line: String)
   final case class Line(line: String)
 
-  type LineComponent = SyncInfoAndLine | SyncInfo | Line
+  type LineComponent = SyncInfoAndLine | SyncStartEndInfoAndLine | SyncInfo | SyncStartEndInfo | Line
 
   final case class StartAndLine(start: Long, line: String)
 
   val playtimeAndClassP: P[LineComponent] = (
-    P.ignoreCase("<SYNC Start=") *> digit.rep.string <* (P
-      .ignoreCase("><P") ~ (wsp ~ P.ignoreCase("Class=") ~ alpha.rep.string).? ~ P
-      .ignoreCase(">") ~ (wsp.rep | P.ignoreCase("&nbsp;").rep).string.rep0 ~ P.end)
-  ).map(playtime => SyncInfo(playtime.toLong))
+    P.ignoreCase("<SYNC Start=") *>
+      /* Start */
+      digit.rep.string ~
+      (
+        wsp.rep ~ P.ignoreCase("End=") *>
+          /* End */
+          digit.rep.string
+      ).? <* (P
+        .ignoreCase("><P") ~ (wsp ~ P.ignoreCase("Class=") ~ alpha.rep.string).? ~ P
+        .ignoreCase(">") ~ (wsp.rep | P.ignoreCase("&nbsp;").rep).string.rep0 ~ P.end)
+  ).map {
+    case (start, Some(end)) =>
+      SyncStartEndInfo(start.toLong, end.toLong)
+    case (playtime, None)   =>
+      SyncInfo(playtime.toLong)
+  }
 
-  val playtimeOnlyP: P[LineComponent] = (P.ignoreCase("<SYNC Start=") *> digit.rep.string <* ((P
-    .ignoreCase(">") ~ (wsp.rep | P.ignoreCase("&nbsp;").rep).string.rep0 ~ P.end)))
-    .map(playtime => SyncInfo(playtime.toLong))
+  val playtimeOnlyP: P[LineComponent] =
+    (P.ignoreCase("<SYNC Start=") *>
+      /* Start */
+      digit.rep.string ~
+      (
+        wsp.rep ~ P.ignoreCase("End=") *>
+          /* End */
+          digit.rep.string
+      ).? <* ((P
+        .ignoreCase(">") ~ (wsp.rep | P.ignoreCase("&nbsp;").rep).string.rep0 ~ P.end)))
+      .map {
+        case (start, Some(end)) =>
+          SyncStartEndInfo(start.toLong, end.toLong)
+        case (playtime, None)   =>
+          SyncInfo(playtime.toLong)
+      }
 
   val playtimeAndLine: P[LineComponent] = (
     (
-      P.ignoreCase("<SYNC Start=") *> digit.rep.string <* (P
-        .ignoreCase("><P") ~ (wsp ~ P.ignoreCase("Class=") ~ alpha.rep.string).? ~ P.ignoreCase(
-        ">",
-      ))
-    ) ~ ((wsp.string.?) *> P.anyChar.rep.string <* (wsp.string.? ~ P.end))
+      P.ignoreCase("<SYNC Start=") *>
+        /* Start */
+        digit.rep.string ~
+        (wsp.rep ~ P.ignoreCase("End=") *>
+          /* End */
+          digit.rep.string).? <* (P
+          .ignoreCase("><P") ~ (wsp ~ P.ignoreCase("Class=") ~ alpha.rep.string).? ~ P.ignoreCase(
+          ">",
+        ))
+    ) ~ (
+      (wsp.string.?) *>
+        /* Line */
+        P.anyChar.rep.string
+        <* (wsp.string.? ~ P.end)
+    )
   ).map {
-    case (startTime, line) =>
+    case ((start, Some(end)), line) =>
+      SyncStartEndInfoAndLine(
+        start.toLong,
+        end.toLong,
+        line,
+      )
+    case ((startTime, None), line)  =>
       SyncInfoAndLine(
         startTime.toLong,
         line,
@@ -181,10 +224,22 @@ object SmiParser {
                   acc,
                 )
 
+              case Right((remaining, SyncStartEndInfoAndLine(start, end, line))) =>
+                parseLine(
+                  rest,
+                  acc :+ Smi.SmiLine(Smi.Start(start), Smi.End(end), Smi.Line(line)),
+                )
+
               case Right((remaining, SyncInfo(start))) =>
                 parseLineWithPrevious(
                   rest,
                   SyncInfo(start),
+                  acc,
+                )
+
+              case Right((remaining, SyncStartEndInfo(start, end))) =>
+                parseLine(
+                  rest,
                   acc,
                 )
 
@@ -240,6 +295,22 @@ object SmiParser {
                   )
               }
 
+            case Right((remaining, SyncStartEndInfoAndLine(newStart, newEnd, line))) =>
+              previous match {
+                case SyncInfoAndLine(start, previousLine) =>
+                  parseLine(
+                    rest,
+                    acc :+ Smi.SmiLine(Smi.Start(start), Smi.End(newStart), Smi.Line(previousLine)) :+ Smi
+                      .SmiLine(Smi.Start(newStart), Smi.End(newEnd), Smi.Line(line)),
+                  )
+
+                case SyncInfo(start) =>
+                  parseLine(
+                    rest,
+                    acc :+ Smi.SmiLine(Smi.Start(newStart), Smi.End(newEnd), Smi.Line(line)),
+                  )
+              }
+
             case Right((remaining, SyncInfo(end))) =>
               previous match {
                 case SyncInfoAndLine(start, previousLine) =>
@@ -253,6 +324,21 @@ object SmiParser {
                   parseLineWithPrevious(
                     rest,
                     SyncInfo(end),
+                    acc,
+                  )
+              }
+
+            case Right((remaining, SyncStartEndInfo(newStart, newEnd))) =>
+              previous match {
+                case SyncInfoAndLine(start, previousLine) =>
+                  parseLine(
+                    rest,
+                    acc :+ Smi.SmiLine(Smi.Start(start), Smi.End(newStart), Smi.Line(previousLine)),
+                  )
+
+                case SyncInfo(_) =>
+                  parseLine(
+                    rest,
                     acc,
                   )
               }
