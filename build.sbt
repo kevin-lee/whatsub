@@ -17,6 +17,8 @@ ThisBuild / scmInfo      :=
   ).some
 ThisBuild / licenses     := List("MIT" -> url("http://opensource.org/licenses/MIT"))
 
+ThisBuild / resolvers += "sonatype-snapshots" at s"https://${props.SonatypeCredentialHost}/content/repositories/snapshots"
+
 lazy val whatsub = (project in file("."))
   .enablePlugins(DevOopsGitHubReleasePlugin, DocusaurPlugin)
   .settings(
@@ -68,7 +70,7 @@ lazy val cli = subProject("cli", file("cli"))
       "-H:+AddAllCharsets",
 //      s"-H:ReflectionConfigurationFiles=${ (baseDirectory.value / "graal" / "reflect-config.json").getCanonicalPath }",
 //      "--allow-incomplete-classpath",
-//      "--report-unsupported-elements-at-runtime",
+      "--report-unsupported-elements-at-runtime",
     ),
   )
   .settings(noPublish)
@@ -90,14 +92,16 @@ lazy val props =
 
     final val ExecutableScriptName = RepoName
 
+    final val SonatypeCredentialHost = "s01.oss.sonatype.org"
+
     final val HedgehogVersion = "0.8.0"
 
-    final val CatsVersion        = "2.6.1"
-    final val CatsEffect3Version = "3.2.5"
+    final val CatsVersion        = "2.7.0"
+    final val CatsEffect3Version = "3.3.6"
 
     final val CatsParseVersion = "0.3.4"
 
-    final val EffectieCatsEffect3Version = "1.16.0"
+    final val EffectieCatsEffect3Version = "2.0.0-SNAPSHOT"
 
     final val pirateVersion = "deec3408b08a751de9b2df2d17fc1ab7b8daeaaf"
     final val pirateUri     = uri(s"https://github.com/$GitHubUsername/pirate.git#$pirateVersion")

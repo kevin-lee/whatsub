@@ -5,10 +5,9 @@ import cats.data.EitherT
 import cats.effect.*
 import cats.effect.kernel.MonadCancel
 import cats.syntax.all.*
-import effectie.cats.*
-import effectie.cats.Effectful.*
-import effectie.cats.ConsoleEffectful.*
-import effectie.cats.EitherTSupport.*
+import effectie.core.*
+import effectie.syntax.all.*
+import extras.cats.syntax.all.*
 import whatsub.FileF.FileError
 
 import java.io.{BufferedWriter, File, FileWriter}
@@ -36,9 +35,9 @@ object FileF {
     }
   }
 
-  def fileF[F[*]: Monad: MCancel: Fx: CanCatch]: FileF[F] = new FileFSync[F]
+  def fileF[F[*]: Monad: MCancel: Fx: ConsoleEffect]: FileF[F] = new FileFSync[F]
 
-  final class FileFSync[F[*]: Monad: MCancel: Fx: CanCatch] extends FileF[F] {
+  final class FileFSync[F[*]: Monad: MCancel: Fx: ConsoleEffect] extends FileF[F] {
 
     def writeFile[A: CanRender](a: A, file: File): F[Either[FileError, Unit]] =
       Resource

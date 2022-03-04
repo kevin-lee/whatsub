@@ -3,9 +3,8 @@ package whatsub.charset
 import cats.*
 import cats.effect.Resource
 import cats.syntax.all.*
-import effectie.cats.*
-import effectie.cats.Effectful.*
-import effectie.cats.syntax.error.*
+import effectie.core.*
+import effectie.syntax.all.*
 import extras.cats.syntax.all.*
 import whatsub.MCancel
 
@@ -25,7 +24,7 @@ object ConvertCharset {
 
   final val EmptyCharRegEx = "[\uFEFF-\uFFFF]"
 
-  def convertStringCharset[F[*]: Fx: Monad: CanCatch, B]: ConvertCharset[F, String, B] =
+  def convertStringCharset[F[*]: Fx: Monad, B]: ConvertCharset[F, String, B] =
     new ConvertCharset[F, String, B] {
       override def convert(from: From, to: To)(input: String)(f: String => F[B]): F[Either[CharsetConvertError, B]] =
         (for {
@@ -45,7 +44,7 @@ object ConvertCharset {
         } yield result).value
     }
 
-  def convertFileCharset[F[*]: Monad: MCancel: Fx: CanCatch, B: Monoid]: ConvertCharset[F, File, B] =
+  def convertFileCharset[F[*]: Monad: MCancel: Fx, B: Monoid]: ConvertCharset[F, File, B] =
     new ConvertCharset[F, File, B] {
 
       override def convert(from: From, to: To)(input: File)(f: String => F[B]): F[Either[CharsetConvertError, B]] =

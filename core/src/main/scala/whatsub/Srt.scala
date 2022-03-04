@@ -3,8 +3,8 @@ package whatsub
 import Time.*
 import cats.Monad
 import cats.syntax.all.*
-import effectie.cats.Effectful.*
-import effectie.cats.Fx
+import effectie.syntax.all.*
+import effectie.core.*
 import whatsub.sync.Syncer
 
 final case class Srt(
