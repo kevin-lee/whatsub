@@ -6,9 +6,9 @@ import cats.parse.Rfc5234.*
 import cats.parse.{Parser as P, Parser0 as P0, *}
 import cats.syntax.all.*
 import cats.{Functor, Monad}
-import effectie.cats.*
-import effectie.cats.Effectful.*
-import effectie.cats.EitherTSupport.*
+import effectie.core.*
+import effectie.syntax.all.*
+import extras.cats.syntax.all.*
 import whatsub.Smi
 
 import scala.annotation.tailrec

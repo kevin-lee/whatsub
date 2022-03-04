@@ -1,4 +1,5 @@
 
+import cats.effect.MonadCancelThrow
 import cats.effect.kernel.MonadCancel
 
 import java.io.File
@@ -7,7 +8,7 @@ import java.io.File
   * @since 2021-07-25
   */
 package object whatsub {
-  type MCancel[F[*]] = MonadCancel[F, Throwable]
+  type MCancel[F[*]] = MonadCancelThrow[F]
 
   given fileCanEqual: CanEqual[File, File] = CanEqual.derived
 }

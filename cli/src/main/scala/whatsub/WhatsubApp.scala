@@ -4,6 +4,7 @@ import cats.effect.IO
 import cats.syntax.all.*
 import pirate.{Command, DefaultPrefs, Prefs}
 import piratex.{Help, Metavar}
+import effectie.cats.fx.given
 
 /** @author Kevin Lee
   * @since 2021-06-30

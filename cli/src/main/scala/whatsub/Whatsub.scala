@@ -6,9 +6,9 @@ import cats.effect.kernel.MonadCancel
 import cats.effect.{Resource, Sync}
 import cats.syntax.all.*
 import cats.{Monad, Monoid}
-import effectie.cats.*
-import effectie.cats.Effectful.*
-import effectie.cats.ConsoleEffectful.*
+import effectie.core.*
+import effectie.syntax.all.*
+import effectie.cats.console.given
 import extras.cats.syntax.all.*
 import pirate.{Command, ExitCode}
 import piratex.{Help, Metavar}
@@ -27,7 +27,7 @@ import scala.io.Source
   */
 object Whatsub {
 
-  private def parseAndConvert[F[*]: Monad: MCancel: Fx: CanCatch, A, B: CanRender](
+  private def parseAndConvert[F[*]: Monad: MCancel: Fx, A, B: CanRender](
     parser: Seq[String] => F[Either[ParseError, A]],
     src: File,
     outFile: Option[ConvertArgs.OutFile],
