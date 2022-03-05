@@ -43,6 +43,7 @@ lazy val core = subProject("core", file("core"))
       libs.catsAndCatsEffect3 ++ List(libs.catsParse, libs.effectieCatsEffect3) ++ List(
         libs.extrasCats,
         libs.extrasScalaIo,
+        libs.extrasHedgehogCatsEffect3,
       ),
     /* Build Info { */
     buildInfoKeys    := List[BuildInfoKey](name, version, scalaVersion, sbtVersion),
@@ -108,7 +109,7 @@ lazy val props =
 
     final val IncludeTest: String = "compile->compile;test->test"
 
-    final val ExtrasVersion = "0.2.0"
+    final val ExtrasVersion = "0.4.0"
 
   }
 
@@ -131,6 +132,8 @@ lazy val libs =
 
     lazy val extrasCats    = "io.kevinlee" %% "extras-cats"     % props.ExtrasVersion
     lazy val extrasScalaIo = "io.kevinlee" %% "extras-scala-io" % props.ExtrasVersion
+
+    lazy val extrasHedgehogCatsEffect3 = "io.kevinlee" %% "extras-hedgehog-cats-effect3" % props.ExtrasVersion % Test
 
   }
 

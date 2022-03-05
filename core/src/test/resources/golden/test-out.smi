@@ -1,0 +1,39 @@
+<SAMI>
+<HEAD>
+  <TITLE></TITLE>
+</HEAD>
+<BODY>
+  <SYNC Start=4561><P><font color="#ec14bd">This is a test subtitle.</Font> by <font color="Skyblue" size=10 face=HY수평선B>Kevin Lee</font>
+  <SYNC Start=7000><P>&nbsp;
+  <SYNC Start=10231><P><font color="Gold"> 자 막 </Font>: <font color="Skyblue"> 테 스 트 자 막</font><br><font color=Lime>(kevinlee.io)</font>
+  <SYNC Start=15831><P>&nbsp;
+  <SYNC Start=15831><P><font color="#80ffff">Modified </Font>by <font color="Lime">Kevin Lee<br><font color="#ec14bd">(https://kevinlee.io)</font>
+  <SYNC Start=19000><P>&nbsp;
+  <SYNC Start=87274><P><font color="Gold">헬로우 월드!</font>
+  <SYNC Start=89741><P>&nbsp;
+  <SYNC Start=90674><P>안녕
+  <SYNC Start=91741><P>&nbsp;
+  <SYNC Start=196380><P>이건 그냥 테스트를 위한 자막이에요.
+  <SYNC Start=198115><P>&nbsp;
+  <SYNC Start=199950><P>테스트를 위한 또다른 자막 입니다.
+  <SYNC Start=202119><P>&nbsp;
+  <SYNC Start=202186><P>Ok
+  <SYNC Start=204155><P>&nbsp;
+  <SYNC Start=204221><P>이제 영어도 한번 넣어 볼까요?
+  <SYNC Start=206957><P>&nbsp;
+  <SYNC Start=212029><P>짜잔!
+  <SYNC Start=213763><P>&nbsp;
+  <SYNC Start=213830><P>Lorem Ipsum is simply dummy text of the printing and typesetting industry
+  <SYNC Start=215533><P>&nbsp;
+  <SYNC Start=215598><P>영어도 잘 되는거 같군요.
+  <SYNC Start=217868><P>&nbsp;
+  <SYNC Start=222672><P>블라블라.
+  <SYNC Start=224041><P>&nbsp;
+  <SYNC Start=224108><P>이제 자막에 색깔을 입혀 볼까요?
+  <SYNC Start=225242><P>&nbsp;
+  <SYNC Start=249699><P>위에 이미 했지만...
+  <SYNC Start=250767><P>&nbsp;
+  <SYNC Start=262274><P><font color="Gold">Gold color로 입혀 봤습니다.</font>
+  <SYNC Start=8873754><P>&nbsp;
+</BODY>
+</SAMI>
