@@ -212,6 +212,9 @@ object SmiParser {
           case Some(ParseStatus.CommentStart) =>
             parseLine(skipUntil(rest, ParseStatus.CommentEnd), acc)
 
+          case Some(ParseStatus.CommentEnd) =>
+            parseLine(rest, acc)
+
           case Some(_) =>
             effectOf((lineAndLineNums, acc).asRight[ParseError])
 
@@ -272,6 +275,9 @@ object SmiParser {
       parseNonLine(preprocessed) match {
         case Some(ParseStatus.CommentStart) =>
           parseLineWithPrevious(skipUntil(rest, ParseStatus.CommentEnd), previous, acc)
+
+        case Some(ParseStatus.CommentEnd) =>
+          parseLineWithPrevious(rest, previous, acc)
 
         case Some(_) =>
           effectOf((lineAndLineNums, acc).asRight)
