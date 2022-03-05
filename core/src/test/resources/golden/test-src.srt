@@ -1,0 +1,63 @@
+﻿1
+00:00:04,561 --> 00:00:07,000
+<font color="#ec14bd">This is a test subtitle.</Font> by <font color="Skyblue" size=10 face=HY수평선B>Kevin Lee</font>
+
+2
+00:00:10,231 --> 00:00:15,831
+<font color="Gold"> 자 막 </Font>: <font color="Skyblue"> 테 스 트 자 막</font><br><font color=Lime>(kevinlee.io)</font>
+
+3
+00:00:15,831 --> 00:00:19,000
+<font color="#80ffff">Modified </Font>by <font color="Lime">Kevin Lee<br><font color="#ec14bd">(https://kevinlee.io)</font>
+
+4
+00:01:27,274 --> 00:01:29,741
+<font color="Gold">헬로우 월드!</font>
+
+5
+00:01:30,674 --> 00:01:31,741
+안녕
+
+6
+00:03:16,380 --> 00:03:18,115
+이건 그냥 테스트를 위한 자막이에요.
+
+7
+00:03:19,950 --> 00:03:22,119
+테스트를 위한 또다른 자막 입니다.
+
+8
+00:03:22,186 --> 00:03:24,155
+Ok
+
+9
+00:03:24,221 --> 00:03:26,957
+이제 영어도 한번 넣어 볼까요?
+
+10
+00:03:32,029 --> 00:03:33,763
+짜잔!
+
+11
+00:03:33,830 --> 00:03:35,533
+Lorem Ipsum is simply dummy text of the printing and typesetting industry
+
+12
+00:03:35,598 --> 00:03:37,868
+영어도 잘 되는거 같군요.
+
+13
+00:03:42,672 --> 00:03:44,041
+블라블라.
+
+14
+00:03:44,108 --> 00:03:45,242
+이제 자막에 색깔을 입혀 볼까요?
+
+15
+00:04:09,699 --> 00:04:10,767
+위에 이미 했지만...
+
+16
+00:04:22,274 --> 02:27:53,754
+<font color="Gold">Gold color로 입혀 봤습니다.</font>

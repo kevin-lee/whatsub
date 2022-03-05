@@ -222,7 +222,7 @@ object SrtParser {
     }
 
   def parse[F[*]: Fx: Monad](lines: Seq[String]): F[Either[ParseError, Srt]] =
-    effectOf(lines.zipWithIndex)
+    effectOf(lines.map(_.removeEmptyChars.trim).zipWithIndex)
       .rightT[ParseError]
       .flatMapF {
         parseAll(_, Vector.empty)
