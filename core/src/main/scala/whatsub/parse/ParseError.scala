@@ -26,7 +26,7 @@ object ParseError {
            |""".stripMargin
 
       case SmiParseInvalidLineError(lineIndex, lineStr, error) =>
-        s"""SrtParseError:
+        s"""SmiParseError:
            |- lineIndex: $lineIndex
            |- line:
            |---

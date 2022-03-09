@@ -12,7 +12,11 @@
     <-- Open play menu, choose Captions and Subtiles, On if available -->
     <-- Open tools menu, Security, Show local captions when present -->
     <!-- Another test comment -->
-    <SYNC Start=4561 End=7000><P Class=KRCC><font color="#ec14bd">This is a test subtitle.</Font> by <font color="Skyblue" size=10 face=HY수평선B>Kevin Lee</font>
+    <!--
+    자막 번역: 누군가 2021. 01. 01
+    -->
+    <SYNC Start=4561 End=7000><P Class=KRCC>
+    <font color="#ec14bd">This is a test subtitle.</Font> by <font color="Skyblue" size=10 face=HY수평선B>Kevin Lee</font>
     <SYNC Start=10231><P Class=KRCC><font color="Gold"> 자 막 </Font>: <font color="Skyblue"> 테 스 트 자 막</font><br><font color=Lime>(kevinlee.io)</font>
     <SYNC Start=15831 End=19000><P Class=KRCC><font color="#80ffff">Modified </Font>by <font color="Lime">Kevin Lee<br><font color="#ec14bd">(https://kevinlee.io)</font>
     <SYNC Start=20754><P Class=KRCC>&nbsp;
@@ -20,7 +24,8 @@
     <SYNC Start=89741 End=90674><P Class=KRCC>&nbsp;
     <SYNC Start=90674><P Class=KRCC>안녕
     <SYNC Start=91741 End=100000><P Class=KRCC>&nbsp;
-    <SYNC Start=196380><P Class=KRCC>이건 그냥 테스트를 위한 자막이에요.
+    <SYNC Start=196380><P Class=KRCC>
+    이건 그냥 테스트를 위한 자막이에요.
     <SYNC Start=198115 End=199950><P Class=KRCC>&nbsp;
     <SYNC Start=199950><P Class=KRCC>테스트를 위한 또다른 자막 입니다.
     <SYNC Start=202119><P Class=KRCC>&nbsp;

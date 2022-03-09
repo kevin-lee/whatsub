@@ -241,8 +241,9 @@ object SmiParser {
                 )
 
               case Right((remaining, SyncStartEndInfo(start, end))) =>
-                parseLine(
+                parseLineWithPrevious(
                   rest,
+                  SyncStartEndInfo(start, end),
                   acc,
                 )
 
@@ -267,7 +268,7 @@ object SmiParser {
 
   private def parseLineWithPrevious[F[*]: Fx: Monad](
     lineAndLineNums: Seq[(String, Int)],
-    previous: SyncInfoAndLine | SyncInfo,
+    previous: SyncInfoAndLine | SyncInfo | SyncStartEndInfo | SyncStartEndInfoAndLine,
     acc: Vector[Smi.SmiLine],
   ): F[Either[ParseError, (Seq[(String, Int)], Vector[Smi.SmiLine])]] = lineAndLineNums match {
     case (line, lineNum) +: rest =>
@@ -299,6 +300,20 @@ object SmiParser {
                     SyncInfoAndLine(end, line),
                     acc,
                   )
+
+                case SyncStartEndInfo(previousStart, previousEnd) =>
+                  parseLineWithPrevious(
+                    rest,
+                    SyncInfoAndLine(end, line),
+                    acc
+                  )
+
+                case SyncStartEndInfoAndLine(previousStart, previousEnd, previousLine) =>
+                  parseLineWithPrevious(
+                    rest,
+                    SyncInfoAndLine(end, line),
+                    acc :+ Smi.SmiLine(Smi.Start(previousStart), Smi.End(previousEnd), Smi.Line(previousLine)),
+                  )
               }
 
             case Right((remaining, SyncStartEndInfoAndLine(newStart, newEnd, line))) =>
@@ -306,14 +321,28 @@ object SmiParser {
                 case SyncInfoAndLine(start, previousLine) =>
                   parseLine(
                     rest,
-                    acc :+ Smi.SmiLine(Smi.Start(start), Smi.End(newStart), Smi.Line(previousLine)) :+ Smi
-                      .SmiLine(Smi.Start(newStart), Smi.End(newEnd), Smi.Line(line)),
+                    acc :+
+                      Smi.SmiLine(Smi.Start(start), Smi.End(newStart), Smi.Line(previousLine)) :+
+                      Smi.SmiLine(Smi.Start(newStart), Smi.End(newEnd), Smi.Line(line)),
                   )
 
                 case SyncInfo(start) =>
                   parseLine(
                     rest,
                     acc :+ Smi.SmiLine(Smi.Start(newStart), Smi.End(newEnd), Smi.Line(line)),
+                  )
+
+                case SyncStartEndInfo(previousStart, previousEnd) =>
+                  parseLine(
+                    rest,
+                    acc :+ Smi.SmiLine(Smi.Start(newStart), Smi.End(newEnd), Smi.Line(line)),
+                  )
+
+                case SyncStartEndInfoAndLine(previousStart, previousEnd, previousLine) =>
+                  parseLineWithPrevious(
+                    rest,
+                    SyncStartEndInfoAndLine(newStart, newEnd, line),
+                    acc :+ Smi.SmiLine(Smi.Start(previousStart), Smi.End(previousEnd), Smi.Line(previousLine)),
                   )
               }
 
@@ -332,6 +361,19 @@ object SmiParser {
                     SyncInfo(end),
                     acc,
                   )
+
+                case SyncStartEndInfo(previousStart, previousEnd) =>
+                  parseLineWithPrevious(
+                    rest,
+                    SyncStartEndInfo(previousStart, previousEnd),
+                    acc,
+                  )
+
+                case SyncStartEndInfoAndLine(previousStart, previousEnd, previousLine) =>
+                  parseLine(
+                    rest,
+                    acc :+ Smi.SmiLine(Smi.Start(previousStart), Smi.End(previousEnd), Smi.Line(previousLine)),
+                  )
               }
 
             case Right((remaining, SyncStartEndInfo(newStart, newEnd))) =>
@@ -346,6 +388,19 @@ object SmiParser {
                   parseLine(
                     rest,
                     acc,
+                  )
+
+                case SyncStartEndInfo(previousStart, previousEnd) =>
+                  parseLine(
+                    rest,
+                    acc,
+                  )
+
+                case SyncStartEndInfoAndLine(previousStart, previousEnd, previousLine) =>
+                  parseLineWithPrevious(
+                    rest,
+                    SyncStartEndInfo(newStart, newEnd),
+                    acc :+ Smi.SmiLine(Smi.Start(previousStart), Smi.End(previousEnd), Smi.Line(previousLine)),
                   )
               }
 
@@ -364,6 +419,21 @@ object SmiParser {
                     SyncInfoAndLine(start, line),
                     acc,
                   )
+
+                case SyncStartEndInfo(previousStart, previousEnd) =>
+                  parseLineWithPrevious(
+                    rest,
+                    SyncStartEndInfoAndLine(previousStart, previousEnd, line),
+                    acc,
+                  )
+
+                case SyncStartEndInfoAndLine(previousStart, previousEnd, previousLine) =>
+                  parseLineWithPrevious(
+                    rest,
+                    SyncStartEndInfoAndLine(previousStart, previousEnd, s"$previousLine<br>$line"),
+                    acc,
+                  )
+
               }
 
             case Left(err) =>
