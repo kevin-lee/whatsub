@@ -22,7 +22,7 @@ trait MainIo[A] extends IOApp {
     argParseFailureResult match {
       case err @ JustMessageOrHelp(_) =>
         IO.pure(err.show.some.asRight[WhatsubError])
-      case err @ ArgParseError(_)     =>
+      case err @ ArgParseError(_) =>
         IO(WhatsubError.ArgParse(err).asLeft[Option[String]])
     }
 
@@ -46,7 +46,7 @@ trait MainIo[A] extends IOApp {
               )
               .asLeft[A],
           )
-        case (_, \/-(v))   =>
+        case (_, \/-(v)) =>
           IO(v.asRight[ArgParseFailureResult])
       }
     }

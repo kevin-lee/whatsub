@@ -2,7 +2,7 @@ package whatsub
 
 object Time {
 
-  final val MinuteSeconds = 60
-  final val HourSeconds   = MinuteSeconds * 60
+  val MinuteSeconds: 60 = 60
+  val HourSeconds: 3600 = MinuteSeconds * 60
 
 }

@@ -24,7 +24,7 @@ enum WhatsubArgs derives CanEqual {
     out: Option[SyncArgs.OutFile],
   )
   case CharsetArgs(
-    charsetTask: CharsetArgs.CharsetTask
+    charsetTask: CharsetArgs.CharsetTask,
   )
 }
 object WhatsubArgs {
@@ -32,7 +32,7 @@ object WhatsubArgs {
   def supportedSubFromString(supportedSub: String): Option[SupportedSub] = supportedSub match {
     case "smi" | "SMI" => SupportedSub.Smi.some
     case "srt" | "SRT" => SupportedSub.Srt.some
-    case _             => none[SupportedSub]
+    case _ => none[SupportedSub]
   }
 
   object ConvertArgs {
@@ -178,7 +178,7 @@ object WhatsubArgs {
                     )
                     .flatMap {
                       case (_, Right(playtime)) => Syncer.Sync(direction, playtime).asRight
-                      case (_, Left(err))       => err.asLeft
+                      case (_, Left(err)) => err.asLeft
                     }
               },
           )
@@ -217,7 +217,7 @@ object WhatsubArgs {
     }
 
   }
-  
+
   object CharsetArgs {
     enum CharsetTask derives CanEqual {
       case ListAll
@@ -251,14 +251,14 @@ object WhatsubArgs {
           case ex: UnsupportedCharsetException =>
             s"${ex.getCharsetName} is unknown charset for '$paramName'. To see all supported ones please run 'charset list' command"
           case NonFatal(ex) =>
-          s"$charset is unknown charset for '$paramName'. To see all supported ones please run 'charset list' command"
+            s"$charset is unknown charset for '$paramName'. To see all supported ones please run 'charset list' command"
         }
 
     type From = From.From
     object From {
       opaque type From = Charset
       def apply(from: Charset): From = from
-      
+
       given fromCanEqual: CanEqual[From, From] = CanEqual.derived
 
       def unapply(from: From): Some[Charset] = Some(from.value)
@@ -268,17 +268,17 @@ object WhatsubArgs {
         import Scalaz.*
         charsetFromString(fromCharset, ParamName("from")).map(From(_))
       }
-      
+
       extension (from: From) {
         def value: Charset = from
       }
     }
-    
+
     type To = To.To
     object To {
       opaque type To = Charset
       def apply(to: Charset): To = to
-      
+
       given toCanEqual: CanEqual[To, To] = CanEqual.derived
 
       def unapply(to: To): Some[Charset] = Some(to.value)
@@ -288,7 +288,7 @@ object WhatsubArgs {
         import Scalaz.*
         charsetFromString(toCharset, ParamName("to")).map(To(_))
       }
-      
+
       extension (to: To) {
         def value: Charset = to
       }
@@ -319,7 +319,7 @@ object WhatsubArgs {
       }
 
     }
-    
+
   }
 
 }

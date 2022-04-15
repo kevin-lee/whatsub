@@ -1,4 +1,3 @@
-
 import cats.effect.MonadCancelThrow
 import cats.effect.kernel.MonadCancel
 

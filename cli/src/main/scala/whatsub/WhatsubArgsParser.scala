@@ -14,6 +14,9 @@ import whatsub.info.WhatsubBuildInfo
 import java.io.File
 import scala.io
 
+import whatsub.typeclasses.Scala3TypeClasses.*
+import whatsub.typeclasses.CanBeString.given
+
 /** @author Kevin Lee
   * @since 2021-07-01
   */
@@ -56,7 +59,7 @@ object WhatsubArgsParser {
           to,
           srcFile,
           outFile,
-        ) if srcFile.value.toPath.getFileName.toString.endsWith(".smi") =>
+        ) if srcFile.value.toPath.getFileName.stringValue.endsWith(".smi") =>
       WhatsubArgs.ConvertArgs(ConvertArgs.From(SupportedSub.Smi).some, to, srcFile, outFile)
 
     case WhatsubArgs.ConvertArgs(
@@ -64,7 +67,7 @@ object WhatsubArgsParser {
           to,
           srcFile,
           outFile,
-        ) if srcFile.value.toPath.getFileName.toString.endsWith(".srt") =>
+        ) if srcFile.value.toPath.getFileName.stringValue.endsWith(".srt") =>
       WhatsubArgs.ConvertArgs(ConvertArgs.From(SupportedSub.Srt).some, to, srcFile, outFile)
 
     case arg @ WhatsubArgs.ConvertArgs(
@@ -95,7 +98,7 @@ object WhatsubArgsParser {
           None,
           srcFile,
           Some(outFile),
-        ) if outFile.value.toPath.getFileName.toString.endsWith(".smi") =>
+        ) if outFile.value.toPath.getFileName.stringValue.endsWith(".smi") =>
       WhatsubArgs.ConvertArgs(from, ConvertArgs.To(SupportedSub.Smi).some, srcFile, outFile.some)
 
     case WhatsubArgs.ConvertArgs(
@@ -103,7 +106,7 @@ object WhatsubArgsParser {
           None,
           srcFile,
           Some(outFile),
-        ) if outFile.value.toPath.getFileName.toString.endsWith(".srt") =>
+        ) if outFile.value.toPath.getFileName.stringValue.endsWith(".srt") =>
       WhatsubArgs.ConvertArgs(from, ConvertArgs.To(SupportedSub.Srt).some, srcFile, outFile.some)
 
     case whatsubArgs =>
@@ -147,7 +150,7 @@ object WhatsubArgsParser {
           sync,
           srcFile,
           out,
-        ) if srcFile.value.toPath.getFileName.toString.endsWith(".smi") =>
+        ) if srcFile.value.toPath.getFileName.stringValue.endsWith(".smi") =>
       WhatsubArgs.SyncArgs(
         SyncArgs.Sub(SupportedSub.Smi).some,
         sync,
@@ -160,7 +163,7 @@ object WhatsubArgsParser {
           sync,
           srcFile,
           out,
-        ) if srcFile.value.toPath.getFileName.toString.endsWith(".srt") =>
+        ) if srcFile.value.toPath.getFileName.stringValue.endsWith(".srt") =>
       WhatsubArgs.SyncArgs(
         SyncArgs.Sub(SupportedSub.Srt).some,
         sync,
@@ -227,7 +230,9 @@ object WhatsubArgsParser {
 
   def charsetToParse: Parse[CharsetArgs.To] = flag[CharsetArgs.To](
     both('t', "to"),
-    metavar("<to>") |+| description(s"""The name of charset to be converted to (${"default".green}: ${"UTF-8".blue})"""),
+    metavar("<to>") |+| description(
+      s"""The name of charset to be converted to (${"default".green}: ${"UTF-8".blue})"""
+    ),
   ).default(CharsetArgs.To(Charset.Utf8.value))
 
   def charsetSrcFileParse: Parse[CharsetArgs.SrcFile] = argument[File](
@@ -279,7 +284,7 @@ object WhatsubArgsParser {
     given show: Show[JustMessageOrHelp] = _.messages.mkString("\n")
   }
   final case class ArgParseError(errors: List[String])
-  object ArgParseError     {
+  object ArgParseError {
     given show: Show[ArgParseError] = _.errors.mkString("\n")
   }
 

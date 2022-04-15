@@ -10,6 +10,7 @@ import effectie.core.*
 import effectie.syntax.all.*
 import extras.cats.syntax.all.*
 import whatsub.Smi
+import whatsub.typeclasses.Scala3TypeClasses.given
 
 import scala.annotation.tailrec
 
@@ -44,7 +45,7 @@ object SmiParser {
   ).map {
     case (start, Some(end)) =>
       SyncStartEndInfo(start.toLong, end.toLong)
-    case (playtime, None)   =>
+    case (playtime, None) =>
       SyncInfo(playtime.toLong)
   }
 
@@ -61,7 +62,7 @@ object SmiParser {
       .map {
         case (start, Some(end)) =>
           SyncStartEndInfo(start.toLong, end.toLong)
-        case (playtime, None)   =>
+        case (playtime, None) =>
           SyncInfo(playtime.toLong)
       }
 
@@ -89,7 +90,7 @@ object SmiParser {
         end.toLong,
         line,
       )
-    case ((startTime, None), line)  =>
+    case ((startTime, None), line) =>
       SyncInfoAndLine(
         startTime.toLong,
         line,
@@ -135,15 +136,15 @@ object SmiParser {
       .flatMap {
         case (line, index) +: rest =>
           parseNonLine(line) match {
-            case Some(ParseStatus.SamiStart)    =>
+            case Some(ParseStatus.SamiStart) =>
               parseAll(skipUntil(rest, ParseStatus.HeadStart), title, acc)
-            case Some(ParseStatus.SamiEnd)      =>
+            case Some(ParseStatus.SamiEnd) =>
               effectOf((title, acc).asRight)
-            case Some(ParseStatus.HeadStart)    =>
+            case Some(ParseStatus.HeadStart) =>
               parseAll(skipUntil(rest, ParseStatus.TitleStart), title, acc)
-            case Some(ParseStatus.HeadEnd)      =>
+            case Some(ParseStatus.HeadEnd) =>
               parseAll(skipUntil(rest, ParseStatus.BodyStart), title, acc)
-            case Some(ParseStatus.TitleStart)   =>
+            case Some(ParseStatus.TitleStart) =>
               parseTitle(
                 (line.drop(SmiStr.TitleStart.length + 1), index) +: rest,
               )
@@ -153,23 +154,23 @@ object SmiParser {
                     parseAll(rest, maybeTitle.orElse(title), acc)
                 }
                 .value
-            case Some(ParseStatus.TitleEnd)     =>
+            case Some(ParseStatus.TitleEnd) =>
               parseAll(skipUntil(rest, ParseStatus.StyleStart), title, acc)
             case Some(ParseStatus.CommentStart) =>
               parseAll(skipUntil(rest, ParseStatus.CommentEnd), title, acc)
-            case Some(ParseStatus.CommentEnd)   =>
+            case Some(ParseStatus.CommentEnd) =>
               parseAll(rest, title, acc)
-            case Some(ParseStatus.StyleStart)   =>
+            case Some(ParseStatus.StyleStart) =>
               val skippedToStyleEnd = skipUntil(rest, ParseStatus.StyleEnd)
               if skippedToStyleEnd.isEmpty then parseAll(rest, title, acc)
               else parseAll(skippedToStyleEnd, title, acc)
-            case Some(ParseStatus.StyleEnd)     =>
+            case Some(ParseStatus.StyleEnd) =>
               parseAll(skipUntil(rest, ParseStatus.HeadEnd), title, acc)
-            case Some(ParseStatus.BodyStart)    =>
+            case Some(ParseStatus.BodyStart) =>
               parseAll(rest, title, acc)
-            case Some(ParseStatus.BodyEnd)      =>
+            case Some(ParseStatus.BodyEnd) =>
               parseAll(skipUntil(rest, ParseStatus.SamiEnd), title, acc)
-            case None                           =>
+            case None =>
               parseLine(lineAndLineNums, Vector.empty)
                 .eitherT
                 .flatMapF {
@@ -189,8 +190,8 @@ object SmiParser {
       case (line, index) +: rest =>
         val preprocessed = line.removeEmptyChars.trim
         parseNonLine(preprocessed)
-          .find(_ == target) match {
-          case None    =>
+          .find(_ === target) match {
+          case None =>
             skipUntil(rest, target)
           case Some(_) =>
             lineAndLineNums
@@ -262,7 +263,7 @@ object SmiParser {
                 effectOf(ParseError.SmiParseError(lineNum, line, err).asLeft[(Seq[(String, Int)], Vector[Smi.SmiLine])])
             }
         }
-      case Seq()                   =>
+      case Seq() =>
         effectOf((lineAndLineNums, acc).asRight[ParseError])
     }
 
@@ -305,7 +306,7 @@ object SmiParser {
                   parseLineWithPrevious(
                     rest,
                     SyncInfoAndLine(end, line),
-                    acc
+                    acc,
                   )
 
                 case SyncStartEndInfoAndLine(previousStart, previousEnd, previousLine) =>
@@ -440,11 +441,12 @@ object SmiParser {
               effectOf(ParseError.SmiParseError(lineNum, line, err).asLeft)
           }
       }
-    case Seq()                   =>
+    case Seq() =>
       effectOf((lineAndLineNums, acc).asRight)
   }
 
   private def parseNonLine(line: String): Option[ParseStatus] = {
+    @SuppressWarnings(Array("org.wartremover.warts.PlatformDefault"))
     val lower = line.toLowerCase
     if (lower.startsWith(SmiStr.SamiStart))
       ParseStatus.SamiStart.some
@@ -486,6 +488,7 @@ object SmiParser {
       lineAndLineNums match {
         case (line, index) +: rest =>
           val preprocessed = line.removeEmptyChars.trim
+          @SuppressWarnings(Array("org.wartremover.warts.PlatformDefault"))
           val lower        = preprocessed.toLowerCase
           val closeIndex   = lower.indexOf(SmiStr.TitleEnd)
           if (closeIndex >= 0) {
@@ -500,7 +503,7 @@ object SmiParser {
           } else {
             keepParsingTitle(rest, acc :+ preprocessed)
           }
-        case Seq()                 =>
+        case Seq() =>
           pureOf(none[Smi.Title], List.empty)
       }
     keepParsingTitle(lineAndLineNums, Vector.empty)

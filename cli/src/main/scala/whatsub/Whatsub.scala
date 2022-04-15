@@ -20,7 +20,8 @@ import whatsub.sync.Syncer
 
 import java.io.{BufferedWriter, File, FileWriter, Writer}
 import java.nio.charset.Charset as JCharset
-import scala.io.Source
+import scala.io.{Codec, Source}
+import whatsub.typeclasses.Scala3TypeClasses.*
 
 /** @author Kevin Lee
   * @since 2021-06-30
@@ -34,12 +35,12 @@ object Whatsub {
   )(
     using convert: Convert[F, A, B],
   ): F[Either[WhatsubError, Unit]] =
-    if (outFile.exists(_.value.getCanonicalPath == src.getCanonicalPath)) {
+    if (outFile.exists(_.value.getCanonicalPath === src.getCanonicalPath)) {
       pureOf(WhatsubError.IdenticalSrcAndOut(src, outFile.map(_.value)).asLeft[Unit])
     } else {
       (for {
         srcSub <- Resource
-                    .make(effectOf(Source.fromFile(src)))(source => effectOf(source.close()))
+                    .make(effectOf(Source.fromFile(src)(Codec.UTF8)))(source => effectOf(source.close()))
                     .use { srcSource =>
                       effectOf(srcSource.getLines.to(LazyList))
                         .flatMap(lines => parser(lines))
@@ -70,12 +71,12 @@ object Whatsub {
     src: File,
     outFile: Option[SyncArgs.OutFile],
   )(using syncer: Syncer[F, A]): F[Either[WhatsubError, Unit]] =
-    if (outFile.exists(_.value.getCanonicalPath == src.getCanonicalPath)) {
+    if (outFile.exists(_.value.getCanonicalPath === src.getCanonicalPath)) {
       pureOf(WhatsubError.IdenticalSrcAndOut(src, outFile.map(_.value)).asLeft[Unit])
     } else {
       (for {
         srcSub   <- Resource
-                      .make(effectOf(Source.fromFile(src)))(source => effectOf(source.close()))
+                      .make(effectOf(Source.fromFile(src)(Codec.UTF8)))(source => effectOf(source.close()))
                       .use { srcSource =>
                         effectOf(srcSource.getLines.to(LazyList))
                           .flatMap(lines => parser(lines))
@@ -118,7 +119,7 @@ object Whatsub {
       override def combine(x: Unit, y: Unit): Unit = ()
     }
 
-    if (out.exists(_.value.getCanonicalPath == src.value.getCanonicalPath)) {
+    if (out.exists(_.value.getCanonicalPath === src.value.getCanonicalPath)) {
       pureOf(WhatsubError.IdenticalSrcAndOut(src.value, out.map(_.value)).asLeft[Unit])
     } else {
       out match {

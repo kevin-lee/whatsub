@@ -60,6 +60,7 @@ object FileF {
         }
   }
 
+  @SuppressWarnings(Array("org.wartremover.warts.PlatformDefault"))
   def firstLineFromFile(file: File): Option[String] =
     util.Using(io.Source.fromFile(file))(_.getLines.find(_ => true)).toOption.flatten
 }

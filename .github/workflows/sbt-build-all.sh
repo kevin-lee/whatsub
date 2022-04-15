@@ -5,7 +5,7 @@ set -x
 if [ -z "$1" ]
   then
     echo "Missing parameters. Please enter the [Scala version]."
-    echo "sbt-build-all.sh 3.1.0"
+    echo "sbt-build-all.sh 3.1.1"
     exit 1
 else
   : ${CURRENT_BRANCH_NAME:?"CURRENT_BRANCH_NAME is missing."}

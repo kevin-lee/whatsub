@@ -32,9 +32,9 @@ object Convert {
          effectOf(
            for {
              (smiLine, index) <- smi.lines.zipWithIndex
-             start             = smiLine.start.value
-             end               = smiLine.end.value
-             line              = smiLine.line.value
+             start = smiLine.start.value
+             end   = smiLine.end.value
+             line  = smiLine.line.value
            } yield Srt.SrtLine(
              Srt.Index(index + 1),
              Srt.Start(start),

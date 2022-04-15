@@ -149,7 +149,7 @@ object SrtParser {
                     )
                 }
           }
-      case Seq()                 =>
+      case Seq() =>
         pureOf(acc.asRight)
     }
 
@@ -217,7 +217,7 @@ object SrtParser {
                     )
                 }
           }
-      case Seq()                 =>
+      case Seq() =>
         pureOf(acc.asRight)
     }
 
