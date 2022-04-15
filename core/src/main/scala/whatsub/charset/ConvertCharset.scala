@@ -22,7 +22,7 @@ trait ConvertCharset[F[*], A, B] {
 
 object ConvertCharset {
 
-  final val EmptyCharRegEx = "[\uFEFF-\uFFFF]"
+  val EmptyCharRegEx: String = "[\uFEFF-\uFFFF]"
 
   def convertStringCharset[F[*]: Fx: Monad, B]: ConvertCharset[F, String, B] =
     new ConvertCharset[F, String, B] {

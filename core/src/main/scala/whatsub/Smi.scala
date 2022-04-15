@@ -29,7 +29,7 @@ object Smi {
                  |""".stripMargin
             }
             .mkString
-          ) +
+        ) +
           s"""</BODY>
              |</SAMI>
              |""".stripMargin
@@ -42,7 +42,7 @@ object Smi {
       def sync(sync: Syncer.Sync): F[Smi] =
         for {
           shift <- pureOf(sync match {
-                     case Syncer.Sync(Syncer.Direction.Forward, playtime)  =>
+                     case Syncer.Sync(Syncer.Direction.Forward, playtime) =>
                        ((_: SmiLine) + playtime)
                      case Syncer.Sync(Syncer.Direction.Backward, playtime) =>
                        ((_: SmiLine) - playtime)

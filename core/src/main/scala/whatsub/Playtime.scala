@@ -11,7 +11,7 @@ final case class Playtime(
   lazy val toMilliseconds: Long =
     (h.value * HourSeconds + m.value * MinuteSeconds + s.value) * 1000 + ms.value
 }
-object Playtime    {
+object Playtime {
 
   def h(h: Int): Playtime = Playtime.fromMilliseconds(h * HourSeconds * 1000)
 
@@ -24,11 +24,11 @@ object Playtime    {
   def fromMilliseconds(milliseconds: Long): Playtime = {
     val ms        = (milliseconds % 1000).toInt
     val inSeconds = (milliseconds / 1000).toInt
-    val hours     = (inSeconds / HourSeconds).toInt
+    val hours     = inSeconds / HourSeconds
 
     val minutesLeftInSeconds = inSeconds - hours * HourSeconds
 
-    val minutes = (minutesLeftInSeconds / MinuteSeconds).toInt
+    val minutes = minutesLeftInSeconds / MinuteSeconds
     val seconds = minutesLeftInSeconds - minutes * MinuteSeconds
 
     Playtime(

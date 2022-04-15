@@ -45,7 +45,7 @@ object Srt {
       def sync(sync: Syncer.Sync): F[Srt] =
         for {
           shift <- pureOf(sync match {
-                     case Syncer.Sync(Syncer.Direction.Forward, playtime)  =>
+                     case Syncer.Sync(Syncer.Direction.Forward, playtime) =>
                        ((_: SrtLine) + playtime)
                      case Syncer.Sync(Syncer.Direction.Backward, playtime) =>
                        ((_: SrtLine) - playtime)

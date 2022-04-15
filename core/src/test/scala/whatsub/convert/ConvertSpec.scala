@@ -63,7 +63,7 @@ object ConvertSpec extends Properties {
 
     example(
       name, {
-        import CatsEffectRunner.{*, given}
+        import CatsEffectRunner.*
         given ticker: Ticker = Ticker.withNewTestContext()
         result.completeThen(identity)
       },

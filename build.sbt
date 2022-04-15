@@ -147,6 +147,8 @@ def subProject(projectName: String, file: File): Project =
       name                       := prefixedProjectName(projectName),
       useAggressiveScalacOptions := true,
       libraryDependencies ++= libs.hedgehogLibs,
+      wartremoverErrors ++= ProjectInfo.commonWarts((update / scalaBinaryVersion).value),
+      wartremoverExcluded ++= List(sourceManaged.value),
       testFrameworks ~= (testFws => (TestFramework("hedgehog.sbt.Framework") +: testFws).distinct),
       licenses                   := List("MIT" -> url("http://opensource.org/licenses/MIT")),
     )

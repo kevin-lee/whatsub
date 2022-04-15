@@ -34,7 +34,7 @@ enum WhatsubError {
 
 object WhatsubError {
 
-  given whatsubErrorShow: Show[WhatsubError] = _.toString
+  given whatsubErrorShow: Show[WhatsubError] = Show.fromToString
 
   extension (whatsubError: WhatsubError) {
     def render: String = whatsubError match {
@@ -56,7 +56,7 @@ object WhatsubError {
           .map {
             case (what, Some(file)) =>
               s"${s"Missing $what type".red}: There is no $what type set nor is the $what type info found from the file (${file.toString})."
-            case (what, None)       =>
+            case (what, None) =>
               s"${s"Missing $what type".red}: There is no $what type set nor is there a file path given for the $what type."
           }
           .toList
