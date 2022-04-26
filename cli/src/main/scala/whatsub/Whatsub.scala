@@ -28,7 +28,7 @@ import whatsub.typeclasses.Scala3TypeClasses.*
   */
 object Whatsub {
 
-  private def parseAndConvert[F[*]: Monad: MCancel: Fx, A, B: CanRender](
+  private def parseAndConvert[F[*]: Monad: MCancel: Fx: FileF, A, B: CanRender](
     parser: Seq[String] => F[Either[ParseError, A]],
     src: File,
     outFile: Option[ConvertArgs.OutFile],
@@ -56,16 +56,16 @@ object Whatsub {
                     .flatMap(
                       _.fold(
                         putStrLn(outSub.render).rightT[FileError],
-                      )(out => FileF.fileF[F].writeFile(outSub, out.value).eitherT),
+                      )(out => FileF[F].writeFile(outSub, out.value).eitherT),
                     )
                     .leftMap {
-                      case FileError.WriteFilure(file, throwable) =>
+                      case FileError.WriteFailure(file, throwable) =>
                         WhatsubError.FileWriteFailure(file, throwable)
                     }
       } yield ()).value
     }
 
-  def resync[F[*]: Monad: MCancel: Fx: CanCatch, A: CanRender](
+  def resync[F[*]: Monad: MCancel: Fx: CanCatch: FileF, A: CanRender](
     parser: Seq[String] => F[Either[ParseError, A]],
     sync: Syncer.Sync,
     src: File,
@@ -87,9 +87,9 @@ object Whatsub {
         _        <- outFile
                       .fold(
                         putStrLn(CanRender[A].render(resynced)).rightT[FileError],
-                      )(out => FileF.fileF[F].writeFile(resynced, out.value).eitherT)
+                      )(out => FileF[F].writeFile(resynced, out.value).eitherT)
                       .leftMap {
-                        case FileError.WriteFilure(file, throwable) =>
+                        case FileError.WriteFailure(file, throwable) =>
                           WhatsubError.FileWriteFailure(file, throwable)
                       }
       } yield ()).value
@@ -152,7 +152,7 @@ object Whatsub {
     }
   }
 
-  def apply[F[*]: Monad: MCancel: Fx: CanCatch](args: WhatsubArgs): F[Either[WhatsubError, Unit]] =
+  def apply[F[*]: Monad: MCancel: Fx: CanCatch: FileF](args: WhatsubArgs): F[Either[WhatsubError, Unit]] =
     args match {
       case ConvertArgs(
             Some(ConvertArgs.From(SupportedSub.Smi)),

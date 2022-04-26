@@ -7,6 +7,7 @@ import cats.effect.kernel.MonadCancel
 import cats.syntax.all.*
 import effectie.core.*
 import effectie.syntax.all.*
+import effectie.cats.console.given
 import extras.cats.syntax.all.*
 import whatsub.FileF.FileError
 
@@ -21,23 +22,10 @@ trait FileF[F[*]] {
 }
 
 object FileF {
-  enum FileError derives CanEqual {
-    case WriteFilure(file: File, throwable: Throwable)
-  }
 
-  object FileError {
+  def apply[F[*]: FileF]: FileF[F] = summon[FileF[F]]
 
-    extension (fileError: FileError) {
-      def render: String = fileError match {
-        case FileError.WriteFilure(file, throwable) =>
-          s"Error when writing file at ${file.getCanonicalPath}. Error: ${throwable.getMessage}"
-      }
-    }
-  }
-
-  def fileF[F[*]: Monad: MCancel: Fx: ConsoleEffect]: FileF[F] = new FileFSync[F]
-
-  final class FileFSync[F[*]: Monad: MCancel: Fx: ConsoleEffect] extends FileF[F] {
+  given fileF[F[*]: Monad: MCancel: Fx]: FileF[F] with {
 
     def writeFile[A: CanRender](a: A, file: File): F[Either[FileError, Unit]] =
       Resource
@@ -48,7 +36,7 @@ object FileF {
             _       <- CanCatch[F]
                          .catchNonFatal(effectOf(writer.write(content))) {
                            case NonFatal(th) =>
-                             FileError.WriteFilure(file, th)
+                             FileError.WriteFailure(file, th)
                          }
                          .eitherT
             _       <- putStrLn(
@@ -63,4 +51,19 @@ object FileF {
   @SuppressWarnings(Array("org.wartremover.warts.PlatformDefault"))
   def firstLineFromFile(file: File): Option[String] =
     util.Using(io.Source.fromFile(file))(_.getLines.find(_ => true)).toOption.flatten
+
+  enum FileError derives CanEqual {
+    case WriteFailure(file: File, throwable: Throwable)
+  }
+
+  object FileError {
+
+    extension (fileError: FileError) {
+      def render: String = fileError match {
+        case FileError.WriteFailure(file, throwable) =>
+          s"Error when writing file at ${file.getCanonicalPath}. Error: ${throwable.getMessage}"
+      }
+    }
+  }
+
 }
