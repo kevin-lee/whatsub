@@ -12,6 +12,7 @@ import effectie.syntax.all.*
 import extras.cats.syntax.all.*
 import whatsub.{Playtime, Srt}
 
+import scala.annotation.tailrec
 import scala.collection.Iterator
 
 /** @author Kevin Lee
@@ -59,6 +60,7 @@ object SrtParser {
   val srtPlaytimeParser: P[SrtComponent.Playtimes] = playtimeRangeP
   val srtLineParser: P[SrtComponent.Line]          = lineP
 
+  @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
   def parseAllWithIndexPlaytimesLines[F[*]: Fx: Monad](
     linesAndIndices: Seq[(String, Int)],
     srtIndex: SrtComponent.Index,
@@ -115,6 +117,7 @@ object SrtParser {
         )
     }
 
+  @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
   def parseAllWithIndexPlaytimes[F[*]: Fx: Monad](
     linesAndIndices: Seq[(String, Int)],
     srtIndex: SrtComponent.Index,
@@ -153,6 +156,7 @@ object SrtParser {
         pureOf(acc.asRight)
     }
 
+  @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
   def parseAllWithIndex[F[*]: Fx: Monad](
     linesAndIndices: Seq[(String, Int)],
     srtIndex: SrtComponent.Index,
@@ -188,6 +192,7 @@ object SrtParser {
         pureOf(acc.asRight)
     }
 
+  @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
   def parseAll[F[*]: Fx: Monad](
     linesAndIndices: Seq[(String, Int)],
     acc: Vector[Srt.SrtLine],
