@@ -3,7 +3,7 @@ logLevel := sbt.Level.Warn
 addSbtPlugin("com.github.sbt"  % "sbt-native-packager" % "1.9.9")
 addSbtPlugin("org.scalameta"   % "sbt-native-image"    % "0.3.0")
 addSbtPlugin("com.eed3si9n"    % "sbt-buildinfo"       % "0.11.0")
-addSbtPlugin("org.wartremover" % "sbt-wartremover"     % "3.0.0")
+addSbtPlugin("org.wartremover" % "sbt-wartremover"     % "3.0.4")
 
 addSbtPlugin("io.kevinlee" % "sbt-docusaur" % "0.11.0")
 
