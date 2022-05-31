@@ -123,6 +123,7 @@ object SmiParser {
       .map((title, lines) => Smi(title.getOrElse(Smi.Title("")), lines.toList))
       .value
 
+  @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
   private def parseAll[F[*]: Fx: Monad](
     lineAndLineNums: Seq[(String, Int)],
     title: Option[Smi.Title],
@@ -201,6 +202,7 @@ object SmiParser {
         List.empty
     }
 
+  @tailrec
   private def parseLine[F[*]: Fx: Monad](
     lineAndLineNums: Seq[(String, Int)],
     acc: Vector[Smi.SmiLine],
@@ -267,6 +269,7 @@ object SmiParser {
         effectOf((lineAndLineNums, acc).asRight[ParseError])
     }
 
+  @tailrec
   private def parseLineWithPrevious[F[*]: Fx: Monad](
     lineAndLineNums: Seq[(String, Int)],
     previous: SyncInfoAndLine | SyncInfo | SyncStartEndInfo | SyncStartEndInfoAndLine,
