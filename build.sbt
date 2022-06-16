@@ -53,7 +53,7 @@ lazy val core = subProject("core", file("core"))
     /* } Build Info */
   )
 
-lazy val pirate = ProjectRef(props.pirateUri, "pirate")
+lazy val pirateScalaz = ProjectRef(props.pirateUri, "pirate-scalaz")
 
 lazy val cli = subProject("cli", file("cli"))
   .enablePlugins(JavaAppPackaging, NativeImagePlugin)
@@ -77,7 +77,7 @@ lazy val cli = subProject("cli", file("cli"))
     ),
   )
   .settings(noPublish)
-  .dependsOn(core, pirate)
+  .dependsOn(core, pirateScalaz)
 
 lazy val props =
   new {
@@ -106,7 +106,7 @@ lazy val props =
 
     final val EffectieCatsEffect3Version = "2.0.0-beta1"
 
-    final val pirateVersion = "deec3408b08a751de9b2df2d17fc1ab7b8daeaaf"
+    final val pirateVersion = "18dfbbca014ba2312a640cf558ab6eca19c47eb8"
     final val pirateUri     = uri(s"https://github.com/$GitHubUsername/pirate.git#$pirateVersion")
 
     final val IncludeTest: String = "compile->compile;test->test"
