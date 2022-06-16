@@ -6,10 +6,11 @@ import cats.effect.kernel.MonadCancel
 import cats.effect.{Resource, Sync}
 import cats.syntax.all.*
 import cats.{Monad, Monoid}
+import effectie.cats.console.given
 import effectie.core.*
 import effectie.syntax.all.*
-import effectie.cats.console.given
 import extras.cats.syntax.all.*
+import extras.scala.io.syntax.color.*
 import pirate.{Command, ExitCode}
 import piratex.{Help, Metavar}
 import whatsub.WhatsubArgs.{CharsetArgs, ConvertArgs, SyncArgs}
@@ -17,11 +18,11 @@ import whatsub.charset.{Charset, ConvertCharset}
 import whatsub.convert.Convert
 import whatsub.parse.{ParseError, SmiParser, SrtParser}
 import whatsub.sync.Syncer
+import whatsub.typeclasses.Scala3TypeClasses.*
 
 import java.io.{BufferedWriter, File, FileWriter, Writer}
 import java.nio.charset.Charset as JCharset
 import scala.io.{Codec, Source}
-import whatsub.typeclasses.Scala3TypeClasses.*
 
 /** @author Kevin Lee
   * @since 2021-06-30
@@ -140,12 +141,20 @@ object Whatsub {
             .use { writer =>
               val EoL                  = System.lineSeparator
               val f: String => F[Unit] = s => effectOf(writer.write(s + EoL))
-              ConvertCharset
-                .convertFileCharset[F, Unit]
-                .convert(from, to)(src.value)(f)
-                .eitherT
-                .leftMap(WhatsubError.CharsetConversion(_))
-                .value
+              (
+                ConvertCharset
+                  .convertFileCharset[F, Unit]
+                  .convert(from, to)(src.value)(f)
+                  .eitherT
+                  .leftMap(WhatsubError.CharsetConversion(_)) *>
+                  putStrLn[F] {
+                    val fromFile = from.render.magenta
+                    val toFile   = to.render.magenta
+                    s"""Charset conversion from $fromFile to $toFile has been done and it's been written at
+                       |  ${outFile.value.toString.blue}
+                       |""".stripMargin
+                  }.rightT
+              ).value
             }
 
       }
