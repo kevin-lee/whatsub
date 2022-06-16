@@ -33,12 +33,10 @@ object FileF {
         .use { writer =>
           (for {
             content <- effectOf(CanRender[A].render(a)).rightT
-            _       <- CanCatch[F]
-                         .catchNonFatal(effectOf(writer.write(content))) {
-                           case NonFatal(th) =>
-                             FileError.WriteFailure(file, th)
-                         }
-                         .eitherT
+            _       <- effectOf(writer.write(content)).catchNonFatal {
+                         case NonFatal(th) =>
+                           FileError.WriteFailure(file, th)
+                       }.eitherT
             _       <- putStrLn(
                          s"""Success] The subtitle file has been successfully written at
                             |  ${file.getCanonicalPath}

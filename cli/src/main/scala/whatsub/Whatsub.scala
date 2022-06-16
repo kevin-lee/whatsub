@@ -28,7 +28,7 @@ import whatsub.typeclasses.Scala3TypeClasses.*
   */
 object Whatsub {
 
-  private def parseAndConvert[F[*]: Monad: MCancel: Fx: FileF, A, B: CanRender](
+  private def parseAndConvert[F[*]: Monad: MCancel: Fx, A, B: CanRender](
     parser: Seq[String] => F[Either[ParseError, A]],
     src: File,
     outFile: Option[ConvertArgs.OutFile],
@@ -65,7 +65,7 @@ object Whatsub {
       } yield ()).value
     }
 
-  def resync[F[*]: Monad: MCancel: Fx: CanCatch: FileF, A: CanRender](
+  def resync[F[*]: Monad: MCancel: Fx, A: CanRender](
     parser: Seq[String] => F[Either[ParseError, A]],
     sync: Syncer.Sync,
     src: File,
@@ -106,7 +106,7 @@ object Whatsub {
     )
   }
 
-  def charsetConvert[F[*]: Monad: MCancel: Fx: CanCatch](
+  def charsetConvert[F[*]: Monad: MCancel: Fx](
     from: ConvertCharset.From,
     to: ConvertCharset.To,
     src: CharsetArgs.SrcFile,
@@ -152,7 +152,7 @@ object Whatsub {
     }
   }
 
-  def apply[F[*]: Monad: MCancel: Fx: CanCatch: FileF](args: WhatsubArgs): F[Either[WhatsubError, Unit]] =
+  def apply[F[*]: Monad: MCancel: Fx](args: WhatsubArgs): F[Either[WhatsubError, Unit]] =
     args match {
       case ConvertArgs(
             Some(ConvertArgs.From(SupportedSub.Smi)),
