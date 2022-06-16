@@ -97,21 +97,21 @@ lazy val props =
 
     final val SonatypeCredentialHost = "s01.oss.sonatype.org"
 
-    final val HedgehogVersion = "0.8.0"
+    final val HedgehogVersion = "0.9.0"
 
     final val CatsVersion        = "2.7.0"
-    final val CatsEffect3Version = "3.3.6"
+    final val CatsEffect3Version = "3.3.12"
 
-    final val CatsParseVersion = "0.3.4"
+    final val CatsParseVersion = "0.3.7"
 
-    final val EffectieCatsEffect3Version = "2.0.0-SNAPSHOT"
+    final val EffectieCatsEffect3Version = "2.0.0-beta1"
 
     final val pirateVersion = "deec3408b08a751de9b2df2d17fc1ab7b8daeaaf"
     final val pirateUri     = uri(s"https://github.com/$GitHubUsername/pirate.git#$pirateVersion")
 
     final val IncludeTest: String = "compile->compile;test->test"
 
-    final val ExtrasVersion = "0.4.0"
+    final val ExtrasVersion = "0.15.0"
 
   }
 
