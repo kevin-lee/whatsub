@@ -148,10 +148,11 @@ object Whatsub {
                   .eitherT
                   .leftMap(WhatsubError.CharsetConversion(_)) *>
                   putStrLn[F] {
-                    val fromFile = from.render.magenta
-                    val toFile   = to.render.magenta
-                    s"""Charset conversion from $fromFile to $toFile has been done and it's been written at
-                       |  ${outFile.value.toString.blue}
+                    val fromFile = from.render.magenta.bold
+                    val toFile   = to.render.magenta.bold
+                    s""">> [${"Success".green}] Charset conversion from $fromFile to $toFile
+                       |>> The converted subtitle file has been written at
+                       |>>   ${outFile.value.toString.blue.bold}
                        |""".stripMargin
                   }.rightT
               ).value

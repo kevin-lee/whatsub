@@ -9,6 +9,7 @@ import effectie.core.*
 import effectie.syntax.all.*
 import effectie.cats.console.given
 import extras.cats.syntax.all.*
+import extras.scala.io.syntax.color.*
 import whatsub.FileF.FileError
 
 import java.io.{BufferedWriter, File, FileWriter}
@@ -38,8 +39,8 @@ object FileF {
                            FileError.WriteFailure(file, th)
                        }.eitherT
             _       <- putStrLn(
-                         s"""Success] The subtitle file has been successfully written at
-                            |  ${file.getCanonicalPath}
+                         s""">> [${"Success".green}] The subtitle file has been successfully written at
+                            |>>   ${file.getCanonicalPath.blue.bold}
                             |""".stripMargin,
                        ).rightT[FileError]
           } yield ()).value
