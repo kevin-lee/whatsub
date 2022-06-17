@@ -12,6 +12,5 @@ trait CanBeString[A] {
 }
 
 object CanBeString {
-  @SuppressWarnings(Array("org.wartremover.warts.ToString"))
-  given nioPathCanBeString: CanBeString[Path] = _.toString
+  given nioPathCanBeString: CanBeString[Path] = String.valueOf(_)
 }

@@ -58,7 +58,6 @@ lazy val pirateScalaz = ProjectRef(props.pirateUri, "pirate-scalaz")
 lazy val cli = subProject("cli", file("cli"))
   .enablePlugins(JavaAppPackaging, NativeImagePlugin)
   .settings(
-    scalacOptions ++= List("-source:3.1"),
     maintainer           := "Kevin Lee <kevin.code@kevinlee.io>",
     packageSummary       := "Whatsub - subtitle converter and syncer",
     packageDescription   := "A tool to convert and sync subtitles",
@@ -148,6 +147,8 @@ def subProject(projectName: String, file: File): Project =
     .settings(
       name                       := prefixedProjectName(projectName),
       useAggressiveScalacOptions := true,
+//      scalacOptions ++= List("-source:3.1", "-Yexplicit-nulls"),
+      scalacOptions ++= List("-source:3.1"),
       libraryDependencies ++= libs.hedgehogLibs,
       wartremoverErrors ++= ProjectInfo.commonWarts((update / scalaBinaryVersion).value),
       wartremoverExcluded ++= List(sourceManaged.value),

@@ -11,7 +11,11 @@ object SubParsers {
   val newlineP = (crlf | cr | lf)
 
   extension (s: String) {
-    def removeEmptyChars: String = s.replaceAll("[\uFEFF-\uFFFF]", "")
+    def removeEmptyChars: String =
+      s.replaceAll("[\uFEFF-\uFFFF]", "")
+        .nn
+        .trim
+        .nn
   }
 
 }

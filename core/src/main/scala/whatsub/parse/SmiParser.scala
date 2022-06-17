@@ -118,7 +118,7 @@ object SmiParser {
   }
 
   def parse[F[*]: Fx: Monad](lines: Seq[String]): F[Either[ParseError, Smi]] =
-    parseAll(lines.map(_.removeEmptyChars.trim).zipWithIndex, none, Vector.empty)
+    parseAll(lines.map(_.removeEmptyChars).zipWithIndex, none, Vector.empty)
       .eitherT
       .map((title, lines) => Smi(title.getOrElse(Smi.Title("")), lines.toList))
       .value
@@ -131,7 +131,7 @@ object SmiParser {
   ): F[Either[ParseError, (Option[Smi.Title], Vector[Smi.SmiLine])]] =
     (
       lineAndLineNums
-        .traverse((line, index) => effectOf((line.removeEmptyChars.trim, index)))
+        .traverse((line, index) => effectOf((line.removeEmptyChars, index)))
         .map(_.filter((line, index) => line.nonEmpty)),
       )
       .flatMap {
@@ -189,7 +189,7 @@ object SmiParser {
   private def skipUntil(lineAndLineNums: Seq[(String, Int)], target: ParseStatus): Seq[(String, Int)] =
     lineAndLineNums match {
       case (line, index) +: rest =>
-        val preprocessed = line.removeEmptyChars.trim
+        val preprocessed = line.removeEmptyChars
         parseNonLine(preprocessed)
           .find(_ === target) match {
           case None =>
@@ -209,7 +209,7 @@ object SmiParser {
   ): F[Either[ParseError, (Seq[(String, Int)], Vector[Smi.SmiLine])]] =
     lineAndLineNums match {
       case (line, lineNum) +: rest =>
-        val preprocessed  = line.removeEmptyChars.trim
+        val preprocessed  = line.removeEmptyChars
         val nonLineParsed = parseNonLine(preprocessed)
         nonLineParsed match {
           case Some(ParseStatus.CommentStart) =>
@@ -276,7 +276,7 @@ object SmiParser {
     acc: Vector[Smi.SmiLine],
   ): F[Either[ParseError, (Seq[(String, Int)], Vector[Smi.SmiLine])]] = lineAndLineNums match {
     case (line, lineNum) +: rest =>
-      val preprocessed = line.removeEmptyChars.trim
+      val preprocessed = line.removeEmptyChars
       parseNonLine(preprocessed) match {
         case Some(ParseStatus.CommentStart) =>
           parseLineWithPrevious(skipUntil(rest, ParseStatus.CommentEnd), previous, acc)
@@ -449,8 +449,7 @@ object SmiParser {
   }
 
   private def parseNonLine(line: String): Option[ParseStatus] = {
-    @SuppressWarnings(Array("org.wartremover.warts.PlatformDefault"))
-    val lower = line.toLowerCase
+    val lower = line.toLowerCase(java.util.Locale.ENGLISH).nn
     if (lower.startsWith(SmiStr.SamiStart))
       ParseStatus.SamiStart.some
     else if (lower.startsWith(SmiStr.SamiEnd))
@@ -490,17 +489,16 @@ object SmiParser {
     ): F[(Option[Smi.Title], Seq[(String, Int)])] =
       lineAndLineNums match {
         case (line, index) +: rest =>
-          val preprocessed = line.removeEmptyChars.trim
-          @SuppressWarnings(Array("org.wartremover.warts.PlatformDefault"))
-          val lower        = preprocessed.toLowerCase
+          val preprocessed = line.removeEmptyChars
+          val lower        = preprocessed.toLowerCase(java.util.Locale.ENGLISH).nn
           val closeIndex   = lower.indexOf(SmiStr.TitleEnd)
           if (closeIndex >= 0) {
-            val title = preprocessed.substring(0, closeIndex)
+            val title = preprocessed.substring(0, closeIndex).nn
             if (title.isEmpty) {
-              effectOf((Smi.Title(acc.mkString(" ")).some, (preprocessed.substring(closeIndex), index) +: rest))
+              effectOf((Smi.Title(acc.mkString(" ")).some, (preprocessed.substring(closeIndex).nn, index) +: rest))
             } else {
               effectOf(
-                (Smi.Title((acc :+ title).mkString(" ")).some, (preprocessed.substring(closeIndex), index) +: rest),
+                (Smi.Title((acc :+ title).mkString(" ")).some, (preprocessed.substring(closeIndex).nn, index) +: rest),
               )
             }
           } else {
