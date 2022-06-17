@@ -70,7 +70,7 @@ object SrtParser {
   ): F[Either[ParseError, Vector[Srt.SrtLine]]] = effectOf(linesAndIndices)
     .flatMap {
       case (line, index) +: rest =>
-        effectOf(line.removeEmptyChars.trim)
+        effectOf(line.removeEmptyChars)
           .flatMap { preprocessed =>
             if (preprocessed.isEmpty || preprocessed.forall(_.isWhitespace))
               parseAll(
@@ -79,7 +79,7 @@ object SrtParser {
                   Srt.Index(srtIndex.index),
                   Srt.Start(playtimes.start.toMilliseconds),
                   Srt.End(playtimes.end.toMilliseconds),
-                  Srt.Line(lines.map(_.line).mkString(System.lineSeparator())),
+                  Srt.Line(lines.map(_.line).mkString(Option(System.lineSeparator()).getOrElse("\n").nn)),
                 ),
               )
             else
@@ -112,7 +112,7 @@ object SrtParser {
             Srt.Index(srtIndex.index),
             Srt.Start(playtimes.start.toMilliseconds),
             Srt.End(playtimes.end.toMilliseconds),
-            Srt.Line(lines.map(_.line).mkString(System.lineSeparator())),
+            Srt.Line(lines.map(_.line).mkString(Option(System.lineSeparator()).getOrElse("\n").nn)),
           )).asRight,
         )
     }
@@ -126,7 +126,7 @@ object SrtParser {
   ): F[Either[ParseError, Vector[Srt.SrtLine]]] = effectOf(linesAndIndices)
     .flatMap {
       case (line, index) +: rest =>
-        effectOf(line.removeEmptyChars.trim)
+        effectOf(line.removeEmptyChars)
           .flatMap { preprocessed =>
             if (preprocessed.isEmpty || preprocessed.forall(_.isWhitespace))
               parseAllWithIndexPlaytimes(rest, srtIndex, playtimes, acc)
@@ -164,7 +164,7 @@ object SrtParser {
   ): F[Either[ParseError, Vector[Srt.SrtLine]]] = effectOf(linesAndIndices)
     .flatMap {
       case (line, index) +: rest =>
-        effectOf(line.removeEmptyChars.trim)
+        effectOf(line.removeEmptyChars)
           .flatMap { preprocessed =>
             if (preprocessed.isEmpty || preprocessed.forall(_.isWhitespace))
               parseAllWithIndex(rest, srtIndex, acc)
@@ -199,7 +199,7 @@ object SrtParser {
   ): F[Either[ParseError, Vector[Srt.SrtLine]]] = effectOf(linesAndIndices)
     .flatMap {
       case (line, index) +: rest =>
-        effectOf(line.removeEmptyChars.trim)
+        effectOf(line.removeEmptyChars)
           .flatMap { preprocessed =>
             if (preprocessed.isEmpty || preprocessed.forall(_.isWhitespace))
               parseAll(rest, acc)
@@ -227,7 +227,7 @@ object SrtParser {
     }
 
   def parse[F[*]: Fx: Monad](lines: Seq[String]): F[Either[ParseError, Srt]] =
-    effectOf(lines.map(_.removeEmptyChars.trim).zipWithIndex)
+    effectOf(lines.map(_.removeEmptyChars).zipWithIndex)
       .rightT[ParseError]
       .flatMapF {
         parseAll(_, Vector.empty)

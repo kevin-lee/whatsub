@@ -16,7 +16,7 @@ package object charset {
       def value: java.nio.charset.Charset = charset
     }
 
-    final val Utf8 = Charset(java.nio.charset.StandardCharsets.UTF_8)
+    final val Utf8 = Charset(java.nio.charset.StandardCharsets.UTF_8.nn)
   }
 
 }

@@ -31,7 +31,7 @@ object ConvertCharset {
           converted <- effectOf(
                          new String(
                            input
-                             .replaceAll(EmptyCharRegEx, "")
+                             .replaceAll(EmptyCharRegEx, "").nn
                              .getBytes(from.javaCharset),
                            to.javaCharset,
                          ),
@@ -59,7 +59,7 @@ object ConvertCharset {
                   converted <- effectOf(
                                  new String(
                                    line
-                                     .replaceAll(EmptyCharRegEx, "")
+                                     .replaceAll(EmptyCharRegEx, "").nn
                                      .getBytes(Charset.Utf8.value),
                                    to.javaCharset,
                                  ),
@@ -90,7 +90,7 @@ object ConvertCharset {
 
       def javaCharset: java.nio.charset.Charset = from.value.value
 
-      def render: String = from.javaCharset.name
+      def render: String = Option(from.javaCharset.name).getOrElse("Unknown").nn
     }
   }
 
@@ -106,7 +106,7 @@ object ConvertCharset {
 
       def javaCharset: java.nio.charset.Charset = to.value.value
 
-      def render: String = to.javaCharset.name
+      def render: String = Option(to.javaCharset.name).getOrElse("Unknown").nn
     }
   }
 

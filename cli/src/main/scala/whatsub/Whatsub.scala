@@ -98,7 +98,7 @@ object Whatsub {
 
   def charsetListAll[F[*]: Monad: Fx]: F[Unit] = {
     import scala.jdk.CollectionConverters.*
-    ConsoleEffect[F].putStr(
+    putStr(
       JCharset
         .availableCharsets()
         .asScala
@@ -128,7 +128,7 @@ object Whatsub {
           val EoL = System.lineSeparator
           ConvertCharset
             .convertFileCharset[F, Unit]
-            .convert(from, to)(src.value)(s => ConsoleEffect[F].putStr(s + EoL))
+            .convert(from, to)(src.value)(s => putStr(s + EoL))
             .eitherT
             .leftMap(WhatsubError.CharsetConversion(_))
             .value
