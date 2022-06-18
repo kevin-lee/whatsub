@@ -98,7 +98,7 @@ lazy val props =
 
     final val HedgehogVersion = "0.9.0"
 
-    final val CatsVersion        = "2.7.0"
+    final val CatsVersion        = "2.8.0"
     final val CatsEffect3Version = "3.3.12"
 
     final val CatsParseVersion = "0.3.7"
