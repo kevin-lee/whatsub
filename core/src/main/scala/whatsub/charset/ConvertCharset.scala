@@ -31,7 +31,8 @@ object ConvertCharset {
           converted <- effectOf(
                          new String(
                            input
-                             .replaceAll(EmptyCharRegEx, "").nn
+                             .replaceAll(EmptyCharRegEx, "")
+                             .nn
                              .getBytes(from.javaCharset),
                            to.javaCharset,
                          ),
@@ -59,7 +60,8 @@ object ConvertCharset {
                   converted <- effectOf(
                                  new String(
                                    line
-                                     .replaceAll(EmptyCharRegEx, "").nn
+                                     .replaceAll(EmptyCharRegEx, "")
+                                     .nn
                                      .getBytes(Charset.Utf8.value),
                                    to.javaCharset,
                                  ),
