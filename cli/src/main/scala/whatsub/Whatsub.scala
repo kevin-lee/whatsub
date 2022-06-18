@@ -57,7 +57,7 @@ object Whatsub {
                     .flatMap(
                       _.fold(
                         putStrLn(outSub.render).rightT[FileError],
-                      )(out => FileF[F].writeFile(outSub, out.value).eitherT),
+                      )(out => FileF[F].writeFile(outSub, out.value, "The subtitle file".some).eitherT),
                     )
                     .leftMap {
                       case FileError.WriteFailure(file, throwable) =>
@@ -88,7 +88,7 @@ object Whatsub {
         _        <- outFile
                       .fold(
                         putStrLn(CanRender[A].render(resynced)).rightT[FileError],
-                      )(out => FileF[F].writeFile(resynced, out.value).eitherT)
+                      )(out => FileF[F].writeFile(resynced, out.value, "The subtitle file".some).eitherT)
                       .leftMap {
                         case FileError.WriteFailure(file, throwable) =>
                           WhatsubError.FileWriteFailure(file, throwable)
@@ -134,29 +134,26 @@ object Whatsub {
             .value
 
         case Some(outFile) =>
-          Resource
-            .make[F, Writer](effectOf(new BufferedWriter(new FileWriter(outFile.value))))(writer =>
-              effectOf(writer.close()),
-            )
-            .use { writer =>
-              val EoL                  = System.lineSeparator
-              val f: String => F[Unit] = s => effectOf(writer.write(s + EoL))
-              (
-                ConvertCharset
-                  .convertFileCharset[F, Unit]
-                  .convert(from, to)(src.value)(f)
-                  .eitherT
-                  .leftMap(WhatsubError.CharsetConversion(_)) *>
-                  putStrLn[F] {
-                    val fromFile = from.render.magenta.bold
-                    val toFile   = to.render.magenta.bold
-                    s""">> [${"Success".green}] Charset conversion from $fromFile to $toFile
-                       |>> The converted subtitle file has been written at
-                       |>>   ${outFile.value.toString.blue.bold}
-                       |""".stripMargin
-                  }.rightT
-              ).value
-            }
+          FileF[F].writeFileWith(
+            outFile.value, {
+              val fromFile = from.render.magenta.bold
+              val toFile   = to.render.magenta.bold
+              s""">> [${"Success".green}] Charset conversion from $fromFile to $toFile
+                 |>> The converted subtitle file has been written at
+                 |>>   ${outFile.value.getCanonicalPath.toString.blue.bold}
+                 |""".stripMargin
+            },
+            WhatsubError.FileF(_)
+          ) { writer =>
+            val EoL                  = System.lineSeparator
+            val f: String => F[Unit] = s => effectOf(writer.write(s + EoL))
+            ConvertCharset
+              .convertFileCharset[F, Unit]
+              .convert(from, to)(src.value)(f)
+              .eitherT
+              .leftMap(WhatsubError.CharsetConversion(_))
+              .value
+          }
 
       }
     }

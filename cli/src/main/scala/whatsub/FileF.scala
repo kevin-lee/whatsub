@@ -7,19 +7,26 @@ import cats.effect.kernel.MonadCancel
 import cats.syntax.all.*
 import effectie.core.*
 import effectie.syntax.all.*
+import effectie.cats.syntax.all.*
 import effectie.cats.console.given
 import extras.cats.syntax.all.*
 import extras.scala.io.syntax.color.*
 import whatsub.FileF.FileError
 
-import java.io.{BufferedWriter, File, FileWriter}
+import java.io.{BufferedWriter, File, FileWriter, Writer}
 import scala.util.control.NonFatal
 
 /** @author Kevin Lee
   * @since 2021-07-06
   */
 trait FileF[F[*]] {
-  def writeFile[A: CanRender](a: A, file: File): F[Either[FileError, Unit]]
+  def writeFile[A: CanRender](a: A, file: File, name: Option[String]): F[Either[FileError, Unit]]
+
+  def writeFileWith[E](
+    file: File,
+    successMessage: => String,
+    fileErrorHandler: FileError => E
+  )(f: Writer => F[Either[E, Unit]]): F[Either[E, Unit]]
 }
 
 object FileF {
@@ -28,23 +35,40 @@ object FileF {
 
   given fileF[F[*]: Monad: MCancel: Fx]: FileF[F] with {
 
-    def writeFile[A: CanRender](a: A, file: File): F[Either[FileError, Unit]] =
+    override def writeFile[A: CanRender](a: A, file: File, name: Option[String]): F[Either[FileError, Unit]] =
+      writeFileWith[FileError](
+        file,
+        s""">> [${"Success".green}] ${name.getOrElse("The file")} has been successfully written at
+           |>>   ${file.getCanonicalPath.blue.bold}
+           |""".stripMargin,
+        identity,
+      ) { writer =>
+        (for {
+          content <- effectOf(CanRender[A].render(a)).rightT
+          _       <- effectOf(writer.write(content)).rightT
+        } yield ()).value
+      }
+
+    override def writeFileWith[E](
+      file: File,
+      successMessage: => String,
+      fileErrorHandler: FileError => E
+    )(f: Writer => F[Either[E, Unit]]): F[Either[E, Unit]] =
       Resource
         .make(effectOf(new BufferedWriter(new FileWriter(file))))(writer => effectOf(writer.close()))
         .use { writer =>
-          (for {
-            content <- effectOf(CanRender[A].render(a)).rightT
-            _       <- effectOf(writer.write(content)).catchNonFatal {
-                         case NonFatal(th) =>
-                           FileError.WriteFailure(file, th)
-                       }.eitherT
-            _       <- putStrLn(
-                         s""">> [${"Success".green}] The subtitle file has been successfully written at
-                            |>>   ${file.getCanonicalPath.blue.bold}
-                            |""".stripMargin,
-                       ).rightT[FileError]
-          } yield ()).value
+          f(writer)
+            .t
+            .catchNonFatalEitherT {
+              case NonFatal(th) =>
+                fileErrorHandler(FileError.WriteFailure(file, th))
+            }
+            .flatMap { _ =>
+              putStrLn(successMessage).rightT
+            }
+            .value
         }
+
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.PlatformDefault"))
@@ -60,7 +84,9 @@ object FileF {
     extension (fileError: FileError) {
       def render: String = fileError match {
         case FileError.WriteFailure(file, throwable) =>
-          s"Error when writing file at ${file.getCanonicalPath}. Error: ${throwable.getMessage}"
+          s"""Error when writing file at ${file.getCanonicalPath}
+             |Reason: ${throwable.getMessage}
+             |""".stripMargin
       }
     }
   }
