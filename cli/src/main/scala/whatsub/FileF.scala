@@ -39,7 +39,7 @@ object FileF {
       writeFileWith[FileError](
         file,
         s""">> [${"Success".green}] ${name.getOrElse("The file")} has been successfully written at
-           |>>   ${file.getCanonicalPath.blue.bold}
+           |>>   ${file.getCanonicalPath.nn.blue.bold}
            |""".stripMargin,
         identity,
       ) { writer =>

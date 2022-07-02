@@ -100,7 +100,7 @@ object WhatsubError {
            |""".stripMargin
 
       case WhatsubError.FileF(err) =>
-        s""">> [${"Error".red}] ${err.render.split("\n").mkString("\n>> ")}
+        s""">> [${"Error".red}] ${err.render.split("\n").nn.mkString("\n>> ")}
            |""".stripMargin
     }
   }

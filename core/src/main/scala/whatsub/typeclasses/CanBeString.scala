@@ -12,5 +12,14 @@ trait CanBeString[A] {
 }
 
 object CanBeString {
-  given nioPathCanBeString: CanBeString[Path] = String.valueOf(_)
+  @SuppressWarnings(Array("org.wartremover.warts.ToString"))
+  given nioPathCanBeString: CanBeString[Path] = _.toString
+
+  import scala.language.unsafeNulls
+
+  @SuppressWarnings(Array("org.wartremover.warts.Null"))
+  given nullSafeString: CanBeString[String | Null] = {
+    case null => "null"
+    case s: String => s
+  }
 }

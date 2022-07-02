@@ -44,7 +44,7 @@ object GoldenTest {
       case Right(source) =>
         Using(Source.fromResource(out)(Codec.UTF8))(_.mkString).toEither match {
           case Right(expected) =>
-            f(Input(source), Expected(expected.removeEmptyChars.replace("\r\n", "\n").trim))
+            f(Input(source), Expected(expected.removeEmptyChars.replace("\r\n", "\n").nn.trim.nn))
 
           case Left(err) =>
             pureOf(
