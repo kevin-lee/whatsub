@@ -36,7 +36,7 @@ object Whatsub {
   )(
     using convert: Convert[F, A, B],
   ): F[Either[WhatsubError, Unit]] =
-    if (outFile.exists(_.value.getCanonicalPath === src.getCanonicalPath)) {
+    if (outFile.exists(_.value.getCanonicalPath.nn === src.getCanonicalPath.nn)) {
       pureOf(WhatsubError.IdenticalSrcAndOut(src, outFile.map(_.value)).asLeft[Unit])
     } else {
       (for {
@@ -72,7 +72,7 @@ object Whatsub {
     src: File,
     outFile: Option[SyncArgs.OutFile],
   )(using syncer: Syncer[F, A]): F[Either[WhatsubError, Unit]] =
-    if (outFile.exists(_.value.getCanonicalPath === src.getCanonicalPath)) {
+    if (outFile.exists(_.value.getCanonicalPath.nn === src.getCanonicalPath.nn)) {
       pureOf(WhatsubError.IdenticalSrcAndOut(src, outFile.map(_.value)).asLeft[Unit])
     } else {
       (for {
@@ -96,11 +96,18 @@ object Whatsub {
       } yield ()).value
     }
 
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def charsetListAll[F[*]: Monad: Fx]: F[Unit] = {
     import scala.jdk.CollectionConverters.*
     putStr(
-      JCharset
-        .availableCharsets()
+      Option(
+        JCharset
+          .availableCharsets()
+      )
+        .filter(_ != null)
+        .getOrElse(
+          java.util.Collections.emptySortedMap()
+        )
         .asScala
         .keys
         .mkString("== List of available charsets ==\n", "\n", "\n"),
@@ -120,12 +127,12 @@ object Whatsub {
       override def combine(x: Unit, y: Unit): Unit = ()
     }
 
-    if (out.exists(_.value.getCanonicalPath === src.value.getCanonicalPath)) {
+    if (out.exists(_.value.getCanonicalPath.nn === src.value.getCanonicalPath.nn)) {
       pureOf(WhatsubError.IdenticalSrcAndOut(src.value, out.map(_.value)).asLeft[Unit])
     } else {
       out match {
         case None =>
-          val EoL = System.lineSeparator
+          val EoL = Option(System.lineSeparator).getOrElse("\n").nn
           ConvertCharset
             .convertFileCharset[F, Unit]
             .convert(from, to)(src.value)(s => putStr(s + EoL))
@@ -145,7 +152,7 @@ object Whatsub {
             },
             WhatsubError.FileF(_)
           ) { writer =>
-            val EoL                  = System.lineSeparator
+            val EoL                  = Option(System.lineSeparator).getOrElse("\n").nn
             val f: String => F[Unit] = s => effectOf(writer.write(s + EoL))
             ConvertCharset
               .convertFileCharset[F, Unit]
@@ -167,7 +174,7 @@ object Whatsub {
             srcFile,
             outFile,
           ) =>
-        val src = srcFile.value.getCanonicalFile
+        val src = srcFile.value.getCanonicalFile.nn
         parseAndConvert[F, Smi, Srt](SmiParser.parse, src, outFile)
 
       case ConvertArgs(
@@ -176,7 +183,7 @@ object Whatsub {
             srcFile,
             outFile,
           ) =>
-        val src = srcFile.value.getCanonicalFile
+        val src = srcFile.value.getCanonicalFile.nn
         parseAndConvert[F, Srt, Smi](SrtParser.parse, src, outFile)
 
       case ConvertArgs(Some(ConvertArgs.From(SupportedSub.Smi)), Some(ConvertArgs.To(SupportedSub.Smi)), _, _) =>

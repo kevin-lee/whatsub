@@ -10,6 +10,8 @@ import java.nio.charset.{Charset, UnsupportedCharsetException}
 import scala.util.Try
 import scala.util.control.NonFatal
 
+import whatsub.typeclasses.CanBeString.given
+
 enum WhatsubArgs derives CanEqual {
   case ConvertArgs(
     from: Option[ConvertArgs.From],
@@ -87,8 +89,9 @@ object WhatsubArgs {
 
       given srcFileCanEqual: CanEqual[SrcFile, SrcFile] = CanEqual.derived
 
-      extension (srFile0: SrcFile) {
-        def value: File = srFile0
+      extension (srcFile: SrcFile) {
+        def value: File      = srcFile
+        def filename: String = srcFile.getName.stringValue
       }
 
     }
@@ -101,7 +104,8 @@ object WhatsubArgs {
       given outFileCanEqual: CanEqual[OutFile, OutFile] = CanEqual.derived
 
       extension (outFile: OutFile) {
-        def value: File = outFile
+        def value: File      = outFile
+        def filename: String = outFile.getName.stringValue
       }
 
     }
@@ -198,7 +202,8 @@ object WhatsubArgs {
       given srcFileCanEqual: CanEqual[SrcFile, SrcFile] = CanEqual.derived
 
       extension (srcFile: SrcFile) {
-        def value: File = srcFile
+        def value: File      = srcFile
+        def filename: String = srcFile.getName.stringValue
       }
 
     }
@@ -211,7 +216,8 @@ object WhatsubArgs {
       given outFileCanEqual: CanEqual[OutFile, OutFile] = CanEqual.derived
 
       extension (outFile: OutFile) {
-        def value: File = outFile
+        def value: File      = outFile
+        def filename: String = outFile.getName.stringValue
       }
 
     }
@@ -247,6 +253,7 @@ object WhatsubArgs {
     def charsetFromString(charset: String, paramName: ParamName): String \/ Charset =
       Try(Charset.forName(charset))
         .toDisjunction
+        .map(_.nn)
         .leftMap {
           case ex: UnsupportedCharsetException =>
             s"${ex.getCharsetName} is unknown charset for '$paramName'. To see all supported ones please run 'charset list' command"
@@ -301,8 +308,9 @@ object WhatsubArgs {
 
       given srcFileCanEqual: CanEqual[SrcFile, SrcFile] = CanEqual.derived
 
-      extension (srFile0: SrcFile) {
-        def value: File = srFile0
+      extension (srcFile: SrcFile) {
+        def value: File      = srcFile
+        def filename: String = srcFile.getName.stringValue
       }
 
     }
@@ -315,7 +323,8 @@ object WhatsubArgs {
       given outFileCanEqual: CanEqual[OutFile, OutFile] = CanEqual.derived
 
       extension (outFile: OutFile) {
-        def value: File = outFile
+        def value: File      = outFile
+        def filename: String = outFile.getName.stringValue
       }
 
     }

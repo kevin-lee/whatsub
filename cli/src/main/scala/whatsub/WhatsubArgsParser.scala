@@ -59,7 +59,7 @@ object WhatsubArgsParser {
           to,
           srcFile,
           outFile,
-        ) if srcFile.value.toPath.getFileName.stringValue.endsWith(".smi") =>
+        ) if srcFile.filename.endsWith(".smi") =>
       WhatsubArgs.ConvertArgs(ConvertArgs.From(SupportedSub.Smi).some, to, srcFile, outFile)
 
     case WhatsubArgs.ConvertArgs(
@@ -67,7 +67,7 @@ object WhatsubArgsParser {
           to,
           srcFile,
           outFile,
-        ) if srcFile.value.toPath.getFileName.stringValue.endsWith(".srt") =>
+        ) if srcFile.filename.endsWith(".srt") =>
       WhatsubArgs.ConvertArgs(ConvertArgs.From(SupportedSub.Srt).some, to, srcFile, outFile)
 
     case arg @ WhatsubArgs.ConvertArgs(
@@ -79,7 +79,7 @@ object WhatsubArgsParser {
       val firstLine = FileF.firstLineFromFile(srcFile.value)
       firstLine match {
         case Some(line) =>
-          val trimmed = line.trim
+          val trimmed = line.trim.nn
           if trimmed.equalsIgnoreCase("<SAMI>") then
             WhatsubArgs.ConvertArgs(ConvertArgs.From(SupportedSub.Smi).some, to, srcFile, outFile)
           else if trimmed.equalsIgnoreCase("1") then
@@ -98,7 +98,7 @@ object WhatsubArgsParser {
           None,
           srcFile,
           Some(outFile),
-        ) if outFile.value.toPath.getFileName.stringValue.endsWith(".smi") =>
+        ) if outFile.filename.endsWith(".smi") =>
       WhatsubArgs.ConvertArgs(from, ConvertArgs.To(SupportedSub.Smi).some, srcFile, outFile.some)
 
     case WhatsubArgs.ConvertArgs(
@@ -106,7 +106,7 @@ object WhatsubArgsParser {
           None,
           srcFile,
           Some(outFile),
-        ) if outFile.value.toPath.getFileName.stringValue.endsWith(".srt") =>
+        ) if outFile.filename.endsWith(".srt") =>
       WhatsubArgs.ConvertArgs(from, ConvertArgs.To(SupportedSub.Srt).some, srcFile, outFile.some)
 
     case whatsubArgs =>
@@ -150,7 +150,7 @@ object WhatsubArgsParser {
           sync,
           srcFile,
           out,
-        ) if srcFile.value.toPath.getFileName.stringValue.endsWith(".smi") =>
+        ) if srcFile.filename.endsWith(".smi") =>
       WhatsubArgs.SyncArgs(
         SyncArgs.Sub(SupportedSub.Smi).some,
         sync,
@@ -163,7 +163,7 @@ object WhatsubArgsParser {
           sync,
           srcFile,
           out,
-        ) if srcFile.value.toPath.getFileName.stringValue.endsWith(".srt") =>
+        ) if srcFile.filename.endsWith(".srt") =>
       WhatsubArgs.SyncArgs(
         SyncArgs.Sub(SupportedSub.Srt).some,
         sync,
@@ -180,7 +180,7 @@ object WhatsubArgsParser {
       val firstLine = FileF.firstLineFromFile(srcFile.value)
       firstLine match {
         case Some(line) =>
-          val trimmed = line.trim
+          val trimmed = line.trim.nn
           if trimmed.equalsIgnoreCase("<SAMI>") then
             WhatsubArgs.SyncArgs(
               SyncArgs.Sub(SupportedSub.Smi).some,
