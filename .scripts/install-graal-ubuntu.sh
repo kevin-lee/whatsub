@@ -32,7 +32,12 @@ cd /tmp
 
 curl -Lo $app_package_file $download_url
 
-ls -l $app_package_file || { echo "whatsub version ${app_version} doesn't seem to exist." && false ; }
+echo ""
+
+[ -d $opt_location ] || { echo -e ">> $opt_location does not exist so it will be created.\n" ; mkdir -p $opt_location ; }
+[ -d $usr_local_bin_path ] || { echo -e ">> $usr_local_bin_path does not exist so it will be created\n" ; mkdir -p $usr_local_bin_path ; }
+
+ls -l $app_package_file || { echo ">> whatsub version ${app_version} doesn't seem to exist." && false ; }
 chmod ug+x $app_package_file
 
 rm -R $app_location || true
@@ -40,7 +45,7 @@ mkdir -p $app_location
 mv $app_package_file $installed_app_bin_path
 
 echo ""
-{ rm $app_bin_path && { echo "The existing $app_bin_path was found so it was removed." ; } } || { echo "No existing $app_bin_path was found. It's OK. Please ignore the 'No such file or directory' message." ; }
+{ rm $app_bin_path && { echo ">> The existing $app_bin_path was found so it was removed." ; } } || { echo ">> No existing $app_bin_path was found. It's OK. Please ignore the 'No such file or directory' message." ; }
 echo ""
 echo "ln -s $installed_app_bin_path $app_bin_path"
 ln -s $installed_app_bin_path $app_bin_path || true
