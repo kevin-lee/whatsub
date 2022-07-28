@@ -57,13 +57,13 @@ jobs:
             test \
             nativeImage
 
-          rm -f */target/scala-*/*.jar
+          rm -f modules/*/target/scala-*/*.jar
 
-          ls -lGh cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/
+          ls -lGh modules/whatsub-cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/
 
-          sh -c "cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/${{ matrix.run-binary }} --version"
-          sh -c "cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/${{ matrix.run-binary }} --help"
-          sh -c "cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/${{ matrix.run-binary }} convert --help"
+          sh -c "modules/whatsub-cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/${{ matrix.run-binary }} --version"
+          sh -c "modules/whatsub-cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/${{ matrix.run-binary }} --help"
+          sh -c "modules/whatsub-cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/${{ matrix.run-binary }} convert --help"
 
   graalvm_build_windows:
     runs-on: ${{ matrix.os }}
@@ -108,10 +108,10 @@ jobs:
             test \
             nativeImage
 
-          rm -f */target/scala-*/*.jar
+          rm -f modules/*/target/scala-*/*.jar
 
-          ls -lGh cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/
+          ls -lGh modules/whatsub-cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/
 
-          sh -c "cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/${{ matrix.run-binary }} --version"
-          sh -c "cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/${{ matrix.run-binary }} --help"
-          sh -c "cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/${{ matrix.run-binary }} convert --help"
+          sh -c "modules/whatsub-cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/${{ matrix.run-binary }} --version"
+          sh -c "modules/whatsub-cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/${{ matrix.run-binary }} --help"
+          sh -c "modules/whatsub-cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/${{ matrix.run-binary }} convert --help"
