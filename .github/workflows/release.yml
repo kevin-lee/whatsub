@@ -183,12 +183,12 @@ jobs:
             test \
             nativeImage
 
-          rm -f */target/scala-*/*.jar
+          rm -f modules/*/target/scala-*/*.jar
 
-          ls -lGh cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/
-          sh -c "cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/${{ matrix.run-binary }} --help"
+          ls -lGh modules/whatsub-cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/
+          sh -c "modules/whatsub-cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/${{ matrix.run-binary }} --help"
 
-          mv cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/${{ matrix.run-binary }} cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/${{ matrix.run-binary }}-${{ matrix.os }}
+          mv modules/whatsub-cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/${{ matrix.run-binary }} modules/whatsub-cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/${{ matrix.run-binary }}-${{ matrix.os }}
 
           sbt \
             devOopsGitHubReleaseUploadArtifacts
@@ -239,12 +239,12 @@ jobs:
             test \
             nativeImage
 
-          rm -f */target/scala-*/*.jar
+          rm -f modules/*/target/scala-*/*.jar
 
-          ls -lGh cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/
-          sh -c "cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/${{ matrix.run-binary }} --help"
+          ls -lGh modules/whatsub-cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/
+          sh -c "modules/whatsub-cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/${{ matrix.run-binary }} --help"
 
-          mv cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/${{ matrix.run-binary }}.${{ matrix.run-binary-ext }} cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/${{ matrix.run-binary }}-${{ matrix.os }}.${{ matrix.run-binary-ext }}
+          mv modules/whatsub-cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/${{ matrix.run-binary }}.${{ matrix.run-binary-ext }} modules/whatsub-cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/${{ matrix.run-binary }}-${{ matrix.os }}.${{ matrix.run-binary-ext }}
 
           sbt \
             devOopsGitHubReleaseUploadArtifacts

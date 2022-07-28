@@ -25,8 +25,8 @@ lazy val whatsub = (project in file("."))
     name                     := props.ProjectName,
     /* GitHub Release { */
     devOopsPackagedArtifacts := List(
-      s"cli/target/universal/${name.value}*.zip",
-      s"cli/target/native-image/${props.RepoName}-cli-*",
+      s"modules/${props.ProjectName}-cli/target/universal/${name.value}*.zip",
+      s"modules/${props.ProjectName}-cli/target/native-image/${props.RepoName}-cli-*",
     ),
     /* } GitHub Release */
     docusaurDir              := (ThisBuild / baseDirectory).value / "website",
@@ -35,7 +35,7 @@ lazy val whatsub = (project in file("."))
   .settings(noPublish)
   .aggregate(core, cli)
 
-lazy val core = subProject("core", file("core"))
+lazy val core = module("core")
   .enablePlugins(BuildInfoPlugin)
   .settings(
 //    resolvers += Resolver.sonatypeRepo("snapshots"),
@@ -55,7 +55,7 @@ lazy val core = subProject("core", file("core"))
 
 lazy val pirateScalaz = ProjectRef(props.pirateUri, "pirate-scalaz")
 
-lazy val cli = subProject("cli", file("cli"))
+lazy val cli = module("cli")
   .enablePlugins(JavaAppPackaging, NativeImagePlugin)
   .settings(
     maintainer           := "Kevin Lee <kevin.code@kevinlee.io>",
@@ -142,16 +142,18 @@ lazy val libs =
 def prefixedProjectName(name: String): String = s"${props.RepoName}${if (name.isEmpty) "" else s"-$name"}"
 // format: on
 
-def subProject(projectName: String, file: File): Project =
-  Project(projectName, file)
+def module(projectName: String): Project = {
+  val prefixedName = prefixedProjectName(projectName)
+  Project(projectName, file(s"modules/$prefixedName"))
     .settings(
-      name                       := prefixedProjectName(projectName),
+      name := prefixedName,
       useAggressiveScalacOptions := true,
-//      scalacOptions ++= List("-source:3.1", "-Yexplicit-nulls"),
+      //      scalacOptions ++= List("-source:3.1", "-Yexplicit-nulls"),
       scalacOptions ++= List("-source:3.1"),
       libraryDependencies ++= libs.hedgehogLibs,
       wartremoverErrors ++= ProjectInfo.commonWarts((update / scalaBinaryVersion).value),
       wartremoverExcluded ++= List(sourceManaged.value),
       testFrameworks ~= (testFws => (TestFramework("hedgehog.sbt.Framework") +: testFws).distinct),
-      licenses                   := List("MIT" -> url("http://opensource.org/licenses/MIT")),
+      licenses := List("MIT" -> url("http://opensource.org/licenses/MIT")),
     )
+}

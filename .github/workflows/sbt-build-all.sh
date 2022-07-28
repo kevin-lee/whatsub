@@ -29,7 +29,7 @@ else
 #      packagedArtifacts \
 #      universal:packageBin
 
-#    ls -ld cli/target/universal/whatsub-cli*
+#    ls -ld modules/whatsub-cli/target/universal/whatsub-cli*
   else
     sbt \
       ++${scala_version}! \
