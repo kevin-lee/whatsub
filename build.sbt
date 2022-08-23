@@ -62,7 +62,7 @@ lazy val cli = module("cli")
     packageSummary       := "Whatsub - subtitle converter and syncer",
     packageDescription   := "A tool to convert and sync subtitles",
     executableScriptName := props.ExecutableScriptName,
-    nativeImageVersion   := "22.1.0",
+    nativeImageVersion   := "22.2.0",
     nativeImageJvm       := "graalvm-java17",
     nativeImageOptions ++= List(
       "--verbose",
