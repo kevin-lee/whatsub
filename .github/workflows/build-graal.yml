@@ -69,7 +69,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest]
+        os: [windows-2019]
         run-binary: [whatsub-cli]
     steps:
       - name: Configure git
