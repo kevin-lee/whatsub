@@ -80,7 +80,7 @@ lazy val cli = module("cli")
 
 lazy val props =
   new {
-    final val ScalaVersion = "3.1.3"
+    final val ScalaVersion = "3.2.0"
     final val Org          = "io.kevinlee"
 
     private val gitHubRepo = findRepoOrgAndName
@@ -99,9 +99,9 @@ lazy val props =
     final val HedgehogVersion = "0.9.0"
 
     final val CatsVersion        = "2.8.0"
-    final val CatsEffect3Version = "3.3.12"
+    final val CatsEffect3Version = "3.3.14"
 
-    final val CatsParseVersion = "0.3.7"
+    final val CatsParseVersion = "0.3.8"
 
     final val EffectieCatsEffect3Version = "2.0.0-beta1"
 
@@ -110,7 +110,7 @@ lazy val props =
 
     final val IncludeTest: String = "compile->compile;test->test"
 
-    final val ExtrasVersion = "0.15.0"
+    final val ExtrasVersion = "0.19.0"
 
   }
 
