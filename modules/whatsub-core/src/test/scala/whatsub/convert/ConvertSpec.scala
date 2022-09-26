@@ -3,7 +3,7 @@ package whatsub.convert
 import cats.*
 import cats.effect.IO
 import cats.syntax.all.*
-import effectie.cats.fx.given
+import effectie.ce3.fx.given
 import effectie.core.Fx
 import effectie.syntax.all.*
 import extras.cats.syntax.all.*

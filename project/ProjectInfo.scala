@@ -7,7 +7,7 @@ object ProjectInfo {
     case "2.10" =>
       Seq.empty
     case _ =>
-      Warts.allBut(Wart.Any, Wart.Nothing)
+      Warts.allBut(Wart.Any, Wart.Nothing, Wart.NoNeedImport)
   }
 
 }

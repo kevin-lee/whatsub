@@ -103,7 +103,7 @@ lazy val props =
 
     final val CatsParseVersion = "0.3.8"
 
-    final val EffectieCatsEffect3Version = "2.0.0-beta1"
+    final val EffectieCatsEffect3Version = "2.0.0-beta2"
 
     final val pirateVersion = "18dfbbca014ba2312a640cf558ab6eca19c47eb8"
     final val pirateUri     = uri(s"https://github.com/$GitHubUsername/pirate.git#$pirateVersion")
@@ -149,7 +149,7 @@ def module(projectName: String): Project = {
       name := prefixedName,
       useAggressiveScalacOptions := true,
       //      scalacOptions ++= List("-source:3.1", "-Yexplicit-nulls"),
-      scalacOptions ++= List("-source:3.1"),
+      scalacOptions ++= List("-source:3.2"),
       libraryDependencies ++= libs.hedgehogLibs,
       wartremoverErrors ++= ProjectInfo.commonWarts((update / scalaBinaryVersion).value),
       wartremoverExcluded ++= List(sourceManaged.value),
