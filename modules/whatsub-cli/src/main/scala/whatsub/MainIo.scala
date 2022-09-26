@@ -3,9 +3,8 @@ package whatsub
 import cats.Show
 import cats.effect.*
 import cats.syntax.all.*
-import effectie.syntax.all.*
-import effectie.cats.fx.given
-import effectie.cats.console.given
+import effectie.syntax.all.{*, given}
+import effectie.ce3.fx.given
 import pirate.{Command, Prefs, Runners, ExitCode as PirateExitCode}
 import piratex.{Help, Metavar}
 import whatsub.WhatsubArgsParser.{ArgParseError, ArgParseFailureResult, JustMessageOrHelp}

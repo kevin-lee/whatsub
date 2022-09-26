@@ -6,9 +6,7 @@ import cats.effect.*
 import cats.effect.kernel.MonadCancel
 import cats.syntax.all.*
 import effectie.core.*
-import effectie.syntax.all.*
-import effectie.cats.syntax.all.*
-import effectie.cats.console.given
+import effectie.syntax.all.{*, given}
 import extras.cats.syntax.all.*
 import extras.scala.io.syntax.color.*
 import whatsub.FileF.FileError
