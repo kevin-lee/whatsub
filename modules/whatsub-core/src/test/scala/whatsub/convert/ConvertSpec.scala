@@ -3,11 +3,11 @@ package whatsub.convert
 import cats.*
 import cats.effect.IO
 import cats.syntax.all.*
-import effectie.ce3.fx.given
+import effectie.instances.ce3.fx.given
 import effectie.core.Fx
 import effectie.syntax.all.*
 import extras.cats.syntax.all.*
-import extras.hedgehog.cats.effect.CatsEffectRunner
+import extras.hedgehog.ce3.CatsEffectRunner
 import hedgehog.*
 import hedgehog.runner.*
 import whatsub.convert.Convert
@@ -19,7 +19,7 @@ import scala.reflect.*
 /** @author Kevin Lee
   * @since 2022-03-05
   */
-object ConvertSpec extends Properties {
+object ConvertSpec extends Properties with CatsEffectRunner {
   override def tests: List[Prop] = List(
     goldenTestConvert[Smi, Srt]("golden/test-src.smi", "golden/test-out.srt", SmiParser.parse[IO]),
     goldenTestConvert[Srt, Smi]("golden/test-src.srt", "golden/test-out.smi", SrtParser.parse[IO]),
@@ -62,9 +62,8 @@ object ConvertSpec extends Properties {
     val result = testGolden[IO, A, B](srcFile, outFile, aParser)
 
     example(
-      name, {
-        import CatsEffectRunner.*
-        given ticker: Ticker = Ticker.withNewTestContext()
+      name,
+      withIO { implicit ticker =>
         result.completeThen(identity)
       },
     )
