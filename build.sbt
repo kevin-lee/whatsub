@@ -80,7 +80,7 @@ lazy val cli = module("cli")
 
 lazy val props =
   new {
-    final val ScalaVersion = "3.2.0"
+    final val ScalaVersion = "3.2.1"
     final val Org          = "io.kevinlee"
 
     private val gitHubRepo = findRepoOrgAndName
@@ -98,19 +98,19 @@ lazy val props =
 
     final val HedgehogVersion = "0.9.0"
 
-    final val CatsVersion        = "2.8.0"
-    final val CatsEffect3Version = "3.3.14"
+    final val CatsVersion        = "2.9.0"
+    final val CatsEffect3Version = "3.4.1"
 
     final val CatsParseVersion = "0.3.8"
 
-    final val EffectieCatsEffect3Version = "2.0.0-beta2"
+    final val EffectieCatsEffect3Version = "2.0.0-beta3"
 
-    final val pirateVersion = "18dfbbca014ba2312a640cf558ab6eca19c47eb8"
+    final val pirateVersion = "7797fb3884bdfdda7751d8f75accf622b30a53ed"
     final val pirateUri     = uri(s"https://github.com/$GitHubUsername/pirate.git#$pirateVersion")
 
     final val IncludeTest: String = "compile->compile;test->test"
 
-    final val ExtrasVersion = "0.19.0"
+    final val ExtrasVersion = "0.25.0"
 
   }
 
@@ -134,7 +134,7 @@ lazy val libs =
     lazy val extrasCats    = "io.kevinlee" %% "extras-cats"     % props.ExtrasVersion
     lazy val extrasScalaIo = "io.kevinlee" %% "extras-scala-io" % props.ExtrasVersion
 
-    lazy val extrasHedgehogCatsEffect3 = "io.kevinlee" %% "extras-hedgehog-cats-effect3" % props.ExtrasVersion % Test
+    lazy val extrasHedgehogCatsEffect3 = "io.kevinlee" %% "extras-hedgehog-ce3" % props.ExtrasVersion % Test
 
   }
 
