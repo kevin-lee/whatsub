@@ -157,26 +157,24 @@ object WhatsubArgs {
               .leftMap(_ => "Invalid direction. It should be either + or -")
               .flatMap {
                 case (remaining, direction) =>
-                  (
-                    (
-                      (digit.rep.string <* P.string("h")).backtrack.? ~
-                        (digit.rep.string <* P.char('m')).backtrack.? ~
-                        (digit.rep.string <* P.string("s")).backtrack.? ~
-                        (digit.rep.string).?
-                    ).map {
-                      case ((((None, None), None), None)) =>
-                        "No sync playtime info found".asLeft[Playtime]
+                  ((
+                    (digit.rep.string <* P.string("h")).backtrack.? ~
+                      (digit.rep.string <* P.char('m')).backtrack.? ~
+                      (digit.rep.string <* P.string("s")).backtrack.? ~
+                      (digit.rep.string).?
+                  ).map {
+                    case ((((None, None), None), None)) =>
+                      "No sync playtime info found".asLeft[Playtime]
 
-                      case ((((h, m), s), ms)) =>
-                        (
-                          Playtime.h(h.map(_.toInt).getOrElse(0)) +
-                            Playtime.m(m.map(_.toInt).getOrElse(0)) +
-                            Playtime.s(s.map(_.toInt).getOrElse(0)) +
-                            Playtime.ms(ms.map(_.toInt).getOrElse(0)),
-                        ).asRight[String]
+                    case ((((h, m), s), ms)) =>
+                      (
+                        Playtime.h(h.map(_.toInt).getOrElse(0)) +
+                          Playtime.m(m.map(_.toInt).getOrElse(0)) +
+                          Playtime.s(s.map(_.toInt).getOrElse(0)) +
+                          Playtime.ms(ms.map(_.toInt).getOrElse(0)),
+                      ).asRight[String]
 
-                    },
-                  ).parse(remaining)
+                  }).parse(remaining)
                     .leftMap(_ =>
                       "No valid playtime info found. It should be {hours}h{minutes}m{seconds}s{milliseconds}.",
                     )
