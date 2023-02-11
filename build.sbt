@@ -76,7 +76,10 @@ lazy val cli = module("cli")
     ),
   )
   .settings(noPublish)
-  .dependsOn(core, pirateScalaz)
+  .dependsOn(
+    core % props.IncludeTest,
+    pirateScalaz
+  )
 
 lazy val props =
   new {
@@ -96,21 +99,21 @@ lazy val props =
 
     final val SonatypeCredentialHost = "s01.oss.sonatype.org"
 
-    final val HedgehogVersion = "0.9.0"
+    final val HedgehogVersion = "0.10.1"
 
     final val CatsVersion        = "2.9.0"
-    final val CatsEffect3Version = "3.4.1"
+    final val CatsEffect3Version = "3.4.6"
 
-    final val CatsParseVersion = "0.3.8"
+    final val CatsParseVersion = "0.3.9"
 
-    final val EffectieCatsEffect3Version = "2.0.0-beta3"
+    final val EffectieCatsEffect3Version = "2.0.0-beta5"
 
     final val pirateVersion = "7797fb3884bdfdda7751d8f75accf622b30a53ed"
     final val pirateUri     = uri(s"https://github.com/$GitHubUsername/pirate.git#$pirateVersion")
 
     final val IncludeTest: String = "compile->compile;test->test"
 
-    final val ExtrasVersion = "0.25.0"
+    final val ExtrasVersion = "0.29.0"
 
   }
 
