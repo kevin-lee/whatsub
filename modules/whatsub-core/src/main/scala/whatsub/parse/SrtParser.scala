@@ -73,37 +73,49 @@ object SrtParser {
         effectOf(line.removeEmptyChars)
           .flatMap { preprocessed =>
             if (preprocessed.isEmpty || preprocessed.forall(_.isWhitespace))
-              parseAll(
+              parseAllWithIndexPlaytimesLines(
                 rest,
-                acc :+ Srt.SrtLine(
-                  Srt.Index(srtIndex.index),
-                  Srt.Start(playtimes.start.toMilliseconds),
-                  Srt.End(playtimes.end.toMilliseconds),
-                  Srt.Line(lines.map(_.line).mkString(Option(System.lineSeparator()).getOrElse("\n").nn)),
-                ),
+                srtIndex,
+                playtimes,
+                lines :+ SrtComponent.Line(""),
+                acc
               )
-            else
-              effectOf(srtLineParser.parse(preprocessed))
-                .flatMap {
-                  case Right((remaining, line: SrtComponent.Line)) =>
-                    parseAllWithIndexPlaytimesLines(rest, srtIndex, playtimes, lines :+ line, acc)
+            else {
+              if lines.lastOption.exists(_.line.isEmpty) then
+                parseAll(
+                  linesAndIndices,
+                  acc :+ Srt.SrtLine(
+                    Srt.Index(srtIndex.index),
+                    Srt.Start(playtimes.start.toMilliseconds),
+                    Srt.End(playtimes.end.toMilliseconds),
+                    Srt.Line(
+                      lines.dropRight(1).map(_.line).mkString(Option(System.lineSeparator()).getOrElse("\n").nn)
+                    ),
+                  ),
+                )
+              else
+                effectOf(srtLineParser.parse(preprocessed))
+                  .flatMap {
+                    case Right((remaining, line: SrtComponent.Line)) =>
+                      parseAllWithIndexPlaytimesLines(rest, srtIndex, playtimes, lines :+ line, acc)
 
-                  case Left(err) =>
-                    pureOf(
-                      ParseError
-                        .SrtParseError(
-                          index,
-                          line,
-                          (
-                            s"Index ($srtIndex), Playtimes ($playtimes) and lines (${lines.mkString("[", ",", "]")}) were already parsed " +
-                              s"so only more line or end of SrtLine was expected but got something else"
-                          ).some,
-                          err,
-                        )
-                        .asLeft,
-                    )
+                    case Left(err) =>
+                      pureOf(
+                        ParseError
+                          .SrtParseError(
+                            index,
+                            line,
+                            (
+                              s"Index ($srtIndex), Playtimes ($playtimes) and lines (${lines.mkString("[", ",", "]")}) were already parsed " +
+                                s"so only more line or end of SrtLine was expected but got something else"
+                            ).some,
+                            err,
+                          )
+                          .asLeft,
+                      )
 
-                }
+                  }
+            }
           }
 
       case Seq() =>
@@ -128,9 +140,9 @@ object SrtParser {
       case (line, index) +: rest =>
         effectOf(line.removeEmptyChars)
           .flatMap { preprocessed =>
-            if (preprocessed.isEmpty || preprocessed.forall(_.isWhitespace))
-              parseAllWithIndexPlaytimes(rest, srtIndex, playtimes, acc)
-            else
+            if (preprocessed.isEmpty || preprocessed.forall(_.isWhitespace)) {
+              parseAllWithIndexPlaytimesLines(rest, srtIndex, playtimes, Vector(SrtComponent.Line("")), acc)
+            } else
               effectOf(srtLineParser.parse(preprocessed))
                 .flatMap {
                   case Right((remaining, srtLine: SrtComponent.Line)) =>
