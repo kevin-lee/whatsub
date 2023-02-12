@@ -1,5 +1,4 @@
 ThisBuild / scalaVersion := props.ScalaVersion
-ThisBuild / version      := props.ProjectVersion
 ThisBuild / organization := props.Org
 ThisBuild / developers   := List(
   Developer(
@@ -93,8 +92,6 @@ lazy val props =
 
     final val ProjectName = RepoName
 
-    final val ProjectVersion = "1.1.0"
-
     final val ExecutableScriptName = RepoName
 
     final val SonatypeCredentialHost = "s01.oss.sonatype.org"
@@ -154,7 +151,10 @@ def module(projectName: String): Project = {
       //      scalacOptions ++= List("-source:3.1", "-Yexplicit-nulls"),
       scalacOptions ++= List("-source:3.2"),
       scalacOptions ~= (existing =>
-        existing.filter(_ != "-language:dynamics,existentials,higherKinds,reflectiveCalls,experimental.macros,implicitConversions,strictEquality")),
+        existing.filter(
+          _ != "-language:dynamics,existentials,higherKinds,reflectiveCalls,experimental.macros,implicitConversions,strictEquality"
+        )
+      ),
       libraryDependencies ++= libs.hedgehogLibs,
       wartremoverErrors ++= ProjectInfo.commonWarts((update / scalaBinaryVersion).value),
       wartremoverExcluded ++= List(sourceManaged.value),
