@@ -2,17 +2,14 @@ package whatsub.parse
 
 import cats.Monad
 import cats.effect.IO
-import cats.syntax.all.*
 import effectie.core.*
 import effectie.instances.ce3.fx.given
-import effectie.resource.{Ce3ResourceMaker, ResourceMaker}
-import effectie.syntax.all.*
+import effectie.resource.ResourceMaker
 import extras.cats.syntax.all.*
 import extras.hedgehog.ce3.CatsEffectRunner
 import hedgehog.*
 import hedgehog.runner.*
-import whatsub.parse.SubParsers.*
-import whatsub.{CanRender, FileF, GoldenTest, Smi, Srt}
+import whatsub.*
 
 import java.io.File
 import scala.io.{Codec, Source}
