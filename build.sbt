@@ -153,6 +153,8 @@ def module(projectName: String): Project = {
       useAggressiveScalacOptions := true,
       //      scalacOptions ++= List("-source:3.1", "-Yexplicit-nulls"),
       scalacOptions ++= List("-source:3.2"),
+      scalacOptions ~= (existing =>
+        existing.filter(_ != "-language:dynamics,existentials,higherKinds,reflectiveCalls,experimental.macros,implicitConversions,strictEquality")),
       libraryDependencies ++= libs.hedgehogLibs,
       wartremoverErrors ++= ProjectInfo.commonWarts((update / scalaBinaryVersion).value),
       wartremoverExcluded ++= List(sourceManaged.value),
