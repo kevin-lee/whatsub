@@ -1,6 +1,6 @@
 ThisBuild / scalaVersion := props.ScalaVersion
 ThisBuild / organization := props.Org
-ThisBuild / developers   := List(
+ThisBuild / developers := List(
   Developer(
     props.GitHubUsername,
     "Kevin Lee",
@@ -8,28 +8,28 @@ ThisBuild / developers   := List(
     url(s"https://github.com/${props.GitHubUsername}"),
   ),
 )
-ThisBuild / homepage     := url(s"https://github.com/${props.GitHubUsername}/${props.RepoName}").some
-ThisBuild / scmInfo      :=
+ThisBuild / homepage := url(s"https://github.com/${props.GitHubUsername}/${props.RepoName}").some
+ThisBuild / scmInfo :=
   ScmInfo(
     url(s"https://github.com/${props.GitHubUsername}/${props.RepoName}"),
     s"https://github.com/${props.GitHubUsername}/${props.RepoName}.git",
   ).some
-ThisBuild / licenses     := List("MIT" -> url("http://opensource.org/licenses/MIT"))
+ThisBuild / licenses := List("MIT" -> url("http://opensource.org/licenses/MIT"))
 
 ThisBuild / resolvers += "sonatype-snapshots" at s"https://${props.SonatypeCredentialHost}/content/repositories/snapshots"
 
 lazy val whatsub = (project in file("."))
   .enablePlugins(DevOopsGitHubReleasePlugin, DocusaurPlugin)
   .settings(
-    name                     := props.ProjectName,
+    name := props.ProjectName,
     /* GitHub Release { */
     devOopsPackagedArtifacts := List(
       s"modules/${props.ProjectName}-cli/target/universal/${name.value}*.zip",
       s"modules/${props.ProjectName}-cli/target/native-image/${props.RepoName}-cli-*",
     ),
     /* } GitHub Release */
-    docusaurDir              := (ThisBuild / baseDirectory).value / "website",
-    docusaurBuildDir         := docusaurDir.value / "build",
+    docusaurDir := (ThisBuild / baseDirectory).value / "website",
+    docusaurBuildDir := docusaurDir.value / "build",
   )
   .settings(noPublish)
   .aggregate(core, cli)
@@ -39,14 +39,10 @@ lazy val core = module("core")
   .settings(
 //    resolvers += Resolver.sonatypeRepo("snapshots"),
     libraryDependencies ++=
-      libs.catsAndCatsEffect3 ++ List(libs.catsParse, libs.effectieCatsEffect3) ++ List(
-        libs.extrasCats,
-        libs.extrasScalaIo,
-        libs.extrasHedgehogCatsEffect3,
-      ),
+      libs.catsAndCatsEffect3 ++ List(libs.catsParse) ++ libs.effectie ++ libs.extras,
     /* Build Info { */
-    buildInfoKeys    := List[BuildInfoKey](name, version, scalaVersion, sbtVersion),
-    buildInfoObject  := "WhatsubBuildInfo",
+    buildInfoKeys := List[BuildInfoKey](name, version, scalaVersion, sbtVersion),
+    buildInfoObject := "WhatsubBuildInfo",
     buildInfoPackage := "whatsub.info",
     buildInfoOptions += BuildInfoOption.ToJson,
     /* } Build Info */
@@ -57,12 +53,12 @@ lazy val pirateScalaz = ProjectRef(props.pirateUri, "pirate-scalaz")
 lazy val cli = module("cli")
   .enablePlugins(JavaAppPackaging, NativeImagePlugin)
   .settings(
-    maintainer           := "Kevin Lee <kevin.code@kevinlee.io>",
-    packageSummary       := "Whatsub - subtitle converter and syncer",
-    packageDescription   := "A tool to convert and sync subtitles",
+    maintainer := "Kevin Lee <kevin.code@kevinlee.io>",
+    packageSummary := "Whatsub - subtitle converter and syncer",
+    packageDescription := "A tool to convert and sync subtitles",
     executableScriptName := props.ExecutableScriptName,
-    nativeImageVersion   := "22.2.0",
-    nativeImageJvm       := "graalvm-java17",
+    nativeImageVersion := "22.2.0",
+    nativeImageJvm := "graalvm-java17",
     nativeImageOptions ++= List(
       "--verbose",
       "--no-fallback",
@@ -82,7 +78,7 @@ lazy val cli = module("cli")
 
 lazy val props =
   new {
-    final val ScalaVersion = "3.2.1"
+    final val ScalaVersion = "3.2.2"
     final val Org          = "io.kevinlee"
 
     private val gitHubRepo = findRepoOrgAndName
@@ -99,18 +95,18 @@ lazy val props =
     final val HedgehogVersion = "0.10.1"
 
     final val CatsVersion        = "2.9.0"
-    final val CatsEffect3Version = "3.4.6"
+    final val CatsEffect3Version = "3.4.8"
 
     final val CatsParseVersion = "0.3.9"
 
-    final val EffectieCatsEffect3Version = "2.0.0-beta6"
+    final val EffectieVersion = "2.0.0-beta7"
 
     final val pirateVersion = "7797fb3884bdfdda7751d8f75accf622b30a53ed"
     final val pirateUri     = uri(s"https://github.com/$GitHubUsername/pirate.git#$pirateVersion")
 
     final val IncludeTest: String = "compile->compile;test->test"
 
-    final val ExtrasVersion = "0.30.0"
+    final val ExtrasVersion = "0.32.0"
 
   }
 
@@ -129,12 +125,22 @@ lazy val libs =
 
     lazy val catsParse = "org.typelevel" %% "cats-parse" % props.CatsParseVersion
 
-    lazy val effectieCatsEffect3 = "io.kevinlee" %% "effectie-cats-effect3" % props.EffectieCatsEffect3Version
+    lazy val effectie = List(
+      "io.kevinlee" %% "effectie-core"         % props.EffectieVersion,
+      "io.kevinlee" %% "effectie-syntax"       % props.EffectieVersion,
+      "io.kevinlee" %% "effectie-cats-effect3" % props.EffectieVersion,
+    )
 
     lazy val extrasCats    = "io.kevinlee" %% "extras-cats"     % props.ExtrasVersion
     lazy val extrasScalaIo = "io.kevinlee" %% "extras-scala-io" % props.ExtrasVersion
 
-    lazy val extrasHedgehogCatsEffect3 = "io.kevinlee" %% "extras-hedgehog-ce3" % props.ExtrasVersion % Test
+    lazy val extrasHedgehogCe3 = "io.kevinlee" %% "extras-hedgehog-ce3" % props.ExtrasVersion % Test
+
+    lazy val extras = List(
+      extrasCats,
+      extrasScalaIo,
+      extrasHedgehogCe3
+    )
 
   }
 
