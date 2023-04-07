@@ -5,7 +5,6 @@ import cats.effect.*
 import cats.syntax.all.*
 import effectie.syntax.all.{*, given}
 import effectie.instances.ce3.fx.given
-import effectie.instances.console.*
 import pirate.{Command, Prefs, Runners, ExitCode as PirateExitCode}
 import piratex.{Help, Metavar}
 import whatsub.WhatsubArgsParser.{ArgParseError, ArgParseFailureResult, JustMessageOrHelp}

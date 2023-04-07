@@ -99,14 +99,14 @@ lazy val props =
 
     final val CatsParseVersion = "0.3.9"
 
-    final val EffectieVersion = "2.0.0-beta7"
+    final val EffectieVersion = "2.0.0-beta9"
 
     final val pirateVersion = "7797fb3884bdfdda7751d8f75accf622b30a53ed"
     final val pirateUri     = uri(s"https://github.com/$GitHubUsername/pirate.git#$pirateVersion")
 
     final val IncludeTest: String = "compile->compile;test->test"
 
-    final val ExtrasVersion = "0.32.0"
+    final val ExtrasVersion = "0.38.0"
 
   }
 
