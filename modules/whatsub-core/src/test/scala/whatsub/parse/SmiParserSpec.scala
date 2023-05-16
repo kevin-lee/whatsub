@@ -12,6 +12,8 @@ import whatsub.*
 object SmiParserSpec extends Properties {
   override def tests: List[Test] = List(
     ParserGoldenTester.goldenTestParse[Smi]("golden/test-src.smi", "golden/test-smi-parsed.smi", SmiParser.parse[IO]),
+    ParserGoldenTester
+      .goldenTestParse[Smi]("golden/test-src-no-title.smi", "golden/test-smi-parsed-no-title.smi", SmiParser.parse[IO]),
   )
 
 }
