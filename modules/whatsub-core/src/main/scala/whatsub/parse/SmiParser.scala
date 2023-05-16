@@ -142,7 +142,7 @@ object SmiParser {
             case Some(ParseStatus.SamiEnd) =>
               effectOf((title, acc).asRight)
             case Some(ParseStatus.HeadStart) =>
-              parseAll(skipUntil(rest, ParseStatus.TitleStart), title, acc)
+              parseAll(skipUntil(rest, ParseStatus.TitleStart, ParseStatus.StyleStart), title, acc)
             case Some(ParseStatus.HeadEnd) =>
               parseAll(skipUntil(rest, ParseStatus.BodyStart), title, acc)
             case Some(ParseStatus.TitleStart) =>
@@ -186,14 +186,18 @@ object SmiParser {
       }
 
   @tailrec
-  private def skipUntil(lineAndLineNums: Seq[(String, Int)], target: ParseStatus): Seq[(String, Int)] =
+  private def skipUntil(
+    lineAndLineNums: Seq[(String, Int)],
+    target: ParseStatus,
+    orAnyOf: ParseStatus*
+  ): Seq[(String, Int)] =
     lineAndLineNums match {
       case (line, index) +: rest =>
         val preprocessed = line.removeEmptyChars
         parseNonLine(preprocessed)
-          .find(_ === target) match {
+          .find(parseStatus => parseStatus === target || orAnyOf.contains(parseStatus)) match {
           case None =>
-            skipUntil(rest, target)
+            skipUntil(rest, target, orAnyOf: _*)
           case Some(_) =>
             lineAndLineNums
         }
