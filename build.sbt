@@ -57,7 +57,7 @@ lazy val cli = module("cli")
     packageSummary := "Whatsub - subtitle converter and syncer",
     packageDescription := "A tool to convert and sync subtitles",
     executableScriptName := props.ExecutableScriptName,
-    nativeImageVersion := "22.2.0",
+    nativeImageVersion := "22.3.0",
     nativeImageJvm := "graalvm-java17",
     nativeImageOptions ++= List(
       "--verbose",
@@ -78,7 +78,7 @@ lazy val cli = module("cli")
 
 lazy val props =
   new {
-    final val ScalaVersion = "3.2.2"
+    final val ScalaVersion = "3.3.0"
     final val Org          = "io.kevinlee"
 
     private val gitHubRepo = findRepoOrgAndName
