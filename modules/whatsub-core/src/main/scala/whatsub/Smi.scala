@@ -6,6 +6,8 @@ import effectie.syntax.all.*
 import effectie.core.*
 import whatsub.sync.Syncer
 
+import scala.annotation.targetName
+
 final case class Smi(
   title: Smi.Title,
   lines: List[Smi.SmiLine],
@@ -60,6 +62,7 @@ object Smi {
 
   object SmiLine {
     extension (smiLine: SmiLine) {
+      @targetName("plus")
       def +(playtime: Playtime): SmiLine = {
         val milliseconds = playtime.toMilliseconds
         smiLine.copy(
@@ -68,6 +71,7 @@ object Smi {
         )
       }
 
+      @targetName("minus")
       def -(playtime: Playtime): SmiLine = {
         val milliseconds = playtime.toMilliseconds
         smiLine.copy(

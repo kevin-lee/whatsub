@@ -2,6 +2,8 @@ package whatsub
 
 import Time.*
 
+import scala.annotation.targetName
+
 final case class Playtime(
   h: Playtime.Hours,
   m: Playtime.Minutes,
@@ -41,9 +43,11 @@ object Playtime {
 
   extension (playtime: Playtime) {
 
+    @targetName("plus")
     def +(another: Playtime): Playtime =
       Playtime.fromMilliseconds(playtime.toMilliseconds + another.toMilliseconds)
 
+    @targetName("minus")
     def -(another: Playtime): Playtime =
       Playtime.fromMilliseconds(playtime.toMilliseconds - another.toMilliseconds)
 
