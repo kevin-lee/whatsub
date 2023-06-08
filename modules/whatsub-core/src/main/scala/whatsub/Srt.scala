@@ -7,6 +7,8 @@ import effectie.syntax.all.*
 import effectie.core.*
 import whatsub.sync.Syncer
 
+import scala.annotation.targetName
+
 final case class Srt(
   lines: List[Srt.SrtLine],
 ) derives CanEqual
@@ -65,6 +67,7 @@ object Srt {
   object SrtLine {
 
     extension (srtLine: SrtLine) {
+      @targetName("plus")
       def +(playtime: Playtime): SrtLine = {
         val milliseconds = playtime.toMilliseconds
         srtLine.copy(
@@ -72,6 +75,8 @@ object Srt {
           end = End(srtLine.end.value + milliseconds),
         )
       }
+
+      @targetName("minus")
       def -(playtime: Playtime): SrtLine = {
         val milliseconds = playtime.toMilliseconds
         srtLine.copy(
