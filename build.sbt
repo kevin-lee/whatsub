@@ -83,7 +83,7 @@ lazy val props =
 
     private val gitHubRepo = findRepoOrgAndName
 
-    val GitHubUsername = gitHubRepo.fold("Kevin-Lee")(_.orgToString)
+    val GitHubUsername = gitHubRepo.fold("kevin-lee")(_.orgToString)
     val RepoName       = gitHubRepo.fold("whatsub")(_.nameToString)
 
     final val ProjectName = RepoName

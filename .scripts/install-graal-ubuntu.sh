@@ -6,7 +6,7 @@ app_executable_name=whatsub
 app_name=whatsub-cli
 app_version=${1:-1.2.1}
 app_package_file="${app_name}-ubuntu-latest"
-download_url="https://github.com/Kevin-Lee/whatsub/releases/download/v${app_version}/${app_package_file}"
+download_url="https://github.com/kevin-lee/whatsub/releases/download/v${app_version}/${app_package_file}"
 
 usr_local_path=${HOME}
 opt_location="${usr_local_path}/opt"
