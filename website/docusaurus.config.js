@@ -21,7 +21,7 @@ const websiteConfig = {
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.png',
-  organizationName: 'Kevin-Lee', // Usually your GitHub org/user name.
+  organizationName: 'kevin-lee', // Usually your GitHub org/user name.
   projectName: 'whatsub', // Usually your repo name.
   themeConfig: {
     image: 'img/poster.png',
@@ -47,7 +47,7 @@ const websiteConfig = {
           label: 'Docs',
         },
         {
-          href: 'https://github.com/Kevin-Lee/whatsub',
+          href: 'https://github.com/kevin-lee/whatsub',
           position: 'right',
           className: 'header-github-link',
           'aria-label': 'GitHub',
@@ -71,12 +71,12 @@ const websiteConfig = {
           items: [
             {
               label: 'GitHub',
-              href: 'https://github.com/Kevin-Lee/whatsub',
+              href: 'https://github.com/kevin-lee/whatsub',
             },
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} Whatsub written by <a href="https://github.com/Kevin-Lee" target="_blank"><b>Kevin Lee</b></a>, The website built with Docusaurus.
+      copyright: `Copyright © ${new Date().getFullYear()} Whatsub written by <a href="https://github.com/kevin-lee" target="_blank"><b>Kevin Lee</b></a>, The website built with Docusaurus.
       <br /><span style="font-size: 80%;">Some Icons made by 
       <a href="https://www.freepik.com" title="Freepik">Freepik</a> and 
       <a href="https://www.flaticon.com/authors/iconixar" title="iconixar">iconixar</a>  
