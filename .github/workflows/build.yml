@@ -27,7 +27,7 @@ jobs:
           - { name: "Scala 3", version: "3.3.0", binary-version: "3", java-version: "17" }
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: olafurpg/setup-scala@v14
         with:
           java-version: ${{ matrix.scala.java-version }}
@@ -86,7 +86,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: olafurpg/setup-scala@v14
         with:
           java-version: ${{ env.GH_JAVA_VERSION }}
