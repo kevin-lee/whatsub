@@ -10,7 +10,7 @@ on:
       - main
 
 env:
-  GH_JVM_OPTS: "-Xss64m -Xms1024m -XX:MaxMetaspaceSize=1G -Xmx2G -XX:MaxInlineLevel=18 -XX:+UnlockExperimentalVMOptions -XX:+UseJVMCICompiler"
+  GH_JVM_OPTS: "-Xss64m -Xms1024m -XX:MaxMetaspaceSize=1G -Xmx4G -XX:MaxInlineLevel=18 -XX:+UnlockExperimentalVMOptions -XX:+UseJVMCICompiler"
   CLI_SCALA_VERSION: "3.3.0"
   CLI_SCALA_BINARY_VERSION: "3"
   GRAALVM_JAVA_VERSION: "17"

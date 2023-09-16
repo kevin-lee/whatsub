@@ -32,14 +32,17 @@ lazy val whatsub = (project in file("."))
     docusaurBuildDir := docusaurDir.value / "build",
   )
   .settings(noPublish)
-  .aggregate(core, cli)
+  .aggregate(core, ai, cli)
 
 lazy val core = module("core")
   .enablePlugins(BuildInfoPlugin)
   .settings(
 //    resolvers += Resolver.sonatypeRepo("snapshots"),
     libraryDependencies ++=
-      libs.catsAndCatsEffect3 ++ List(libs.catsParse) ++ libs.effectie ++ libs.extras,
+      libs.catsAndCatsEffect3 ++ List(libs.catsParse) ++ libs.effectie ++ libs.extras ++
+        List(
+          libs.tests.extrasHedgehogCe3,
+        ),
     /* Build Info { */
     buildInfoKeys := List[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoObject := "WhatsubBuildInfo",
@@ -47,6 +50,23 @@ lazy val core = module("core")
     buildInfoOptions += BuildInfoOption.ToJson,
     /* } Build Info */
   )
+
+lazy val ai = module("ai")
+  .settings(
+    libraryDependencies ++= libs.openAi4s ++
+      List(
+        "com.github.pureconfig" %% "pureconfig-cats-effect" % "0.17.4"  % Test,
+        "org.http4s"            %% "http4s-blaze-client"    % "0.23.15" % Test,
+      ) ++
+      libs.loggerF ++
+      List(
+        libs.tests.extrasHedgehogCe3,
+        libs.tests.extrasTestingToolsEffectie,
+        libs.tests.extrasHedgehogCe3,
+        libs.logback
+      ),
+  )
+  .dependsOn(core)
 
 lazy val pirateScalaz = ProjectRef(props.pirateUri, "pirate-scalaz")
 
@@ -94,29 +114,27 @@ lazy val props =
 
     final val HedgehogVersion = "0.10.1"
 
-    final val CatsVersion        = "2.9.0"
-    final val CatsEffect3Version = "3.4.8"
+    final val CatsVersion        = "2.10.0"
+    final val CatsEffect3Version = "3.5.1"
 
     final val CatsParseVersion = "0.3.9"
 
-    final val EffectieVersion = "2.0.0-beta9"
+    final val EffectieVersion = "2.0.0-beta12"
+    val LoggerFVersion        = "2.0.0-beta20"
 
-    final val pirateVersion = "7797fb3884bdfdda7751d8f75accf622b30a53ed"
+    final val pirateVersion = "a3415ad22371820a8c03b62ce9d3e4f467575681"
     final val pirateUri     = uri(s"https://github.com/$GitHubUsername/pirate.git#$pirateVersion")
 
     final val IncludeTest: String = "compile->compile;test->test"
 
-    final val ExtrasVersion = "0.38.0"
+    final val ExtrasVersion = "0.42.0"
+
+    val OpenAi4sVersion = "0.1.0-alpha5"
 
   }
 
 lazy val libs =
   new {
-    lazy val hedgehogLibs = List(
-      "qa.hedgehog" %% "hedgehog-core"   % props.HedgehogVersion % Test,
-      "qa.hedgehog" %% "hedgehog-runner" % props.HedgehogVersion % Test,
-      "qa.hedgehog" %% "hedgehog-sbt"    % props.HedgehogVersion % Test,
-    )
 
     lazy val catsAndCatsEffect3 = List(
       "org.typelevel" %% "cats-core"   % props.CatsVersion,
@@ -131,16 +149,44 @@ lazy val libs =
       "io.kevinlee" %% "effectie-cats-effect3" % props.EffectieVersion,
     )
 
+    lazy val loggerF = List(
+      "io.kevinlee" %% "logger-f-cats"  % props.LoggerFVersion,
+      "io.kevinlee" %% "logger-f-slf4j" % props.LoggerFVersion,
+    )
+
+    lazy val logback = "ch.qos.logback" % "logback-classic" % "1.4.11"
+
     lazy val extrasCats    = "io.kevinlee" %% "extras-cats"     % props.ExtrasVersion
+    lazy val extrasRender  = "io.kevinlee" %% "extras-render"   % props.ExtrasVersion
     lazy val extrasScalaIo = "io.kevinlee" %% "extras-scala-io" % props.ExtrasVersion
 
-    lazy val extrasHedgehogCe3 = "io.kevinlee" %% "extras-hedgehog-ce3" % props.ExtrasVersion % Test
+    lazy val openAi4s = List(
+      "io.kevinlee" %% "openai4s-core"   % props.OpenAi4sVersion,
+      "io.kevinlee" %% "openai4s-config" % props.OpenAi4sVersion,
+      "io.kevinlee" %% "openai4s-api"    % props.OpenAi4sVersion,
+      "io.kevinlee" %% "openai4s-http4s" % props.OpenAi4sVersion,
+    )
 
     lazy val extras = List(
       extrasCats,
+      extrasRender,
       extrasScalaIo,
-      extrasHedgehogCe3
     )
+
+    lazy val tests = new {
+
+      lazy val hedgehogLibs = List(
+        "qa.hedgehog" %% "hedgehog-core"   % props.HedgehogVersion % Test,
+        "qa.hedgehog" %% "hedgehog-runner" % props.HedgehogVersion % Test,
+        "qa.hedgehog" %% "hedgehog-sbt"    % props.HedgehogVersion % Test,
+      )
+
+      lazy val extrasTestingToolsCats     = "io.kevinlee" %% "extras-testing-tools-cats" % props.ExtrasVersion % Test
+      lazy val extrasTestingToolsEffectie =
+        "io.kevinlee" %% "extras-testing-tools-effectie" % props.ExtrasVersion % Test
+      lazy val extrasHedgehogCe3 = "io.kevinlee" %% "extras-hedgehog-ce3" % props.ExtrasVersion % Test
+
+    }
 
   }
 
@@ -155,13 +201,13 @@ def module(projectName: String): Project = {
       name := prefixedName,
       useAggressiveScalacOptions := true,
       //      scalacOptions ++= List("-source:3.1", "-Yexplicit-nulls"),
-      scalacOptions ++= List("-source:3.2"),
+      scalacOptions ++= List("-source:3.3"),
       scalacOptions ~= (existing =>
         existing.filter(
           _ != "-language:dynamics,existentials,higherKinds,reflectiveCalls,experimental.macros,implicitConversions,strictEquality"
         )
       ),
-      libraryDependencies ++= libs.hedgehogLibs,
+      libraryDependencies ++= libs.tests.hedgehogLibs,
       wartremoverErrors ++= ProjectInfo.commonWarts((update / scalaBinaryVersion).value),
       wartremoverExcluded ++= List(sourceManaged.value),
       licenses := List("MIT" -> url("http://opensource.org/licenses/MIT")),
