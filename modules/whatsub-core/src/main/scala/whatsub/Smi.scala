@@ -4,6 +4,7 @@ import cats.Monad
 import cats.syntax.all.*
 import effectie.syntax.all.*
 import effectie.core.*
+import whatsub.core.SubLine
 import whatsub.sync.Syncer
 
 import scala.annotation.targetName
@@ -61,6 +62,12 @@ object Smi {
   ) derives CanEqual
 
   object SmiLine {
+
+    def fromSubLine(subLine: SubLine): SmiLine = subLine match {
+      case SubLine(_, start, end, line) =>
+        SmiLine(Start(start.value), End(end.value), Line(line.value))
+    }
+
     extension (smiLine: SmiLine) {
       @targetName("plus")
       def +(playtime: Playtime): SmiLine = {
@@ -79,6 +86,17 @@ object Smi {
           end = End(smiLine.end.value - milliseconds),
         )
       }
+
+      def toSubLine(index: Int): SubLine = smiLine match {
+        case SmiLine(start, end, line) =>
+          SubLine(
+            SubLine.Index(index),
+            SubLine.Start(start.value),
+            SubLine.End(end.value),
+            SubLine.Line(line.value)
+          )
+      }
+
     }
   }
 

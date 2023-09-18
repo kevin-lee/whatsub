@@ -5,6 +5,7 @@ import cats.Monad
 import cats.syntax.all.*
 import effectie.syntax.all.*
 import effectie.core.*
+import whatsub.core.SubLine
 import whatsub.sync.Syncer
 
 import scala.annotation.targetName
@@ -66,6 +67,11 @@ object Srt {
 
   object SrtLine {
 
+    def fromSubLine(subLine: SubLine): SrtLine = subLine match {
+      case SubLine(index, start, end, line) =>
+        SrtLine(Index(index.value), Start(start.value), End(end.value), Line(line.value))
+    }
+
     extension (srtLine: SrtLine) {
       @targetName("plus")
       def +(playtime: Playtime): SrtLine = {
@@ -84,6 +90,17 @@ object Srt {
           end = End(srtLine.end.value - milliseconds),
         )
       }
+
+      def toSubLine: SubLine = srtLine match {
+        case SrtLine(index, start, end, line) =>
+          SubLine(
+            SubLine.Index(index.value),
+            SubLine.Start(start.value),
+            SubLine.End(end.value),
+            SubLine.Line(line.value)
+          )
+      }
+
     }
 
   }
