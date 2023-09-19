@@ -7,7 +7,8 @@ on:
 
 env:
   GH_JAVA_VERSION: "17"
-  GH_JVM_OPTS: "-Xss64m -Xms1024m -XX:MaxMetaspaceSize=1G -Xmx4G -XX:MaxInlineLevel=18 -XX:+UnlockExperimentalVMOptions -XX:+UseJVMCICompiler"
+  GH_SBT_OPTS: "-Xss64m -Xms2G -XX:MaxMetaspaceSize=1G -Xmx4G -XX:MaxInlineLevel=18 -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC"
+  GH_JVM_OPTS: "-Xss64m -Xms2G -XX:MaxMetaspaceSize=1G -Xmx4G -XX:MaxInlineLevel=18 -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:+UseJVMCICompiler"
   CLI_SCALA_VERSION: "3.3.0"
   CLI_SCALA_BINARY_VERSION: "3"
   GRAALVM_JAVA_VERSION: "17"
@@ -39,6 +40,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_AUTH_TOKEN_GITHUB }}
           JVM_OPTS: ${{ env.GH_JVM_OPTS }}
+          SBT_OPTS: ${{ env.GH_SBT_OPTS }}
         run: |
           echo "Run] sbt GitHub release"
           echo 'sbt -J-XX:MaxMetaspaceSize=1024m -J-Xmx2048m devOopsGitHubRelease'
@@ -81,6 +83,7 @@ jobs:
 #          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
 #          GITHUB_TOKEN: ${{ secrets.RELEASE_AUTH_TOKEN_GITHUB }}
 #          JVM_OPTS: ${{ env.GH_JVM_OPTS }}
+#          SBT_OPTS: ${{ env.GH_SBT_OPTS }}
 #        run: |
 #          echo "Run] sbt ci-release"
 #          export SOURCE_DATE_EPOCH=$(date +%s)
@@ -125,6 +128,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_AUTH_TOKEN_GITHUB }}
           JVM_OPTS: ${{ env.GH_JVM_OPTS }}
+          SBT_OPTS: ${{ env.GH_SBT_OPTS }}
         run: |
           echo "Run] sbt cli package release"
           export SOURCE_DATE_EPOCH=$(date +%s)
@@ -174,6 +178,7 @@ jobs:
           RUN_ID: ${{ github.run_id }}
           RUN_NUMBER: ${{ github.run_number }}
           JVM_OPTS: ${{ env.GH_JVM_OPTS }}
+          SBT_OPTS: ${{ env.GH_SBT_OPTS }}
         run: |
           echo "JVM_OPTS=${JVM_OPTS}"
           echo "SBT_OPTS=${SBT_OPTS}"
@@ -232,6 +237,7 @@ jobs:
           RUN_ID: ${{ github.run_id }}
           RUN_NUMBER: ${{ github.run_number }}
           JVM_OPTS: ${{ env.GH_JVM_OPTS }}
+          SBT_OPTS: ${{ env.GH_SBT_OPTS }}
         run: |
           sbt \
             ++${{ env.CLI_SCALA_VERSION }}! \
