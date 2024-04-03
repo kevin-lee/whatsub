@@ -26,7 +26,7 @@ jobs:
           java-version: ${{ env.GH_JAVA_VERSION }}
 
       - name: Cache SBT
-        uses: actions/cache@v4.0.0
+        uses: actions/cache@v4.0.2
         with:
           path: |
             ~/.ivy2/cache
@@ -64,7 +64,7 @@ jobs:
 #      - uses: olafurpg/setup-gpg@v3
 #
 #      - name: Cache SBT
-#        uses: actions/cache@v4.0.0
+#        uses: actions/cache@v4.0.2
 #        with:
 #          path: |
 #            ~/.ivy2/cache
@@ -113,7 +113,7 @@ jobs:
           java-version: ${{ env.GH_JAVA_VERSION }}
 
       - name: Cache SBT
-        uses: actions/cache@v4.0.0
+        uses: actions/cache@v4.0.2
         with:
           path: |
             ~/.ivy2/cache
@@ -161,7 +161,7 @@ jobs:
           java-version: ${{ env.GRAALVM_JAVA_VERSION }}
 
       - name: Cache SBT
-        uses: actions/cache@v4.0.0
+        uses: actions/cache@v4.0.2
         with:
           path: |
             ~/.ivy2/cache
@@ -219,7 +219,7 @@ jobs:
       - uses: ilammy/msvc-dev-cmd@v1
 
       - name: Cache SBT
-        uses: actions/cache@v4.0.0
+        uses: actions/cache@v4.0.2
         with:
           path: |
             ~/.ivy2/cache
