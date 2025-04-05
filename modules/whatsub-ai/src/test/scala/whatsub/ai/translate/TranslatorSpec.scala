@@ -7,9 +7,10 @@ import hedgehog.runner.*
 import effectie.syntax.all.*
 import openai4s.types
 import openai4s.types.chat.*
-import refined4s.strings.NonEmptyString
+import refined4s.types.all.*
 import whatsub.Srt
 import extras.hedgehog.ce3.syntax.runner.*
+import extras.render.syntax.*
 import whatsub.core.SubLine
 
 import java.time.Instant
@@ -36,12 +37,13 @@ object TranslatorSpec extends Properties {
       val requestMessageContent  =
         Translator.buildMessageContent(Translator.Language(NonEmptyString.unsafeFrom(language)), subLines.toVector)
       val responseMessageContent = types
+        .chat
         .Message
         .Content(
           expectedSubLines
             .map {
               case SubLine(index, _, _, line) =>
-                s"@T@-${index.toString} ${line.value}"
+                s"@T@-${index.render} ${line.value}"
             }
             .mkString("\n")
         )
@@ -62,16 +64,14 @@ object TranslatorSpec extends Properties {
                 ),
                 List(
                   Response.Choice(
-                    message = Response
-                      .Choice
+                    message = types
+                      .chat
                       .Message(
-                        types.Message(
-                          types.Message.Role("assistant"),
-                          responseMessageContent
-                        )
+                        types.chat.Message.Role("assistant"),
+                        responseMessageContent
                       ),
-                    finishReason = Response.Choice.FinishReason("stop"),
-                    index = Response.Choice.Index(0)
+                    finishReason = types.common.FinishReason("stop"),
+                    index = types.common.Index(0)
                   )
                 ),
               )

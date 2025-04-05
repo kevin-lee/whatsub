@@ -1,6 +1,5 @@
 package whatsub
 
-import Time.*
 import cats.Monad
 import cats.syntax.all.*
 import effectie.syntax.all.*

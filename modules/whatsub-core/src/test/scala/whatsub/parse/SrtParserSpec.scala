@@ -4,7 +4,6 @@ import cats.effect.IO
 import effectie.instances.ce3.fx.given
 import hedgehog.*
 import hedgehog.runner.*
-import whatsub.parse.SubParsers.*
 import whatsub.*
 
 /** @author Kevin Lee

@@ -1,12 +1,12 @@
 package whatsub
 
-import cats.Show
 import cats.effect.*
 import cats.syntax.all.*
-import effectie.syntax.all.{*, given}
+import effectie.syntax.all.*
 import effectie.instances.ce3.fx.given
-import pirate.{Command, Prefs, Runners, ExitCode as PirateExitCode}
-import piratex.{Help, Metavar}
+//import pirate.{Command, Prefs, Runners, ExitCode as PirateExitCode}
+import pirate.{Command, Prefs}
+//import piratex.{Help, Metavar}
 import whatsub.WhatsubArgsParser.{ArgParseError, ArgParseFailureResult, JustMessageOrHelp}
 
 trait MainIo[A] extends IOApp {

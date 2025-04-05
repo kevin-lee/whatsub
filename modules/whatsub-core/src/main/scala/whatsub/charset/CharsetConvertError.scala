@@ -1,7 +1,5 @@
 package whatsub.charset
 
-import cats.Show
-
 /** @author Kevin Lee
   * @since 2021-08-15
   */

@@ -1,11 +1,10 @@
 package whatsub.parse
 
 import SubParsers.*
-import cats.effect.*
 import cats.parse.Rfc5234.*
-import cats.parse.{Parser as P, Parser0 as P0, *}
+import cats.parse.{Parser as P, *}
 import cats.syntax.all.*
-import cats.{Functor, Monad}
+import cats.Monad
 import effectie.core.*
 import effectie.syntax.all.*
 import extras.cats.syntax.all.*
@@ -132,7 +131,7 @@ object SmiParser {
     (
       lineAndLineNums
         .traverse((line, index) => effectOf((line.removeEmptyChars, index)))
-        .map(_.filter((line, index) => line.nonEmpty)),
+        .map(_.filter((line, _) => line.nonEmpty)),
       )
       .flatMap {
         case (line, index) +: rest =>

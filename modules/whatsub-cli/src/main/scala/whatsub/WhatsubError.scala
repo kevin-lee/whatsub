@@ -4,7 +4,7 @@ import cats.Show
 import cats.data.NonEmptyList
 import cats.syntax.all.*
 import extras.scala.io.syntax.color.*
-import whatsub.FileF
+//import whatsub.FileF
 import whatsub.WhatsubArgsParser.ArgParseError
 import whatsub.charset.{CharsetConvertError, ConvertCharset}
 import whatsub.convert.ConversionError
@@ -59,7 +59,7 @@ object WhatsubError {
         typeToFile
           .map {
             case (what, Some(file)) =>
-              s">> ${s"Missing $what type".red}: There is no $what type set nor is the $what type info found from the file (${file.toString}).\n"
+              s">> ${s"Missing $what type".red}: There is no $what type set nor is the $what type info found from the file (${file.getCanonicalPath}).\n"
             case (what, None) =>
               s">> ${s"Missing $what type".red}: There is no $what type set nor is there a file path given for the $what type.\n"
           }

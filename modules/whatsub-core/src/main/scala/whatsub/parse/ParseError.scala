@@ -14,6 +14,7 @@ object ParseError {
   given parseShow: Show[ParseError] = _.render
 
   extension (parseError: ParseError) {
+    @SuppressWarnings(Array("org.wartremover.warts.ToString"))
     def render: String = parseError match {
       case SmiParseError(lineIndex, lineStr, error) =>
         s"""SmiParseError:
