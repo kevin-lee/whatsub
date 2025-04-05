@@ -6,11 +6,13 @@ import hedgehog.*
 import hedgehog.runner.*
 import effectie.syntax.all.*
 import openai4s.types
+import openai4s.types.common.*
 import openai4s.types.chat.*
 import refined4s.types.all.*
 import whatsub.Srt
 import extras.hedgehog.ce3.syntax.runner.*
 import extras.render.syntax.*
+import loggerf.logger.{CanLog, Slf4JLogger}
 import whatsub.core.SubLine
 
 import java.time.Instant
@@ -19,6 +21,8 @@ import java.time.Instant
   * @since 2023-09-16
   */
 object TranslatorSpec extends Properties {
+
+  implicit val canLog: CanLog = Slf4JLogger.slf4JCanLog[TranslatorSpec.type]
 
   type F[A] = IO[A]
   val F = IO
@@ -33,12 +37,11 @@ object TranslatorSpec extends Properties {
       (subLines, expectedSubLines) = subLinesAndExpected
     } yield runIO {
       import effectie.instances.ce3.fx.given
+      import loggerf.instances.cats.given
 
       val requestMessageContent  =
         Translator.buildMessageContent(Translator.Language(NonEmptyString.unsafeFrom(language)), subLines.toVector)
-      val responseMessageContent = types
-        .chat
-        .Message
+      val responseMessageContent = Message
         .Content(
           expectedSubLines
             .map {
@@ -64,14 +67,12 @@ object TranslatorSpec extends Properties {
                 ),
                 List(
                   Response.Choice(
-                    message = types
-                      .chat
-                      .Message(
-                        types.chat.Message.Role("assistant"),
-                        responseMessageContent
-                      ),
-                    finishReason = types.common.FinishReason("stop"),
-                    index = types.common.Index(0)
+                    message = Message(
+                      Message.Role("assistant"),
+                      responseMessageContent
+                    ),
+                    finishReason = FinishReason("stop"),
+                    index = Index(0)
                   )
                 ),
               )

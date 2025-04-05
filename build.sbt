@@ -115,19 +115,19 @@ lazy val props =
     final val HedgehogVersion = "0.10.1"
 
     final val CatsVersion        = "2.10.0"
-    final val CatsEffect3Version = "3.5.1"
+    final val CatsEffect3Version = "3.5.2"
 
     final val CatsParseVersion = "0.3.9"
 
     final val EffectieVersion = "2.0.0"
-    val LoggerFVersion        = "2.1.8"
+    val LoggerFVersion        = "2.1.18"
 
     final val pirateVersion = "87e833d963a577b421d1c60b07fb9b8db2163f60"
     final val pirateUri     = uri(s"https://github.com/$GitHubUsername/pirate.git#$pirateVersion")
 
     final val IncludeTest: String = "compile->compile;test->test"
 
-    final val ExtrasVersion = "0.42.0"
+    final val ExtrasVersion = "0.44.0"
 
     val OpenAi4sVersion = "0.1.0-alpha13"
 
