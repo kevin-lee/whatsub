@@ -1,9 +1,6 @@
 package whatsub.ai.translate
 
-import cats.Applicative
-import cats.syntax.all.*
 import hedgehog.*
-import hedgehog.core.GenT
 import whatsub.core.SubLine
 
 import scala.concurrent.duration.*

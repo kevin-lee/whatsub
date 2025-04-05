@@ -1,6 +1,6 @@
 ThisBuild / scalaVersion := props.ScalaVersion
 ThisBuild / organization := props.Org
-ThisBuild / developers := List(
+ThisBuild / developers   := List(
   Developer(
     props.GitHubUsername,
     "Kevin Lee",
@@ -8,28 +8,28 @@ ThisBuild / developers := List(
     url(s"https://github.com/${props.GitHubUsername}"),
   ),
 )
-ThisBuild / homepage := url(s"https://github.com/${props.GitHubUsername}/${props.RepoName}").some
-ThisBuild / scmInfo :=
+ThisBuild / homepage     := url(s"https://github.com/${props.GitHubUsername}/${props.RepoName}").some
+ThisBuild / scmInfo      :=
   ScmInfo(
     url(s"https://github.com/${props.GitHubUsername}/${props.RepoName}"),
     s"https://github.com/${props.GitHubUsername}/${props.RepoName}.git",
   ).some
-ThisBuild / licenses := List("MIT" -> url("http://opensource.org/licenses/MIT"))
+ThisBuild / licenses     := List("MIT" -> url("http://opensource.org/licenses/MIT"))
 
 ThisBuild / resolvers += "sonatype-snapshots" at s"https://${props.SonatypeCredentialHost}/content/repositories/snapshots"
 
 lazy val whatsub = (project in file("."))
   .enablePlugins(DevOopsGitHubReleasePlugin, DocusaurPlugin)
   .settings(
-    name := props.ProjectName,
+    name                     := props.ProjectName,
     /* GitHub Release { */
     devOopsPackagedArtifacts := List(
       s"modules/${props.ProjectName}-cli/target/universal/${name.value}*.zip",
       s"modules/${props.ProjectName}-cli/target/native-image/${props.RepoName}-cli-*",
     ),
     /* } GitHub Release */
-    docusaurDir := (ThisBuild / baseDirectory).value / "website",
-    docusaurBuildDir := docusaurDir.value / "build",
+    docusaurDir              := (ThisBuild / baseDirectory).value / "website",
+    docusaurBuildDir         := docusaurDir.value / "build",
   )
   .settings(noPublish)
   .aggregate(core, ai, cli)
@@ -44,8 +44,8 @@ lazy val core = module("core")
           libs.tests.extrasHedgehogCe3,
         ),
     /* Build Info { */
-    buildInfoKeys := List[BuildInfoKey](name, version, scalaVersion, sbtVersion),
-    buildInfoObject := "WhatsubBuildInfo",
+    buildInfoKeys    := List[BuildInfoKey](name, version, scalaVersion, sbtVersion),
+    buildInfoObject  := "WhatsubBuildInfo",
     buildInfoPackage := "whatsub.info",
     buildInfoOptions += BuildInfoOption.ToJson,
     /* } Build Info */
@@ -73,12 +73,12 @@ lazy val pirateScalaz = ProjectRef(props.pirateUri, "pirate-scalaz")
 lazy val cli = module("cli")
   .enablePlugins(JavaAppPackaging, NativeImagePlugin)
   .settings(
-    maintainer := "Kevin Lee <kevin.code@kevinlee.io>",
-    packageSummary := "Whatsub - subtitle converter and syncer",
-    packageDescription := "A tool to convert and sync subtitles",
+    maintainer           := "Kevin Lee <kevin.code@kevinlee.io>",
+    packageSummary       := "Whatsub - subtitle converter and syncer",
+    packageDescription   := "A tool to convert and sync subtitles",
     executableScriptName := props.ExecutableScriptName,
-    nativeImageVersion := "22.3.0",
-    nativeImageJvm := "graalvm-java17",
+    nativeImageVersion   := "22.3.0",
+    nativeImageJvm       := "graalvm-java17",
     nativeImageOptions ++= List(
       "--verbose",
       "--no-fallback",
@@ -98,7 +98,7 @@ lazy val cli = module("cli")
 
 lazy val props =
   new {
-    final val ScalaVersion = "3.3.0"
+    final val ScalaVersion = "3.3.5"
     final val Org          = "io.kevinlee"
 
     private val gitHubRepo = findRepoOrgAndName
@@ -119,17 +119,19 @@ lazy val props =
 
     final val CatsParseVersion = "0.3.9"
 
-    final val EffectieVersion = "2.0.0-beta12"
-    val LoggerFVersion        = "2.0.0-beta20"
+    final val EffectieVersion = "2.0.0"
+    val LoggerFVersion        = "2.1.8"
 
-    final val pirateVersion = "a3415ad22371820a8c03b62ce9d3e4f467575681"
+    final val pirateVersion = "87e833d963a577b421d1c60b07fb9b8db2163f60"
     final val pirateUri     = uri(s"https://github.com/$GitHubUsername/pirate.git#$pirateVersion")
 
     final val IncludeTest: String = "compile->compile;test->test"
 
     final val ExtrasVersion = "0.42.0"
 
-    val OpenAi4sVersion = "0.1.0-alpha5"
+    val OpenAi4sVersion = "0.1.0-alpha13"
+
+    val Refined4sVersion = "1.1.0"
 
   }
 
@@ -173,6 +175,11 @@ lazy val libs =
       extrasScalaIo,
     )
 
+    lazy val refined4sCore         = "io.kevinlee" %% "refined4s-core"          % props.Refined4sVersion
+    lazy val refined4sCats         = "io.kevinlee" %% "refined4s-cats"          % props.Refined4sVersion
+    lazy val refined4sChimney      = "io.kevinlee" %% "refined4s-chimney"       % props.Refined4sVersion
+    lazy val refined4sExtrasRender = "io.kevinlee" %% "refined4s-extras-render" % props.Refined4sVersion
+
     lazy val tests = new {
 
       lazy val hedgehogLibs = List(
@@ -198,8 +205,8 @@ def module(projectName: String): Project = {
   val prefixedName = prefixedProjectName(projectName)
   Project(projectName, file(s"modules/$prefixedName"))
     .settings(
-      name := prefixedName,
-      useAggressiveScalacOptions := true,
+      name     := prefixedName,
+//      useAggressiveScalacOptions := true,
       //      scalacOptions ++= List("-source:3.1", "-Yexplicit-nulls"),
       scalacOptions ++= List("-source:3.3"),
       scalacOptions ~= (existing =>

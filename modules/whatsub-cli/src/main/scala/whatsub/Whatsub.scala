@@ -2,24 +2,23 @@ package whatsub
 
 import FileF.FileError
 import cats.data.{EitherT, NonEmptyList}
-import cats.effect.kernel.MonadCancel
-import cats.effect.{Resource, Sync}
+import cats.effect.Resource
 import cats.syntax.all.*
 import cats.{Monad, Monoid}
 import effectie.core.*
-import effectie.syntax.all.{*, given}
+import effectie.syntax.all.*
 import extras.cats.syntax.all.*
 import extras.scala.io.syntax.color.*
-import pirate.{Command, ExitCode}
-import piratex.{Help, Metavar}
+//import piratex.{Help, Metavar}
 import whatsub.WhatsubArgs.{CharsetArgs, ConvertArgs, SyncArgs}
 import whatsub.charset.{Charset, ConvertCharset}
 import whatsub.convert.Convert
 import whatsub.parse.{ParseError, SmiParser, SrtParser}
 import whatsub.sync.Syncer
-import whatsub.typeclasses.Scala3TypeClasses.*
+//import whatsub.typeclasses.Scala3TypeClasses.*
 
-import java.io.{BufferedWriter, File, FileWriter, Writer}
+//import java.io.{BufferedWriter, File, FileWriter, Writer}
+import java.io.File
 import java.nio.charset.Charset as JCharset
 import scala.io.{Codec, Source}
 
@@ -146,7 +145,7 @@ object Whatsub {
               val toFile   = to.render.magenta.bold
               s""">> [${"Success".green}] Charset conversion from $fromFile to $toFile
                  |>> The converted subtitle file has been written at
-                 |>>   ${outFile.value.getCanonicalPath.toString.blue.bold}
+                 |>>   ${outFile.value.getCanonicalPath.blue.bold}
                  |""".stripMargin
             },
             WhatsubError.FileF(_)

@@ -8,9 +8,15 @@ import effectie.syntax.all.*
 import extras.render.Render
 import extras.render.syntax.*
 import openai4s.api.chat.ChatApi
-import openai4s.types.Message
+import openai4s.types.chat.Message
+import openai4s.types.common.Temperature
 import openai4s.types.chat.{Chat, Model}
-import refined4s.strings.*
+import refined4s.*
+import refined4s.types.all.*
+import refined4s.modules.extras.derivation.*
+import refined4s.modules.extras.derivation.types.all.given
+import refined4s.modules.cats.derivation.*
+import refined4s.modules.cats.derivation.types.all.given
 import whatsub.ai.translate.Translator.Language
 import whatsub.core.SubLine
 import whatsub.{Smi, Srt, core}
@@ -39,17 +45,17 @@ object Translator {
         val chat     = Chat(
           model = Model.gpt_4,
           messages = NonEmptyList.of(
-            Chat.Message(
+            Message(
               Message.Role("user"),
               buildMessageContent(language, subLines)
             )
           ),
-          temperature = Chat.Temperature(0.0f).some,
+          temperature = Temperature(0.0f).some,
           maxTokens = none
         )
         for {
           res <- chatApi.completion(chat)
-          response = res.choices.map(_.message.value.content.value).mkString
+          response = res.choices.map(_.message.content.value).mkString
           lines      <- pureOrError(response.split("\n"))
           translated <- collectSubs(subLines, lines.toList)
         } yield Srt(translated.map(Srt.SrtLine.fromSubLine).toList)
@@ -61,18 +67,18 @@ object Translator {
         val chat     = Chat(
           model = Model.gpt_4,
           messages = NonEmptyList.of(
-            Chat.Message(
+            Message(
               Message.Role("User"),
               Message.Content(
                 render"Translate into ${language.toValue}\n" ++ lines.map(_.line).mkString("\n")
               )
             )
           ),
-          temperature = Chat.Temperature(0.0f).some,
+          temperature = Temperature(0.0f).some,
           maxTokens = none
         )
         for {
-          response   <- chatApi.completion(chat).map(_.choices.map(_.message.value.content.value).mkString)
+          response   <- chatApi.completion(chat).map(_.choices.map(_.message.content.value).mkString)
           lines      <- pureOrError(response.split("\n"))
           translated <- collectSubs(subLines, lines.toList)
         } yield Smi(title, translated.map(Smi.SmiLine.fromSubLine).toList)
@@ -142,20 +148,7 @@ object Translator {
           .mkString("\n")
     )
 
-  type Language = Language.Language
-  object Language {
-    opaque type Language = NonEmptyString
-    def apply(language: NonEmptyString): Language = language
-
-    given languageCanEqual: CanEqual[Language, Language] = CanEqual.derived
-
-    given languageRender: Render[Language] = _.value
-
-    extension (language: Language) {
-      def value: NonEmptyString = language
-
-      def toValue: String = value.value
-    }
-  }
+  type Language = Language.Type
+  object Language extends Newtype[NonEmptyString], ExtrasRender[NonEmptyString], CatsEqShow[NonEmptyString]
 
 }

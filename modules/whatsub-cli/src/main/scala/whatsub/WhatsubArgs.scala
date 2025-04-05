@@ -144,7 +144,8 @@ object WhatsubArgs {
       given syncCanEqual: CanEqual[Sync, Sync] = CanEqual.derived
 
       given syncRead: Read[Sync] = Read.eitherRead { syncArg =>
-        import cats.parse.{Parser as P, Parser0 as P0, *}
+//        import cats.parse.{Parser as P, Parser0 as P0, *}
+        import cats.parse.{Parser as P, *}
         import cats.parse.Rfc5234.*
         import cats.syntax.either.*
         scalaz
@@ -269,8 +270,8 @@ object WhatsubArgs {
       def unapply(from: From): Some[Charset] = Some(from.value)
 
       given fromRead: Read[From] = Read.eitherRead { fromCharset =>
-        import scalaz.*
-        import Scalaz.*
+//        import scalaz.*
+//        import Scalaz.*
         charsetFromString(fromCharset, ParamName("from")).map(From(_))
       }
 
@@ -289,8 +290,8 @@ object WhatsubArgs {
       def unapply(to: To): Some[Charset] = Some(to.value)
 
       given fromRead: Read[To] = Read.eitherRead { toCharset =>
-        import scalaz.*
-        import Scalaz.*
+//        import scalaz.*
+//        import Scalaz.*
         charsetFromString(toCharset, ParamName("to")).map(To(_))
       }
 

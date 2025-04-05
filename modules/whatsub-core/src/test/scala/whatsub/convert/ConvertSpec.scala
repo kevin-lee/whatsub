@@ -2,15 +2,12 @@ package whatsub.convert
 
 import cats.*
 import cats.effect.IO
-import cats.syntax.all.*
 import effectie.instances.ce3.fx.given
 import effectie.core.Fx
-import effectie.syntax.all.*
 import extras.cats.syntax.all.*
 import extras.hedgehog.ce3.CatsEffectRunner
 import hedgehog.*
 import hedgehog.runner.*
-import whatsub.convert.Convert
 import whatsub.parse.{ParseError, SmiParser, SrtParser}
 import whatsub.{CanRender, GoldenTest, Smi, Srt}
 

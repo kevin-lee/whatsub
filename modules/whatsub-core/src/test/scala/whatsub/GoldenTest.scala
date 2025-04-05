@@ -3,10 +3,8 @@ package whatsub
 import effectie.core.*
 import effectie.syntax.all.*
 import hedgehog.*
-import hedgehog.runner.*
 import whatsub.parse.SubParsers.*
 
-import java.io.File
 import scala.io.{Codec, Source}
 import scala.util.Using
 

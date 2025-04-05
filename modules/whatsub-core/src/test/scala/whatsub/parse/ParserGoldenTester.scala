@@ -4,15 +4,12 @@ import cats.Monad
 import cats.effect.IO
 import effectie.core.*
 import effectie.instances.ce3.fx.given
-import effectie.resource.ResourceMaker
 import extras.cats.syntax.all.*
 import extras.hedgehog.ce3.CatsEffectRunner
 import hedgehog.*
 import hedgehog.runner.*
 import whatsub.*
 
-import java.io.File
-import scala.io.{Codec, Source}
 import scala.reflect.{ClassTag, classTag}
 
 /** @author Kevin Lee

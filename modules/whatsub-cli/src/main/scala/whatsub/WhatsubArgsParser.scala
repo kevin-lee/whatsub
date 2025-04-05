@@ -7,15 +7,15 @@ import pirate.*
 import Pirate.*
 import WhatsubArgs.*
 import cats.Show
-import pirate.internal.ParseTraversal
+//import pirate.internal.ParseTraversal
 import whatsub.charset.Charset
 import whatsub.info.WhatsubBuildInfo
 
 import java.io.File
-import scala.io
+//import scala.io
 
 import whatsub.typeclasses.Scala3TypeClasses.*
-import whatsub.typeclasses.CanBeString.given
+//import whatsub.typeclasses.CanBeString.given
 
 /** @author Kevin Lee
   * @since 2021-07-01
