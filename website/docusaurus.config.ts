@@ -1,13 +1,16 @@
+// @ts-check
+// Note: type annotations allow type checking and IDEs autocompletion
+import {themes as prismThemes} from 'prism-react-renderer';
+import type {Config} from '@docusaurus/types';
+import type * as Preset from '@docusaurus/preset-classic';
+
 const algoliaConfig = require('./algolia.config.json');
 const googleAnalyticsConfig = require('./google-analytics.config.json');
 
-const lightCodeTheme = require('prism-react-renderer/themes/github');
-const darkCodeTheme = require('prism-react-renderer/themes/dracula');
+const lightCodeTheme = prismThemes.github;
+const darkCodeTheme = prismThemes.dracula;
 
-const isEmptyObject = obj => {
-  for (field in obj) return false;
-  return true;
-};
+const isEmptyObject = (obj: object) => Object.keys(obj).length === 0;
 
 const isSearchable = !isEmptyObject(algoliaConfig);
 const hasGoogleAnalytics = !isEmptyObject(googleAnalyticsConfig);
