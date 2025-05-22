@@ -11,6 +11,7 @@ on:
 
 env:
   GH_JAVA_VERSION: "17"
+  GH_JAVA_DISTRIBUTION: "temurin"
   GH_SBT_OPTS: "-Xss64m -Xms4G -XX:MaxMetaspaceSize=1G -Xmx6G -XX:MaxInlineLevel=18 -XX:+UnlockExperimentalVMOptions"
   GH_JVM_OPTS: "-Xss64m -Xms4G -XX:MaxMetaspaceSize=1G -Xmx6G -XX:MaxInlineLevel=18 -XX:+UnlockExperimentalVMOptions -XX:+UseJVMCICompiler"
   CLI_SCALA_VERSION: "3.3.5"
@@ -25,24 +26,16 @@ jobs:
     strategy:
       matrix:
         scala:
-          - { name: "Scala 3", version: "3.3.5", binary-version: "3", java-version: "17" }
+          - { name: "Scala 3", version: "3.3.5", binary-version: "3", java-version: "17", java-distribution: "temurin" }
 
     steps:
       - uses: actions/checkout@v4
-      - uses: olafurpg/setup-scala@v14
+      - uses: actions/setup-java@v4
         with:
           java-version: ${{ matrix.scala.java-version }}
-
-      - name: Cache SBT
-        uses: actions/cache@v4.2.3
-        with:
-          path: |
-            ~/.ivy2/cache
-            ~/.cache/coursier
-            ~/.sbt
-          key: ${{ runner.os }}-sbt-${{ matrix.scala.binary-version }}-${{ hashFiles('**/*.sbt') }}-${{ hashFiles('**/build.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-sbt-${{ matrix.scala.binary-version }}-
+          distribution: ${{ matrix.scala.java-distribution }}
+          cache: sbt
+      - uses: sbt/setup-sbt@v1
 
 
       - name: "[Push] Build All for ${{ matrix.scala.name }} ${{ matrix.scala.version }} - ${{ github.run_number }}"
@@ -90,20 +83,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: olafurpg/setup-scala@v14
+      - uses: actions/setup-java@v4
         with:
           java-version: ${{ env.GH_JAVA_VERSION }}
-
-      - name: Cache SBT
-        uses: actions/cache@v4.2.3
-        with:
-          path: |
-            ~/.ivy2/cache
-            ~/.cache/coursier
-            ~/.sbt
-          key: ${{ runner.os }}-sbt-${{ env.CLI_SCALA_BINARY_VERSION }}-${{ hashFiles('**/*.sbt') }}-${{ hashFiles('**/build.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-sbt-${{ env.CLI_SCALA_BINARY_VERSION }}-
+          distribution: ${{ env.GH_JAVA_DISTRIBUTION }}
+          cache: sbt
+      - uses: sbt/setup-sbt@v1
 
       - name: "[Push] Build bin package - ${{ github.run_number }}"
         if: github.event_name == 'push'
