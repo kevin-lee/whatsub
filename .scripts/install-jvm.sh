@@ -4,7 +4,7 @@ set -eu
 
 app_executable_name=whatsub
 app_name=whatsub-cli
-app_version=${1:-1.2.1}
+app_version=${1:-1.2.2}
 versioned_app_name="${app_name}-${app_version}"
 app_zip_file="${versioned_app_name}.zip"
 download_url="https://github.com/kevin-lee/whatsub/releases/download/v${app_version}/${app_zip_file}"

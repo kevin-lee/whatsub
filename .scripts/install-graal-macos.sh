@@ -43,8 +43,8 @@ esac
 
 app_executable_name=whatsub
 app_name=whatsub-cli
-app_version=${1:-1.2.1}
-app_package_file="${app_name}-macos-latest"
+app_version=${1:-1.2.2}
+app_package_file="${app_name}"
 download_url="https://github.com/kevin-lee/whatsub/releases/download/v${app_version}/${app_package_file}-${app_bin_suffix}"
 
 usr_local_path=$HOME
