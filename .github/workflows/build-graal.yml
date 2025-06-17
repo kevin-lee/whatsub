@@ -17,14 +17,20 @@ env:
   GRAALVM_JAVA_VERSION: "17"
   GRAALVM_JAVA_DISTRIBUTION: "temurin"
   GRAALVM_BIN_DIR_NAME: "native-image"
+  PROJECT_NAME: "whatsub"
 
 jobs:
 
   graalvm_build:
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.os.value }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        # https://github.com/actions/runner-images?tab=readme-ov-file#available-images
+        os:
+          - { name: "Ubuntu 22.04",           value: "ubuntu-22.04", bin-suffix: "-ubuntu" }
+          - { name: "macOS 13",               value: "macos-13",     bin-suffix: "-macos-13" }
+          - { name: "macOS 14 Apple Silicon", value: "macos-14",     bin-suffix: "-macos-14-arm64" }
+          - { name: "macOS 15 Apple Silicon", value: "macos-15",     bin-suffix: "-macos-15-arm64" }
         run-binary: [whatsub-cli]
     steps:
 
@@ -43,6 +49,7 @@ jobs:
           RUN_NUMBER: ${{ github.run_number }}
           JVM_OPTS: ${{ env.GH_JVM_OPTS }}
           SBT_OPTS: ${{ env.GH_SBT_OPTS }}
+          APP_BIN_NAME: ${{ matrix.run-binary }}${{ matrix.os.bin-suffix }}
         run: |
           echo "JVM_OPTS=${JVM_OPTS}"
           echo "SBT_OPTS=${SBT_OPTS}"
@@ -53,13 +60,21 @@ jobs:
             test \
             nativeImage
 
-          rm -f modules/*/target/scala-*/*.jar
+          echo "rm -f modules/${{ env.PROJECT_NAME }}-*/target/scala-*/*.jar"
+          rm -f modules/${{ env.PROJECT_NAME }}-*/target/scala-*/*.jar
 
-          ls -lGh modules/whatsub-cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/
+          echo "ls -lGh modules/${{ env.PROJECT_NAME }}-cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/"
+          ls -lGh modules/${{ env.PROJECT_NAME }}-cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/
 
-          sh -c "modules/whatsub-cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/${{ matrix.run-binary }} --version"
-          sh -c "modules/whatsub-cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/${{ matrix.run-binary }} --help"
-          sh -c "modules/whatsub-cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/${{ matrix.run-binary }} convert --help"
+          echo "mv modules/${{ env.PROJECT_NAME }}-cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/${{ matrix.run-binary }} modules/${{ env.PROJECT_NAME }}-cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/$APP_BIN_NAME"
+          mv modules/${{ env.PROJECT_NAME }}-cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/${{ matrix.run-binary }} modules/${{ env.PROJECT_NAME }}-cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/$APP_BIN_NAME
+
+          echo "ls -lGh modules/${{ env.PROJECT_NAME }}-cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/"
+          ls -lGh modules/${{ env.PROJECT_NAME }}-cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/
+          
+          sh -c "modules/${{ env.PROJECT_NAME }}-cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/$APP_BIN_NAME --version"
+          sh -c "modules/${{ env.PROJECT_NAME }}-cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/$APP_BIN_NAME --help"
+          sh -c "modules/${{ env.PROJECT_NAME }}-cli/target/${{ env.GRAALVM_BIN_DIR_NAME }}/$APP_BIN_NAME convert --help"
 
   graalvm_build_windows:
     runs-on: ${{ matrix.os }}
