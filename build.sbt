@@ -16,8 +16,6 @@ ThisBuild / scmInfo      :=
   ).some
 ThisBuild / licenses     := List("MIT" -> url("http://opensource.org/licenses/MIT"))
 
-ThisBuild / resolvers += "sonatype-snapshots" at s"https://${props.SonatypeCredentialHost}/content/repositories/snapshots"
-
 lazy val whatsub = (project in file("."))
   .enablePlugins(DevOopsGitHubReleasePlugin, DocusaurPlugin)
   .settings(
@@ -37,7 +35,6 @@ lazy val whatsub = (project in file("."))
 lazy val core = module("core")
   .enablePlugins(BuildInfoPlugin)
   .settings(
-//    resolvers += Resolver.sonatypeRepo("snapshots"),
     libraryDependencies ++=
       libs.catsAndCatsEffect3 ++ List(libs.catsParse) ++ libs.effectie ++ libs.extras ++
         List(
@@ -109,8 +106,6 @@ lazy val props =
     final val ProjectName = RepoName
 
     final val ExecutableScriptName = RepoName
-
-    final val SonatypeCredentialHost = "s01.oss.sonatype.org"
 
     final val HedgehogVersion = "0.10.1"
 
