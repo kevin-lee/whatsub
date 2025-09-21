@@ -1,6 +1,6 @@
 ThisBuild / scalaVersion := props.ScalaVersion
 ThisBuild / organization := props.Org
-ThisBuild / developers   := List(
+ThisBuild / developers := List(
   Developer(
     props.GitHubUsername,
     "Kevin Lee",
@@ -8,26 +8,26 @@ ThisBuild / developers   := List(
     url(s"https://github.com/${props.GitHubUsername}"),
   ),
 )
-ThisBuild / homepage     := url(s"https://github.com/${props.GitHubUsername}/${props.RepoName}").some
-ThisBuild / scmInfo      :=
+ThisBuild / homepage := url(s"https://github.com/${props.GitHubUsername}/${props.RepoName}").some
+ThisBuild / scmInfo :=
   ScmInfo(
     url(s"https://github.com/${props.GitHubUsername}/${props.RepoName}"),
     s"https://github.com/${props.GitHubUsername}/${props.RepoName}.git",
   ).some
-ThisBuild / licenses     := List("MIT" -> url("http://opensource.org/licenses/MIT"))
+ThisBuild / licenses := List("MIT" -> url("http://opensource.org/licenses/MIT"))
 
 lazy val whatsub = (project in file("."))
   .enablePlugins(DevOopsGitHubReleasePlugin, DocusaurPlugin)
   .settings(
-    name                     := props.ProjectName,
+    name := props.ProjectName,
     /* GitHub Release { */
     devOopsPackagedArtifacts := List(
       s"modules/${props.ProjectName}-cli/target/universal/${name.value}*.zip",
       s"modules/${props.ProjectName}-cli/target/native-image/${props.RepoName}-cli-*",
     ),
     /* } GitHub Release */
-    docusaurDir              := (ThisBuild / baseDirectory).value / "website",
-    docusaurBuildDir         := docusaurDir.value / "build",
+    docusaurDir := (ThisBuild / baseDirectory).value / "website",
+    docusaurBuildDir := docusaurDir.value / "build",
   )
   .settings(noPublish)
   .aggregate(core, ai, cli)
@@ -41,8 +41,8 @@ lazy val core = module("core")
           libs.tests.extrasHedgehogCe3,
         ),
     /* Build Info { */
-    buildInfoKeys    := List[BuildInfoKey](name, version, scalaVersion, sbtVersion),
-    buildInfoObject  := "WhatsubBuildInfo",
+    buildInfoKeys := List[BuildInfoKey](name, version, scalaVersion, sbtVersion),
+    buildInfoObject := "WhatsubBuildInfo",
     buildInfoPackage := "whatsub.info",
     buildInfoOptions += BuildInfoOption.ToJson,
     /* } Build Info */
@@ -70,12 +70,12 @@ lazy val pirateScalaz = ProjectRef(props.pirateUri, "pirate-scalaz")
 lazy val cli = module("cli")
   .enablePlugins(JavaAppPackaging, NativeImagePlugin)
   .settings(
-    maintainer           := "Kevin Lee <kevin.code@kevinlee.io>",
-    packageSummary       := "Whatsub - subtitle converter and syncer",
-    packageDescription   := "A tool to convert and sync subtitles",
+    maintainer := "Kevin Lee <kevin.code@kevinlee.io>",
+    packageSummary := "Whatsub - subtitle converter and syncer",
+    packageDescription := "A tool to convert and sync subtitles",
     executableScriptName := props.ExecutableScriptName,
-    nativeImageVersion   := "22.3.0",
-    nativeImageJvm       := "graalvm-java17",
+    nativeImageVersion := "22.3.0",
+    nativeImageJvm := "graalvm-java17",
     nativeImageOptions ++= List(
       "--verbose",
       "--no-fallback",
@@ -95,7 +95,7 @@ lazy val cli = module("cli")
 
 lazy val props =
   new {
-    final val ScalaVersion = "3.3.5"
+    final val ScalaVersion = "3.3.6"
     final val Org          = "io.kevinlee"
 
     private val gitHubRepo = findRepoOrgAndName
@@ -117,7 +117,7 @@ lazy val props =
     final val EffectieVersion = "2.0.0"
     val LoggerFVersion        = "2.1.8"
 
-    final val pirateVersion = "87e833d963a577b421d1c60b07fb9b8db2163f60"
+    final val pirateVersion = "2993d850bf3b92c558bed6d41aa3298217dc87ef"
     final val pirateUri     = uri(s"https://github.com/$GitHubUsername/pirate.git#$pirateVersion")
 
     final val IncludeTest: String = "compile->compile;test->test"
@@ -200,15 +200,26 @@ def module(projectName: String): Project = {
   val prefixedName = prefixedProjectName(projectName)
   Project(projectName, file(s"modules/$prefixedName"))
     .settings(
-      name     := prefixedName,
+      name := prefixedName,
 //      useAggressiveScalacOptions := true,
       //      scalacOptions ++= List("-source:3.1", "-Yexplicit-nulls"),
       scalacOptions ++= List("-source:3.3"),
-      scalacOptions ~= (existing =>
-        existing.filter(
-          _ != "-language:dynamics,existentials,higherKinds,reflectiveCalls,experimental.macros,implicitConversions,strictEquality"
+//      scalacOptions ~= (existing =>
+//        existing.filter(
+//          _ != "-language:dynamics,existentials,higherKinds,reflectiveCalls,experimental.macros,implicitConversions,strictEquality"
+//        )
+//      ),
+      scalacOptions := (
+        scalacOptions.value ++ List(
+          "-language:dynamics",
+          "-language:existentials",
+          "-language:higherKinds",
+          "-language:reflectiveCalls",
+          "-language:experimental.macros",
+          "-language:implicitConversions",
+          "-language:strictEquality"
         )
-      ),
+      ).distinct,
       libraryDependencies ++= libs.tests.hedgehogLibs,
       wartremoverErrors ++= ProjectInfo.commonWarts((update / scalaBinaryVersion).value),
       wartremoverExcluded ++= List(sourceManaged.value),
