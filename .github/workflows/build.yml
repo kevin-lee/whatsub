@@ -14,7 +14,7 @@ env:
   GH_JAVA_DISTRIBUTION: "temurin"
   GH_SBT_OPTS: "-Xss64m -Xms4G -XX:MaxMetaspaceSize=1G -Xmx6G -XX:MaxInlineLevel=18 -XX:+UnlockExperimentalVMOptions"
   GH_JVM_OPTS: "-Xss64m -Xms4G -XX:MaxMetaspaceSize=1G -Xmx6G -XX:MaxInlineLevel=18 -XX:+UnlockExperimentalVMOptions -XX:+UseJVMCICompiler"
-  CLI_SCALA_VERSION: "3.3.5"
+  CLI_SCALA_VERSION: "3.3.6"
   CLI_SCALA_BINARY_VERSION: "3"
 
 
@@ -26,7 +26,7 @@ jobs:
     strategy:
       matrix:
         scala:
-          - { name: "Scala 3", version: "3.3.5", binary-version: "3", java-version: "17", java-distribution: "temurin" }
+          - { name: "Scala 3", version: "3.3.6", binary-version: "3", java-version: "17", java-distribution: "temurin" }
 
     steps:
       - uses: actions/checkout@v5
