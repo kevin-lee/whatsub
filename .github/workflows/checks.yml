@@ -10,8 +10,8 @@ on:
       - main
 
 env:
-  GH_SBT_OPTS: "-Xss64m -Xms4G -XX:MaxMetaspaceSize=1G -Xmx6G -XX:MaxInlineLevel=18 -XX:+UnlockExperimentalVMOptions"
-  GH_JVM_OPTS: "-Xss64m -Xms4G -XX:MaxMetaspaceSize=1G -Xmx6G -XX:MaxInlineLevel=18 -XX:+UnlockExperimentalVMOptions -XX:+UseJVMCICompiler"
+  GH_SBT_OPTS: "-Xss64m -Xms4G -XX:MaxMetaspaceSize=2G -Xmx8G -XX:MaxInlineLevel=18 -XX:+UnlockExperimentalVMOptions"
+  GH_JVM_OPTS: "-Xss64m -Xms4G -XX:MaxMetaspaceSize=2G -Xmx8G -XX:MaxInlineLevel=18 -XX:+UnlockExperimentalVMOptions -XX:+UseJVMCICompiler"
 
 jobs:
 
