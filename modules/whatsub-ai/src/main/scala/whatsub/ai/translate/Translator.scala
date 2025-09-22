@@ -16,7 +16,6 @@ import refined4s.types.all.*
 import refined4s.modules.extras.derivation.*
 import refined4s.modules.extras.derivation.types.all.given
 import refined4s.modules.cats.derivation.*
-import refined4s.modules.cats.derivation.types.all.given
 import whatsub.ai.translate.Translator.Language
 import whatsub.core.SubLine
 import whatsub.{Smi, Srt, core}

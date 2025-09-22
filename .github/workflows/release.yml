@@ -8,8 +8,8 @@ on:
 env:
   GH_JAVA_VERSION: "17"
   GH_JAVA_DISTRIBUTION: "temurin"
-  GH_SBT_OPTS: "-Xss64m -Xms2G -XX:MaxMetaspaceSize=1G -Xmx4G -XX:MaxInlineLevel=18 -XX:+UnlockExperimentalVMOptions"
-  GH_JVM_OPTS: "-Xss64m -Xms2G -XX:MaxMetaspaceSize=1G -Xmx4G -XX:MaxInlineLevel=18 -XX:+UnlockExperimentalVMOptions -XX:+UseJVMCICompiler"
+  GH_SBT_OPTS: "-Xss64m -Xms2G -XX:MaxMetaspaceSize=2G -Xmx8G -XX:MaxInlineLevel=18 -XX:+UnlockExperimentalVMOptions"
+  GH_JVM_OPTS: "-Xss64m -Xms2G -XX:MaxMetaspaceSize=2G -Xmx8G -XX:MaxInlineLevel=18 -XX:+UnlockExperimentalVMOptions -XX:+UseJVMCICompiler"
   CLI_SCALA_VERSION: "3.3.6"
   CLI_SCALA_BINARY_VERSION: "3"
   GRAALVM_JAVA_VERSION: "17"

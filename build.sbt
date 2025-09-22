@@ -52,8 +52,13 @@ lazy val ai = module("ai")
   .settings(
     libraryDependencies ++= libs.openAi4s ++
       List(
-        "com.github.pureconfig" %% "pureconfig-cats-effect" % "0.17.4"  % Test,
-        "org.http4s"            %% "http4s-blaze-client"    % "0.23.15" % Test,
+        libs.refined4sCore,
+        libs.refined4sCats,
+        libs.refined4sExtrasRender,
+      ) ++
+      List(
+        "com.github.pureconfig" %% "pureconfig-cats-effect" % "0.17.9"  % Test,
+        "org.http4s"            %% "http4s-blaze-client"    % "0.23.17" % Test,
       ) ++
       libs.loggerF ++
       List(
@@ -107,26 +112,26 @@ lazy val props =
 
     final val ExecutableScriptName = RepoName
 
-    final val HedgehogVersion = "0.10.1"
+    final val HedgehogVersion = "0.13.0"
 
-    final val CatsVersion        = "2.10.0"
-    final val CatsEffect3Version = "3.5.1"
+    final val CatsVersion        = "2.13.0"
+    final val CatsEffect3Version = "3.6.3"
 
-    final val CatsParseVersion = "0.3.9"
+    final val CatsParseVersion = "1.0.0"
 
     final val EffectieVersion = "2.0.0"
-    val LoggerFVersion        = "2.1.8"
+    val LoggerFVersion        = "2.2.0"
 
     final val pirateVersion = "2993d850bf3b92c558bed6d41aa3298217dc87ef"
     final val pirateUri     = uri(s"https://github.com/$GitHubUsername/pirate.git#$pirateVersion")
 
     final val IncludeTest: String = "compile->compile;test->test"
 
-    final val ExtrasVersion = "0.42.0"
+    final val ExtrasVersion = "0.49.0"
 
-    val OpenAi4sVersion = "0.1.0-alpha13"
+    val OpenAi4sVersion = "0.1.0-alpha14"
 
-    val Refined4sVersion = "1.1.0"
+    val Refined4sVersion = "1.10.0"
 
   }
 
@@ -151,7 +156,7 @@ lazy val libs =
       "io.kevinlee" %% "logger-f-slf4j" % props.LoggerFVersion,
     )
 
-    lazy val logback = "ch.qos.logback" % "logback-classic" % "1.4.11"
+    lazy val logback = "ch.qos.logback" % "logback-classic" % "1.5.18"
 
     lazy val extrasCats    = "io.kevinlee" %% "extras-cats"     % props.ExtrasVersion
     lazy val extrasRender  = "io.kevinlee" %% "extras-render"   % props.ExtrasVersion
