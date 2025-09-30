@@ -120,7 +120,7 @@ lazy val props =
     final val CatsParseVersion = "1.0.0"
 
     final val EffectieVersion = "2.0.0"
-    val LoggerFVersion        = "2.2.0"
+    val LoggerFVersion        = "2.4.0"
 
     final val pirateVersion = "2993d850bf3b92c558bed6d41aa3298217dc87ef"
     final val pirateUri     = uri(s"https://github.com/$GitHubUsername/pirate.git#$pirateVersion")
@@ -131,7 +131,7 @@ lazy val props =
 
     val OpenAi4sVersion = "0.1.0-alpha14"
 
-    val Refined4sVersion = "1.10.0"
+    val Refined4sVersion = "1.11.0"
 
   }
 
