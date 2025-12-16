@@ -139,10 +139,10 @@ jobs:
         # https://github.com/actions/runner-images?tab=readme-ov-file#available-images
         os:
           - { name: "Ubuntu 22.04",           value: "ubuntu-22.04", bin-suffix: "-ubuntu" }
-          - { name: "macOS 13",               value: "macos-13",     bin-suffix: "-macos-13" }
-          - { name: "macOS 14 Apple Silicon", value: "macos-14",     bin-suffix: "-macos-14-arm64" }
-          - { name: "macOS 15 Apple Silicon", value: "macos-15",     bin-suffix: "-macos-15-arm64" }
-        run-binary: [whatsub-cli]
+          - { name: "macOS 14 Apple Silicon", value: "macos-14", bin-suffix: "-macos-14-arm64" }
+          - { name: "macOS 15 Apple Silicon", value: "macos-15", bin-suffix: "-macos-15-arm64" }
+          - { name: "macOS 26 Apple Silicon", value: "macos-26", bin-suffix: "macos-26-arm64" }
+        run-binary: [ whatsub-cli ]
     steps:
       - uses: actions/checkout@v6
         with:
@@ -191,9 +191,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest]
-        run-binary: [whatsub-cli]
-        run-binary-ext: [exe]
+        os: [ windows-latest ]
+        run-binary: [ whatsub-cli ]
+        run-binary-ext: [ exe ]
     steps:
       - name: Configure git
         run: "git config --global core.autocrlf false"
