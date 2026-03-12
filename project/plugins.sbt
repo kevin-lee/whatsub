@@ -7,9 +7,9 @@ addSbtPlugin("org.wartremover" % "sbt-wartremover"     % "3.4.0")
 addSbtPlugin("org.scalameta"   % "sbt-scalafmt"        % "2.5.0")
 addSbtPlugin("ch.epfl.scala"   % "sbt-scalafix"        % "0.11.1")
 
-addSbtPlugin("io.kevinlee" % "sbt-docusaur" % "0.17.0")
+addSbtPlugin("io.kevinlee" % "sbt-docusaur" % "0.21.0")
 
-val sbtDevOopsVersion = "3.2.1"
+val sbtDevOopsVersion = "3.5.0"
 addSbtPlugin("io.kevinlee" % "sbt-devoops-scala"     % sbtDevOopsVersion)
 addSbtPlugin("io.kevinlee" % "sbt-devoops-sbt-extra" % sbtDevOopsVersion)
 addSbtPlugin("io.kevinlee" % "sbt-devoops-github"    % sbtDevOopsVersion)
